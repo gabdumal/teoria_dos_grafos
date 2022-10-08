@@ -14,6 +14,8 @@ using namespace std;
 
 string exportGraphToDotFormat(Graph *graph)
 {
+    // Ainda não representa peso dos nós
+
     Node *nextNode = graph->getFirstNode();
     string dot = "", connector;
     bool weightedEdge = graph->getWeightedEdge();
@@ -26,7 +28,7 @@ string exportGraphToDotFormat(Graph *graph)
     else
         connector = " -- ";
 
-    dot += +"grafo grafo {";
+    dot += "graph grafo {";
     while (nextNode != nullptr)
     {
         Edge *nextEdge = nextNode->getFirstEdge();
