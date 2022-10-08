@@ -82,8 +82,8 @@ void Graph::insertEdge(int id, int targetId, float weight)
 
     insertNode(id);
 
-    Node *node = getNode(id);
-    cout << "Node: " << node->getId() << endl;
+    Node *node = getNode(1);
+    cout << "Node: " << searchNode(true) << endl;
 }
 
 void Graph::removeNode(int id)
@@ -92,6 +92,17 @@ void Graph::removeNode(int id)
 
 bool Graph::searchNode(int id)
 {
+    Node *nextNode = this->firstNode;
+
+    while (nextNode != nullptr)
+    {
+        if (nextNode->getId() == id)
+            return true;
+
+        nextNode = nextNode->getNextNode();
+    }
+
+    return false;
 }
 
 Node *Graph::getNode(int id)
