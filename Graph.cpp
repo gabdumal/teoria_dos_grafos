@@ -19,30 +19,30 @@ using namespace std;
  **************************************************************************************************/
 
 // Constructor
-Graph::Graph(int order, bool directed, bool weighted_edge, bool weighted_node)
+Graph::Graph(int order, bool directed, bool weightedEdge, bool weightedNode)
 {
 
     this->order = order;
     this->directed = directed;
-    this->weighted_edge = weighted_edge;
-    this->weighted_node = weighted_node;
-    this->first_node = this->last_node = nullptr;
-    this->number_edges = 0;
+    this->weightedEdge = weightedEdge;
+    this->weightedNode = weightedNode;
+    this->firstNode = this->lastNode = nullptr;
+    this->numberEdges = 0;
 }
 
 // Destructor
 Graph::~Graph()
 {
 
-    Node *next_node = this->first_node;
+    Node *nextNode = this->firstNode;
 
-    while (next_node != nullptr)
+    while (nextNode != nullptr)
     {
 
-        next_node->removeAllEdges();
-        Node *aux_node = next_node->getNextNode();
-        delete next_node;
-        next_node = aux_node;
+        nextNode->removeAllEdges();
+        Node *auxNode = nextNode->getNextNode();
+        delete nextNode;
+        nextNode = auxNode;
     }
 }
 
@@ -55,7 +55,7 @@ int Graph::getOrder()
 int Graph::getNumberEdges()
 {
 
-    return this->number_edges;
+    return this->numberEdges;
 }
 
 bool Graph::getDirected()
@@ -67,25 +67,25 @@ bool Graph::getDirected()
 bool Graph::getWeightedEdge()
 {
 
-    return this->weighted_edge;
+    return this->weightedEdge;
 }
 
 bool Graph::getWeightedNode()
 {
 
-    return this->weighted_node;
+    return this->weightedNode;
 }
 
 Node *Graph::getFirstNode()
 {
 
-    return this->first_node;
+    return this->firstNode;
 }
 
 Node *Graph::getLastNode()
 {
 
-    return this->last_node;
+    return this->lastNode;
 }
 
 // Other methods
@@ -97,7 +97,7 @@ void Graph::insertNode(int id)
 {
 }
 
-void Graph::insertEdge(int id, int target_id, float weight)
+void Graph::insertEdge(int id, int targetId, float weight)
 {
 }
 

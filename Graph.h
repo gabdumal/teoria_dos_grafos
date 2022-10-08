@@ -2,8 +2,8 @@
  * Implementation of the TAD Graph
  **************************************************************************************************/
 
-#ifndef GRAPH_H_INCLUDED
-#define GRAPH_H_INCLUDED
+#ifndef GRAPHHINCLUDED
+#define GRAPHHINCLUDED
 #include "Node.h"
 #include <fstream>
 #include <stack>
@@ -17,16 +17,16 @@ class Graph
     // Atributes
 private:
     int order;
-    int number_edges;
+    int numberEdges;
     bool directed;
-    bool weighted_edge;
-    bool weighted_node;
-    Node *first_node;
-    Node *last_node;
+    bool weightedEdge;
+    bool weightedNode;
+    Node *firstNode;
+    Node *lastNode;
 
 public:
     // Constructor
-    Graph(int order, bool directed, bool weighted_edge, bool weighted_node);
+    Graph(int order, bool directed, bool weightedEdge, bool weightedNode);
     // Destructor
     ~Graph();
     // Getters
@@ -39,7 +39,7 @@ public:
     Node *getLastNode();
     // Other methods
     void insertNode(int id);
-    void insertEdge(int id, int target_id, float weight);
+    void insertEdge(int id, int targetId, float weight);
     void removeNode(int id);
     bool searchNode(int id);
     Node *getNode(int id);
@@ -56,4 +56,4 @@ private:
     // Auxiliar methods
 };
 
-#endif // GRAPH_H_INCLUDED
+#endif // GRAPHHINCLUDED

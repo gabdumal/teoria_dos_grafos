@@ -13,13 +13,13 @@ class Edge
 
     // Attributes
 private:
-    int target_id;
-    Edge *next_edge;
+    int targetId;
+    Edge *nextEdge;
     float weight;
 
 public:
     // Constructor
-    Edge(int target_id);
+    Edge(int targetId);
     // Destructor
     ~Edge();
     // Getters
