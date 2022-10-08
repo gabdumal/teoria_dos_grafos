@@ -39,24 +39,20 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
     // Grafo SEM peso nos nós, mas COM peso nas arestas
     else if (graph->getWeightedEdge() && !graph->getWeightedNode())
     {
-
         float edgeWeight;
 
         while (input_file >> idNodeSource >> idNodeTarget >> edgeWeight)
         {
-
             graph->insertEdge(idNodeSource, idNodeTarget, edgeWeight);
         }
     }
     // Grafo COM peso nos nós, mas SEM peso nas arestas
     else if (graph->getWeightedNode() && !graph->getWeightedEdge())
     {
-
         float nodeSourceWeight, nodeTargetWeight;
 
         while (input_file >> idNodeSource >> nodeSourceWeight >> idNodeTarget >> nodeTargetWeight)
         {
-
             graph->insertEdge(idNodeSource, idNodeTarget, 0);
             graph->getNode(idNodeSource)->setWeight(nodeSourceWeight);
             graph->getNode(idNodeTarget)->setWeight(nodeTargetWeight);
@@ -65,12 +61,10 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
     // Grafo COM peso nos nós, e COM peso nas arestas
     else if (graph->getWeightedNode() && graph->getWeightedEdge())
     {
-
         float nodeSourceWeight, nodeTargetWeight, edgeWeight;
 
         while (input_file >> idNodeSource >> nodeSourceWeight >> idNodeTarget >> nodeTargetWeight)
         {
-
             graph->insertEdge(idNodeSource, idNodeTarget, edgeWeight);
             graph->getNode(idNodeSource)->setWeight(nodeSourceWeight);
             graph->getNode(idNodeTarget)->setWeight(nodeTargetWeight);

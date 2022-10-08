@@ -58,7 +58,7 @@ Node *Graph::getLastNode() { return this->lastNode; }
     The outdegree attribute of nodes is used as a counter for the number of edges in the graph.
     This allows the correct updating of the numbers of edges in the graph being directed or not.
 */
-void Graph::insertNode(int id)
+Node *Graph::insertNode(int id)
 {
     Node *newNode = new Node(id);
     if (lastNode == nullptr)
@@ -67,23 +67,27 @@ void Graph::insertNode(int id)
         lastNode = newNode;
     }
     else
+    {
         lastNode->setNextNode(newNode);
+        lastNode = newNode;
+    }
     // Incrementar ordem?
+    return newNode;
 }
 
 void Graph::insertEdge(int id, int targetId, float weight)
 {
-    // Se nós não existirem, criá-los
-    // Obter referência do nó de origem
-    // Criar nova aresta
-    // Dentro do Nó de origem, conectar nova aresta ao fim da lista
-    // Atualizar ponteiro de última aresta dentro do nó
-    // Incrementar número de arestas do grafo
+    // Até então, insere apenas arestas direcionadas
 
-    insertNode(id);
+    Node *sourceNode = getNode(id);
+    if (sourceNode == nullptr)
+        sourceNode = insertNode(id);
 
-    Node *node = getNode(1);
-    cout << "Node: " << searchNode(true) << endl;
+    if (!searchNode(targetId))
+        insertNode(targetId);
+
+    sourceNode->insertEdge(targetId, weight);
+    numberEdges++;
 }
 
 void Graph::removeNode(int id)
