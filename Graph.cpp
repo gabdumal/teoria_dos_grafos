@@ -81,6 +81,9 @@ void Graph::insertEdge(int id, int targetId, float weight)
     // Incrementar número de arestas do grafo
 
     insertNode(id);
+
+    Node *node = getNode(id);
+    cout << "Node: " << node->getId() << endl;
 }
 
 void Graph::removeNode(int id)
@@ -93,9 +96,17 @@ bool Graph::searchNode(int id)
 
 Node *Graph::getNode(int id)
 {
-    // Iterar pela lista de nós até o id ser encontrado
-    // // Se encontrado, retornar referência para o nó
-    // // Se não encontrado, retornar nulo
+    Node *nextNode = this->firstNode;
+
+    while (nextNode != nullptr)
+    {
+        if (nextNode->getId() == id)
+            return nextNode;
+
+        nextNode = nextNode->getNextNode();
+    }
+
+    return nullptr;
 }
 
 // Function that verifies if there is a path between two nodes
