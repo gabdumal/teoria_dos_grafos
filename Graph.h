@@ -2,8 +2,8 @@
  * Implementation of the TAD Graph
  **************************************************************************************************/
 
-#ifndef GRAPHHINCLUDED
-#define GRAPHHINCLUDED
+#ifndef GRAPH_H_INCLUDED
+#define GRAPH_H_INCLUDED
 #include "Node.h"
 #include <fstream>
 #include <stack>
@@ -56,4 +56,4 @@ private:
     // Auxiliar methods
 };
 
-#endif // GRAPHHINCLUDED
+#endif // GRAPH_H_INCLUDED
