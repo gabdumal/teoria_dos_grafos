@@ -15,20 +15,30 @@ using namespace std;
 string exportGraphToDotFormat(Graph *graph)
 {
     Node *nextNode = graph->getFirstNode();
-    string dot = "";
+    string dot = "", connector;
+    bool directed = graph->getDirected();
 
-    dot += "digraph grafo {";
+    if (directed)
+    {
+        connector = " -> ";
+        dot += "di";
+    }
+    else
+        connector = " -- ";
+
+    dot += +"grafo grafo {";
     while (nextNode != nullptr)
     {
         Edge *nextEdge = nextNode->getFirstEdge();
-        dot += "\n  " + to_string(nextNode->getId());
-        dot += " -> { ";
         while (nextEdge != nullptr)
         {
-            dot += to_string(nextEdge->getTargetId()) + " ";
+            dot += "\n  " + to_string(nextNode->getId());
+            dot += connector;
+            dot += to_string(nextEdge->getTargetId());
+            if (directed)
+                " [weight = " + to_string(nextEdge->getWeight()) + "]";
             nextEdge = nextEdge->getNextEdge();
         }
-        dot += "}";
         nextNode = nextNode->getNextNode();
     }
     dot += "\n}\n";
