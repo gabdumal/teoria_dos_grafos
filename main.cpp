@@ -12,6 +12,30 @@
 
 using namespace std;
 
+string exportGraphToDotFormat(Graph *graph)
+{
+    Node *nextNode = graph->getFirstNode();
+    string dot = "";
+
+    dot += "digraph grafo {";
+    while (nextNode != nullptr)
+    {
+        Edge *nextEdge = nextNode->getFirstEdge();
+        dot += "\n  " + to_string(nextNode->getId());
+        dot += " -> { ";
+        while (nextEdge != nullptr)
+        {
+            dot += to_string(nextEdge->getTargetId()) + " ";
+            nextEdge = nextEdge->getNextEdge();
+        }
+        dot += "}";
+        nextNode = nextNode->getNextNode();
+    }
+    dot += "\n}\n";
+
+    return dot;
+}
+
 Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weightedNode)
 {
 
@@ -118,21 +142,20 @@ int menu()
     cout << "[10] Algoritmos Gulosos (Abre um submenu)" << endl;
     cout << "[0] Sair" << endl;
 
-    cin >> selecao;
+    // cin >> selecao;
+    selecao = 1;
 
     return selecao;
 }
 
 void selecionar(int selecao, Graph *graph, ofstream &output_file)
 {
-
     switch (selecao)
     {
-
     // Complementar
     case 1:
     {
-
+        cout << exportGraphToDotFormat(graph) << endl;
         break;
     }
 
@@ -198,6 +221,10 @@ void selecionar(int selecao, Graph *graph, ofstream &output_file)
         break;
     }
     }
+
+    char trashString;
+    cout << "Pressione qualquer tecla para continuar";
+    cin >> trashString;
 }
 
 int mainMenu(ofstream &output_file, Graph *graph)
@@ -224,11 +251,9 @@ int mainMenu(ofstream &output_file, Graph *graph)
 
 int main(int argc, char const *argv[])
 {
-
     // Verificação se todos os parâmetros do programa foram entrados
     if (argc != 6)
     {
-
         cout << "ERROR: Expecting: ./<program_name> <input_file> <output_file> <directed> <weighted_edge> <weighted_node> " << endl;
         return 1;
     }
@@ -248,7 +273,6 @@ int main(int argc, char const *argv[])
 
     if (input_file.is_open())
     {
-
         graph = leitura(input_file, atoi(argv[3]), atoi(argv[4]), atoi(argv[5]));
     }
     else
