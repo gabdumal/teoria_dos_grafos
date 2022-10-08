@@ -33,12 +33,10 @@ Graph::Graph(int order, bool directed, bool weightedEdge, bool weightedNode)
 // Destructor
 Graph::~Graph()
 {
-
     Node *nextNode = this->firstNode;
 
     while (nextNode != nullptr)
     {
-
         nextNode->removeAllEdges();
         Node *auxNode = nextNode->getNextNode();
         delete nextNode;
@@ -47,58 +45,49 @@ Graph::~Graph()
 }
 
 // Getters
-int Graph::getOrder()
-{
-
-    return this->order;
-}
-int Graph::getNumberEdges()
-{
-
-    return this->numberEdges;
-}
-
-bool Graph::getDirected()
-{
-
-    return this->directed;
-}
-
-bool Graph::getWeightedEdge()
-{
-
-    return this->weightedEdge;
-}
-
-bool Graph::getWeightedNode()
-{
-
-    return this->weightedNode;
-}
-
-Node *Graph::getFirstNode()
-{
-
-    return this->firstNode;
-}
-
-Node *Graph::getLastNode()
-{
-
-    return this->lastNode;
-}
+int Graph::getOrder() { return this->order; }
+int Graph::getNumberEdges() { return this->numberEdges; }
+bool Graph::getDirected() { return this->directed; }
+bool Graph::getWeightedEdge() { return this->weightedEdge; }
+bool Graph::getWeightedNode() { return this->weightedNode; }
+Node *Graph::getFirstNode() { return this->firstNode; }
+Node *Graph::getLastNode() { return this->lastNode; }
 
 // Other methods
 /*
     The outdegree attribute of nodes is used as a counter for the number of edges in the graph.
     This allows the correct updating of the numbers of edges in the graph being directed or not.
 */
-void Graph::insertNode(int id)
+Node *Graph::insertNode(int id)
 {
+    Node *newNode = new Node(id);
+    if (lastNode == nullptr)
+    {
+        firstNode = newNode;
+        lastNode = newNode;
+    }
+    else
+    {
+        lastNode->setNextNode(newNode);
+        lastNode = newNode;
+    }
+    // Incrementar ordem?
+    return newNode;
 }
 
 void Graph::insertEdge(int id, int targetId, float weight)
 {
+    // Até então, insere apenas arestas direcionadas
+
+    Node *sourceNode = getNode(id);
+    if (sourceNode == nullptr)
+        sourceNode = insertNode(id);
+
+    if (!searchNode(targetId))
+        insertNode(targetId);
+
+    sourceNode->insertEdge(targetId, weight);
+    numberEdges++;
 }
 
 void Graph::removeNode(int id)
@@ -107,10 +96,32 @@ void Graph::removeNode(int id)
 
 bool Graph::searchNode(int id)
 {
+    Node *nextNode = this->firstNode;
+
+    while (nextNode != nullptr)
+    {
+        if (nextNode->getId() == id)
+            return true;
+
+        nextNode = nextNode->getNextNode();
+    }
+
+    return false;
 }
 
 Node *Graph::getNode(int id)
 {
+    Node *nextNode = this->firstNode;
+
+    while (nextNode != nullptr)
+    {
+        if (nextNode->getId() == id)
+            return nextNode;
+
+        nextNode = nextNode->getNextNode();
+    }
+
+    return nullptr;
 }
 
 // Function that verifies if there is a path between two nodes

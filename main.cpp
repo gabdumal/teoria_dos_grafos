@@ -28,47 +28,43 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
 
     // Leitura de arquivo
 
+    // Grafo SEM peso nos nós, e SEM peso nas arestas
     if (!graph->getWeightedEdge() && !graph->getWeightedNode())
     {
-
         while (input_file >> idNodeSource >> idNodeTarget)
         {
-
             graph->insertEdge(idNodeSource, idNodeTarget, 0);
         }
     }
+    // Grafo SEM peso nos nós, mas COM peso nas arestas
     else if (graph->getWeightedEdge() && !graph->getWeightedNode())
     {
-
         float edgeWeight;
 
         while (input_file >> idNodeSource >> idNodeTarget >> edgeWeight)
         {
-
             graph->insertEdge(idNodeSource, idNodeTarget, edgeWeight);
         }
     }
+    // Grafo COM peso nos nós, mas SEM peso nas arestas
     else if (graph->getWeightedNode() && !graph->getWeightedEdge())
     {
-
         float nodeSourceWeight, nodeTargetWeight;
 
         while (input_file >> idNodeSource >> nodeSourceWeight >> idNodeTarget >> nodeTargetWeight)
         {
-
             graph->insertEdge(idNodeSource, idNodeTarget, 0);
             graph->getNode(idNodeSource)->setWeight(nodeSourceWeight);
             graph->getNode(idNodeTarget)->setWeight(nodeTargetWeight);
         }
     }
+    // Grafo COM peso nos nós, e COM peso nas arestas
     else if (graph->getWeightedNode() && graph->getWeightedEdge())
     {
-
         float nodeSourceWeight, nodeTargetWeight, edgeWeight;
 
         while (input_file >> idNodeSource >> nodeSourceWeight >> idNodeTarget >> nodeTargetWeight)
         {
-
             graph->insertEdge(idNodeSource, idNodeTarget, edgeWeight);
             graph->getNode(idNodeSource)->setWeight(nodeSourceWeight);
             graph->getNode(idNodeTarget)->setWeight(nodeTargetWeight);
@@ -253,7 +249,7 @@ int main(int argc, char const *argv[])
     if (input_file.is_open())
     {
 
-        graph = leituraInstancia(input_file, atoi(argv[3]), atoi(argv[4]), atoi(argv[5]));
+        graph = leitura(input_file, atoi(argv[3]), atoi(argv[4]), atoi(argv[5]));
     }
     else
         cout << "Unable to open " << argv[1];

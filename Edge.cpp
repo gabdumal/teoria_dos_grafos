@@ -10,7 +10,6 @@ using namespace std;
 // Constructor
 Edge::Edge(int targetId)
 {
-
     this->targetId = targetId;
     this->nextEdge = nullptr;
     this->weight = 0;
@@ -19,7 +18,6 @@ Edge::Edge(int targetId)
 // Destructor
 Edge::~Edge()
 {
-
     if (this->nextEdge != nullptr)
     {
         delete this->nextEdge;
@@ -28,33 +26,10 @@ Edge::~Edge()
 }
 
 // Getters
-int Edge::getTargetId()
-{
-
-    return this->targetId;
-}
-
-Edge *Edge::getNextEdge()
-{
-
-    return this->nextEdge;
-}
-
-float Edge::getWeight()
-{
-
-    return this->weight;
-}
+int Edge::getTargetId() { return this->targetId; }
+Edge *Edge::getNextEdge() { return this->nextEdge; }
+float Edge::getWeight() { return this->weight; }
 
 // Setters
-void Edge::setNextEdge(Edge *edge)
-{
-
-    this->nextEdge = edge;
-}
-
-void Edge::setWeight(float weight)
-{
-
-    this->weight = weight;
-}
+void Edge::setNextEdge(Edge *edge) { this->nextEdge = edge; }
+void Edge::setWeight(float weight) { this->weight = weight; }
