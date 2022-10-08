@@ -1,3 +1,4 @@
 execGrupo11
-input.txt
-output.txt
+*.txt
+*.dot
+*.png

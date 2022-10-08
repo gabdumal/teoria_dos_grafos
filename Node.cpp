@@ -11,7 +11,6 @@ using namespace std;
 // Constructor
 Node::Node(int id)
 {
-
     this->id = id;
     this->inDegree = 0;
     this->outDegree = 0;
@@ -24,12 +23,10 @@ Node::Node(int id)
 // Destructor
 Node::~Node()
 {
-
     Edge *nextEdge = this->firstEdge;
 
     while (nextEdge != nullptr)
     {
-
         Edge *auxEdge = nextEdge->getNextEdge();
         delete nextEdge;
         nextEdge = auxEdge;
@@ -37,61 +34,17 @@ Node::~Node()
 };
 
 // Getters
-Edge *Node::getFirstEdge()
-{
-
-    return this->firstEdge;
-}
-
-Edge *Node::getLastEdge()
-{
-
-    return this->lastEdge;
-}
-
-int Node::getId()
-{
-
-    return this->id;
-}
-
-int Node::getInDegree()
-{
-
-    return this->inDegree;
-}
-
-int Node::getOutDegree()
-{
-
-    return this->outDegree;
-}
-
-float Node::getWeight()
-{
-
-    return this->weight;
-}
-
-Node *Node::getNextNode()
-{
-
-    return this->nextNode;
-}
+Edge *Node::getFirstEdge() { return this->firstEdge; }
+Edge *Node::getLastEdge() { return this->lastEdge; }
+int Node::getId() { return this->id; }
+int Node::getInDegree() { return this->inDegree; }
+int Node::getOutDegree() { return this->outDegree; }
+float Node::getWeight() { return this->weight; }
+Node *Node::getNextNode() { return this->nextNode; }
 
 // Setters
-
-void Node::setNextNode(Node *nextNode)
-{
-
-    this->nextNode = nextNode;
-}
-
-void Node::setWeight(float weight)
-{
-
-    this->weight = weight;
-}
+void Node::setNextNode(Node *nextNode) { this->nextNode = nextNode; }
+void Node::setWeight(float weight) { this->weight = weight; }
 
 // Other methods
 void Node::insertEdge(int targetId, float weight)
