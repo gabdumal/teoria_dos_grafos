@@ -16,9 +16,9 @@ string exportGraphToDotFormat(Graph *graph)
 {
     Node *nextNode = graph->getFirstNode();
     string dot = "", connector;
-    bool directed = graph->getDirected();
+    bool weightedEdge = graph->getWeightedEdge();
 
-    if (directed)
+    if (graph->getDirected())
     {
         connector = " -> ";
         dot += "di";
@@ -35,8 +35,8 @@ string exportGraphToDotFormat(Graph *graph)
             dot += "\n  " + to_string(nextNode->getId());
             dot += connector;
             dot += to_string(nextEdge->getTargetId());
-            if (directed)
-                " [weight = " + to_string(nextEdge->getWeight()) + "]";
+            if (weightedEdge)
+                dot += " [weight = " + to_string(nextEdge->getWeight()) + "]";
             nextEdge = nextEdge->getNextEdge();
         }
         nextNode = nextNode->getNextNode();
@@ -48,7 +48,6 @@ string exportGraphToDotFormat(Graph *graph)
 
 Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weightedNode)
 {
-
     // Variáveis para auxiliar na criação dos nós no Grafo
     int idNodeSource;
     int idNodeTarget;
@@ -133,9 +132,15 @@ Graph *leituraInstancia(ifstream &input_file, int directed, int weightedEdge, in
     return graph;
 }
 
+void showGraphArea(string dot)
+{
+    cout << "GRAFO" << endl
+         << "-----" << endl
+         << dot << endl;
+}
+
 int menu()
 {
-
     int selecao;
 
     cout << "MENU" << endl;
@@ -152,78 +157,70 @@ int menu()
     cout << "[10] Algoritmos Gulosos (Abre um submenu)" << endl;
     cout << "[0] Sair" << endl;
 
-    // cin >> selecao;
-    selecao = 1;
+    cin >> selecao;
+    // selecao = 1;
 
     return selecao;
 }
 
-void selecionar(int selecao, Graph *graph, ofstream &output_file)
+string selecionar(int selecao, Graph *graph, ofstream &output_file)
 {
+    string dot = "";
     switch (selecao)
     {
     // Complementar
     case 1:
     {
-        cout << exportGraphToDotFormat(graph) << endl;
+        dot = exportGraphToDotFormat(graph);
         break;
     }
-
     // BFS
     case 2:
     {
 
         break;
     }
-
     // DFS
     case 3:
     {
 
         break;
     }
-
     // Componentes Conexas
     case 4:
     {
 
         break;
     }
-
     // Componentes Fortementes Conexas
     case 5:
     {
 
         break;
     }
-
     // Ordenação Topológica
     case 6:
     {
 
         break;
     }
-
     case 7:
     {
 
         break;
     }
-
     // Algoritmo de Prim
     case 8:
     {
 
         break;
     }
-
     // Algoritmo de Dijkstra
     case 9:
     {
 
         break;
     }
-
     // Algoritmo de Floyd
     case 10:
     {
@@ -231,29 +228,29 @@ void selecionar(int selecao, Graph *graph, ofstream &output_file)
         break;
     }
     }
-
-    char trashString;
-    cout << "Pressione qualquer tecla para continuar";
-    cin >> trashString;
+    return dot;
 }
 
 int mainMenu(ofstream &output_file, Graph *graph)
 {
-
+    string dot = "";
     int selecao = 1;
 
     while (selecao != 0)
     {
         system("clear");
+        showGraphArea(dot);
         selecao = menu();
 
         if (output_file.is_open())
-            selecionar(selecao, graph, output_file);
-
+        {
+            if (selecao == 0)
+                output_file << dot;
+            else
+                dot = selecionar(selecao, graph, output_file);
+        }
         else
             cout << "Unable to open the output_file" << endl;
-
-        output_file << endl;
     }
 
     return 0;

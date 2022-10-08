@@ -7,9 +7,9 @@
             "program": "${fileDirname}/execGrupo11",
             "args": [
                 "input.txt",
-                "output.txt",
+                "output.dot",
                 "1",
-                "0",
+                "1",
                 "0"
             ],
             "stopAtEntry": false,
