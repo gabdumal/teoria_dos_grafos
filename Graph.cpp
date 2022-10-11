@@ -76,8 +76,7 @@ Node *Graph::insertNode(int label)
 
 void Graph::insertEdge(int sourceLabel, int targetLabel, float weight)
 {
-    // Até então, insere apenas arestas direcionadas
-    // Tratar conexão do nó consigo mesmo
+    // Tratar conexão do nó consigo mesmo?
 
     Node *sourceNode = getNodeByLabel(sourceLabel);
     if (sourceNode == nullptr)
@@ -97,7 +96,15 @@ void Graph::insertEdge(int sourceLabel, int targetLabel, float weight)
         nextEdge = nextEdge->getNextEdge();
     }
     if (!alreadyExists)
+    {
         sourceNode->insertEdge(targetNodeId, weight);
+        if (!directed)
+        {
+            targetNode->insertEdge(sourceNode->getId(), weight);
+            sourceNode->incrementInDegree();
+            targetNode->incrementOutDegree();
+        }
+    }
 
     sourceNode->incrementOutDegree();
     targetNode->incrementInDegree();

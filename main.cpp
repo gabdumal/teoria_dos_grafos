@@ -14,12 +14,11 @@ using namespace std;
 
 string exportGraphToDotFormat(Graph *graph)
 {
-    // Em grafos não-direcionados, uma aresta só pode ser impressa uma vez
-
     Node *nextNode = graph->getFirstNode();
     string dot = "", connector;
     bool weightedEdge = graph->getWeightedEdge();
 
+    dot += "strict ";
     if (graph->getDirected())
     {
         connector = " -> ";
