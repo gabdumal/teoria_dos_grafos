@@ -14,7 +14,7 @@ using namespace std;
 
 string exportGraphToDotFormat(Graph *graph)
 {
-    // Ainda não representa peso dos nós
+    // Em grafos não-direcionados, uma aresta só pode ser impressa uma vez
 
     Node *nextNode = graph->getFirstNode();
     string dot = "", connector;
@@ -28,17 +28,23 @@ string exportGraphToDotFormat(Graph *graph)
     else
         connector = " -- ";
 
-    dot += "graph grafo {";
+    dot += "graph grafo {\n";
+    while (nextNode != nullptr)
+    {
+        dot += "  " + to_string(nextNode->getLabel()) +
+               " [weight = " + to_string(nextNode->getWeight()) + "];\n";
+        nextNode = nextNode->getNextNode();
+    }
+    nextNode = graph->getFirstNode();
     while (nextNode != nullptr)
     {
         Edge *nextEdge = nextNode->getFirstEdge();
         while (nextEdge != nullptr)
         {
-            dot += "\n  " + to_string(nextNode->getLabel());
-            dot += connector;
-            dot += to_string(graph->getNodeById(nextEdge->getTargetId())->getLabel());
+            dot += "\n  " + to_string(nextNode->getLabel()) + connector +
+                   to_string(graph->getNodeById(nextEdge->getTargetId())->getLabel());
             if (weightedEdge)
-                dot += " [weight = " + to_string(nextEdge->getWeight()) + "]";
+                dot += " [weight = " + to_string(nextEdge->getWeight()) + "];";
             nextEdge = nextEdge->getNextEdge();
         }
         nextNode = nextNode->getNextNode();
