@@ -9,7 +9,7 @@
                 "input.txt",
                 "output.dot",
                 "1",
-                "1",
+                "0",
                 "0"
             ],
             "stopAtEntry": false,
