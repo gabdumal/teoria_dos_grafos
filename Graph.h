@@ -23,6 +23,7 @@ private:
     bool weightedNode;
     Node *firstNode;
     Node *lastNode;
+    int nodeIdCounter;
 
 public:
     // Constructor
@@ -39,10 +40,11 @@ public:
     Node *getLastNode();
     // Other methods
     Node *insertNode(int id);
-    void insertEdge(int id, int targetId, float weight);
+    void insertEdge(int sourceLabel, int targetLabel, float weight);
     void removeNode(int id);
     bool searchNode(int id);
-    Node *getNode(int id);
+    Node *getNodeById(int id);
+    Node *getNodeByLabel(int label);
     bool depthFirstSearch(int initialId, int targetId);
     void breadthFirstSearch(ofstream &output_file);
     Graph *getComplement();

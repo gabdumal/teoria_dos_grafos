@@ -21,13 +21,13 @@ using namespace std;
 // Constructor
 Graph::Graph(int order, bool directed, bool weightedEdge, bool weightedNode)
 {
-
     this->order = order;
     this->directed = directed;
     this->weightedEdge = weightedEdge;
     this->weightedNode = weightedNode;
     this->firstNode = this->lastNode = nullptr;
     this->numberEdges = 0;
+    this->nodeIdCounter = 0;
 }
 
 // Destructor
@@ -58,9 +58,9 @@ Node *Graph::getLastNode() { return this->lastNode; }
     The outdegree attribute of nodes is used as a counter for the number of edges in the graph.
     This allows the correct updating of the numbers of edges in the graph being directed or not.
 */
-Node *Graph::insertNode(int id)
+Node *Graph::insertNode(int label)
 {
-    Node *newNode = new Node(id);
+    Node *newNode = new Node(nodeIdCounter++, label);
     if (lastNode == nullptr)
     {
         firstNode = newNode;
@@ -71,22 +71,24 @@ Node *Graph::insertNode(int id)
         lastNode->setNextNode(newNode);
         lastNode = newNode;
     }
-    // Incrementar ordem?
     return newNode;
 }
 
-void Graph::insertEdge(int id, int targetId, float weight)
+void Graph::insertEdge(int sourceLabel, int targetLabel, float weight)
 {
     // Até então, insere apenas arestas direcionadas
+    // Verificar se aresta já existe, para impedir duplicidade
+    // Incrementar in and out degrees
 
-    Node *sourceNode = getNode(id);
+    Node *sourceNode = getNodeByLabel(sourceLabel);
     if (sourceNode == nullptr)
-        sourceNode = insertNode(id);
+        sourceNode = insertNode(sourceLabel);
 
-    if (!searchNode(targetId))
-        insertNode(targetId);
+    Node *targetNode = getNodeByLabel(targetLabel);
+    if (targetNode == nullptr)
+        targetNode = insertNode(targetLabel);
 
-    sourceNode->insertEdge(targetId, weight);
+    sourceNode->insertEdge(targetNode->getId(), weight);
     numberEdges++;
 }
 
@@ -97,22 +99,18 @@ void Graph::removeNode(int id)
 bool Graph::searchNode(int id)
 {
     Node *nextNode = this->firstNode;
-
     while (nextNode != nullptr)
     {
         if (nextNode->getId() == id)
             return true;
-
         nextNode = nextNode->getNextNode();
     }
-
     return false;
 }
 
-Node *Graph::getNode(int id)
+Node *Graph::getNodeById(int id)
 {
     Node *nextNode = this->firstNode;
-
     while (nextNode != nullptr)
     {
         if (nextNode->getId() == id)
@@ -120,7 +118,19 @@ Node *Graph::getNode(int id)
 
         nextNode = nextNode->getNextNode();
     }
+    return nullptr;
+}
 
+Node *Graph::getNodeByLabel(int label)
+{
+    Node *nextNode = this->firstNode;
+    while (nextNode != nullptr)
+    {
+        if (nextNode->getLabel() == label)
+            return nextNode;
+
+        nextNode = nextNode->getNextNode();
+    }
     return nullptr;
 }
 

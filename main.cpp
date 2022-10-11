@@ -34,9 +34,9 @@ string exportGraphToDotFormat(Graph *graph)
         Edge *nextEdge = nextNode->getFirstEdge();
         while (nextEdge != nullptr)
         {
-            dot += "\n  " + to_string(nextNode->getId());
+            dot += "\n  " + to_string(nextNode->getLabel());
             dot += connector;
-            dot += to_string(nextEdge->getTargetId());
+            dot += to_string(graph->getNodeById(nextEdge->getTargetId())->getLabel());
             if (weightedEdge)
                 dot += " [weight = " + to_string(nextEdge->getWeight()) + "]";
             nextEdge = nextEdge->getNextEdge();
@@ -89,8 +89,8 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
         while (input_file >> idNodeSource >> nodeSourceWeight >> idNodeTarget >> nodeTargetWeight)
         {
             graph->insertEdge(idNodeSource, idNodeTarget, 0);
-            graph->getNode(idNodeSource)->setWeight(nodeSourceWeight);
-            graph->getNode(idNodeTarget)->setWeight(nodeTargetWeight);
+            graph->getNodeById(idNodeSource)->setWeight(nodeSourceWeight);
+            graph->getNodeById(idNodeTarget)->setWeight(nodeTargetWeight);
         }
     }
     // Grafo COM peso nos nós, e COM peso nas arestas
@@ -101,49 +101,34 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
         while (input_file >> idNodeSource >> nodeSourceWeight >> idNodeTarget >> nodeTargetWeight)
         {
             graph->insertEdge(idNodeSource, idNodeTarget, edgeWeight);
-            graph->getNode(idNodeSource)->setWeight(nodeSourceWeight);
-            graph->getNode(idNodeTarget)->setWeight(nodeTargetWeight);
+            graph->getNodeById(idNodeSource)->setWeight(nodeSourceWeight);
+            graph->getNodeById(idNodeTarget)->setWeight(nodeTargetWeight);
         }
     }
 
     return graph;
 }
 
-Graph *leituraInstancia(ifstream &input_file, int directed, int weightedEdge, int weightedNode)
+bool showGraph(string dot)
 {
+    string response = "";
 
-    // Variáveis para auxiliar na criação dos nós no Grafo
-    int idNodeSource;
-    int idNodeTarget;
-    int order;
-    int numEdges;
-
-    // Pegando a ordem do grafo
-    input_file >> order >> numEdges;
-
-    // Criando objeto grafo
-    Graph *graph = new Graph(order, directed, weightedEdge, weightedNode);
-
-    // Leitura de arquivo
-    while (input_file >> idNodeSource >> idNodeTarget)
-    {
-
-        graph->insertEdge(idNodeSource, idNodeTarget, 0);
-    }
-
-    return graph;
-}
-
-void showGraphArea(string dot)
-{
     cout << "GRAFO" << endl
          << "-----" << endl
          << dot << endl;
+    while (response != "S" && response != "s" && response != "N" && response != "n")
+    {
+        cout << "Deseja exportar este grafo? Isso vai apagar o conteúdo atual do arquivo [S/n] ";
+        cin >> response;
+    }
+    cout << endl
+         << endl;
+    return (response == "S" || response == "s");
 }
 
-int menu()
+int menu(string *errors)
 {
-    int selecao;
+    string selectedOption;
 
     cout << "MENU" << endl;
     cout << "----" << endl;
@@ -159,17 +144,34 @@ int menu()
     cout << "[10] Algoritmos Gulosos (Abre um submenu)" << endl;
     cout << "[0] Sair" << endl;
 
-    cin >> selecao;
-    // selecao = 1;
+    cin >> selectedOption;
 
-    return selecao;
+    try
+    {
+        return stoi(selectedOption);
+    }
+    catch (const std::invalid_argument &)
+    {
+        *errors = "ERRO: Letras são inválidas. Digite um número inteiro entre 0 e 10!\n\n";
+        return -1;
+    }
+    catch (const std::out_of_range &)
+    {
+        *errors == "ERRO: Fora dos limites. Digite um número inteiro entre 0 e 10!\n\n";
+        return -1;
+    }
 }
 
-string selecionar(int selecao, Graph *graph, ofstream &output_file)
+string selectOption(int *selectedOption, Graph *graph, ofstream &output_file)
 {
     string dot = "";
-    switch (selecao)
+    int option = *selectedOption;
+    switch (option)
     {
+    case 0:
+    {
+        *selectedOption = 0;
+    }
     // Complementar
     case 1:
     {
@@ -229,27 +231,41 @@ string selecionar(int selecao, Graph *graph, ofstream &output_file)
 
         break;
     }
+    default:
+    {
+        *selectedOption = -1;
+    }
     }
     return dot;
 }
 
-int mainMenu(ofstream &output_file, Graph *graph)
+int mainMenu(ofstream &output_file, string outputFileName, Graph *graph)
 {
-    string dot = "";
-    int selecao = 1;
+    string dot = "", errors = "";
+    int selectedOption = -1;
+    bool shouldExport = false;
 
-    while (selecao != 0)
+    while (selectedOption != 0)
     {
         system("clear");
-        showGraphArea(dot);
-        selecao = menu();
 
         if (output_file.is_open())
         {
-            if (selecao == 0)
-                output_file << dot;
-            else
-                dot = selecionar(selecao, graph, output_file);
+            if (selectedOption != -1)
+            {
+                shouldExport = showGraph(dot);
+                if (shouldExport)
+                {
+                    output_file.close();
+                    output_file.open(outputFileName, ios::out | ios::trunc);
+                    output_file << dot;
+                    shouldExport = false;
+                }
+            }
+            cout << errors;
+            errors = "";
+            selectedOption = menu(&errors);
+            dot = selectOption(&selectedOption, graph, output_file);
         }
         else
             cout << "Unable to open the output_file" << endl;
@@ -287,7 +303,7 @@ int main(int argc, char const *argv[])
     else
         cout << "Unable to open " << argv[1];
 
-    mainMenu(output_file, graph);
+    mainMenu(output_file, argv[2], graph);
 
     // Fechando arquivo de entrada
     input_file.close();

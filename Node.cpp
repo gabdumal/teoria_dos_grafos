@@ -9,9 +9,10 @@ using namespace std;
  **************************************************************************************************/
 
 // Constructor
-Node::Node(int id)
+Node::Node(int id, int label)
 {
     this->id = id;
+    this->label = label;
     this->inDegree = 0;
     this->outDegree = 0;
     this->weight = 0;
@@ -37,6 +38,7 @@ Node::~Node()
 Edge *Node::getFirstEdge() { return this->firstEdge; }
 Edge *Node::getLastEdge() { return this->lastEdge; }
 int Node::getId() { return this->id; }
+int Node::getLabel() { return this->label; }
 int Node::getInDegree() { return this->inDegree; }
 int Node::getOutDegree() { return this->outDegree; }
 float Node::getWeight() { return this->weight; }
