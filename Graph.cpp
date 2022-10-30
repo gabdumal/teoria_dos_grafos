@@ -45,13 +45,34 @@ Graph::~Graph()
 }
 
 // Getters
-int Graph::getOrder() { return this->order; }
-int Graph::getNumberEdges() { return this->numberEdges; }
-bool Graph::getDirected() { return this->directed; }
-bool Graph::getWeightedEdge() { return this->weightedEdge; }
-bool Graph::getWeightedNode() { return this->weightedNode; }
-Node *Graph::getFirstNode() { return this->firstNode; }
-Node *Graph::getLastNode() { return this->lastNode; }
+int Graph::getOrder()
+{
+    return this->order;
+}
+int Graph::getNumberEdges()
+{
+    return this->numberEdges;
+}
+bool Graph::getDirected()
+{
+    return this->directed;
+}
+bool Graph::getWeightedEdge()
+{
+    return this->weightedEdge;
+}
+bool Graph::getWeightedNode()
+{
+    return this->weightedNode;
+}
+Node *Graph::getFirstNode()
+{
+    return this->firstNode;
+}
+Node *Graph::getLastNode()
+{
+    return this->lastNode;
+}
 
 // Other methods
 /*

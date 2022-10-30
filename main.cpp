@@ -12,6 +12,9 @@
 
 using namespace std;
 
+/*  Names a graph according it's kind, either directed or not
+ *   writes .dot file after the .txt input
+ */
 string exportGraphToDotFormat(Graph *graph)
 {
     Node *nextNode = graph->getFirstNode();
@@ -53,6 +56,9 @@ string exportGraphToDotFormat(Graph *graph)
     return dot;
 }
 
+/*  Reads from .txt file
+    it also evaluetas three possible natures of the graph, if it is: directed, weighted on edges, weighted on nodes
+*/
 Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weightedNode)
 {
     // Variáveis para auxiliar na criação dos nós no Grafo
@@ -75,6 +81,7 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
         {
             graph->insertEdge(labelNodeSource, labelNodeTarget, 0);
         }
+        // aqui está o meu problema
     }
     // Grafo SEM peso nos nós, mas COM peso nas arestas
     else if (graph->getWeightedEdge() && !graph->getWeightedNode())
@@ -114,6 +121,9 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
     return graph;
 }
 
+/*  Prints the graph on terminal window
+ *   at the end returns a boolean which is used either to export the graph or not
+ */
 bool showGraph(string dot)
 {
     string response = "";
@@ -131,6 +141,11 @@ bool showGraph(string dot)
     return (response == "S" || response == "s");
 }
 
+/*  Shows a menu on terminal windows with 10 options
+ *   only two of them works: number one wich prints the graph's complement -on terminal- and number zero wich ends the program
+ *   note that the other ones are not suitable for this project
+ *   it also shows an error message in case of an incorrect input such letters or numbers others than 0-10
+ */
 int menu(string *errors)
 {
     string selectedOption;
@@ -167,6 +182,9 @@ int menu(string *errors)
     }
 }
 
+/*  Calls a function according with the entrance option given by user
+ *   like the menu, only one and zero matters
+ */
 string selectOption(int *selectedOption, Graph *graph, ofstream &output_file)
 {
     string dot = "";
@@ -244,6 +262,10 @@ string selectOption(int *selectedOption, Graph *graph, ofstream &output_file)
     return dot;
 }
 
+/*  cleans terminal windows
+ *   evaluates if the graph will be exported or not based on value of "shouldExport"
+ *   also prints on terminal an error message in case of failure opening output file
+ */
 int mainMenu(ofstream &output_file, string outputFileName, Graph *graph)
 {
     string dot = "", errors = "";
@@ -279,6 +301,10 @@ int mainMenu(ofstream &output_file, string outputFileName, Graph *graph)
     return 0;
 }
 
+/*  Verifies each parameter of the command line,
+ *   if it is set properly calls menu function
+ *   else it shows the expected model just beforing ending the program
+ */
 int main(int argc, char const *argv[])
 {
     // Verificação se todos os parâmetros do programa foram entrados

@@ -35,18 +35,48 @@ Node::~Node()
 };
 
 // Getters
-Edge *Node::getFirstEdge() { return this->firstEdge; }
-Edge *Node::getLastEdge() { return this->lastEdge; }
-int Node::getId() { return this->id; }
-int Node::getLabel() { return this->label; }
-int Node::getInDegree() { return this->inDegree; }
-int Node::getOutDegree() { return this->outDegree; }
-float Node::getWeight() { return this->weight; }
-Node *Node::getNextNode() { return this->nextNode; }
+Edge *Node::getFirstEdge()
+{
+    return this->firstEdge;
+}
+Edge *Node::getLastEdge()
+{
+    return this->lastEdge;
+}
+int Node::getId()
+{
+    return this->id;
+}
+int Node::getLabel()
+{
+    return this->label;
+}
+int Node::getInDegree()
+{
+    return this->inDegree;
+}
+int Node::getOutDegree()
+{
+    return this->outDegree;
+}
+float Node::getWeight()
+{
+    return this->weight;
+}
+Node *Node::getNextNode()
+{
+    return this->nextNode;
+}
 
 // Setters
-void Node::setNextNode(Node *nextNode) { this->nextNode = nextNode; }
-void Node::setWeight(float weight) { this->weight = weight; }
+void Node::setNextNode(Node *nextNode)
+{
+    this->nextNode = nextNode;
+}
+void Node::setWeight(float weight)
+{
+    this->weight = weight;
+}
 
 // Other methods
 void Node::insertEdge(int targetId, float weight)
@@ -173,6 +203,10 @@ void Node::decrementOutDegree()
     this->outDegree--;
 }
 
+/*a partir de um vértice, avalia se existe aresta ligando a outro vértice alvo
+*em caso verdadeiro retorna a aresta -aresta é um ponteiro-
+*em caso falso retorna ponteiro nulo
+*/
 Edge *Node::hasEdgeBetween(int targetId)
 {
 
