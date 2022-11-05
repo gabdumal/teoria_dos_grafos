@@ -65,6 +65,7 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
     int labelNodeSource;
     int labelNodeTarget;
     int order;
+    bool obeyOrder = true;
     int invalidLines = 0;
 
     // Pegando a ordem do grafo
@@ -78,20 +79,23 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
     // Grafo SEM peso nos nós, e SEM peso nas arestas
     if (!graph->getWeightedEdge() && !graph->getWeightedNode())
     {
-        while (input_file >> labelNodeSource >> labelNodeTarget)
+        while (obeyOrder && (input_file >> labelNodeSource >> labelNodeTarget))
         {
             graph->insertEdge(labelNodeSource, labelNodeTarget, 0);
+            if (graph->getNodeIdCounter() >= order)
+                obeyOrder = false;
         }
-        // aqui está o meu problema
     }
     // Grafo SEM peso nos nós, mas COM peso nas arestas
     else if (graph->getWeightedEdge() && !graph->getWeightedNode())
     {
         float edgeWeight;
 
-        while (input_file >> labelNodeSource >> labelNodeTarget >> edgeWeight)
+        while (obeyOrder && (input_file >> labelNodeSource >> labelNodeTarget >> edgeWeight))
         {
             graph->insertEdge(labelNodeSource, labelNodeTarget, edgeWeight);
+            if (graph->getNodeIdCounter() >= order)
+                obeyOrder = false;
         }
     }
     // Grafo COM peso nos nós, mas SEM peso nas arestas
@@ -99,11 +103,13 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
     {
         float nodeSourceWeight, nodeTargetWeight;
 
-        while (input_file >> labelNodeSource >> nodeSourceWeight >> labelNodeTarget >> nodeTargetWeight)
+        while (obeyOrder && (input_file >> labelNodeSource >> nodeSourceWeight >> labelNodeTarget >> nodeTargetWeight))
         {
             graph->insertEdge(labelNodeSource, labelNodeTarget, 0);
             graph->getNodeByLabel(labelNodeSource)->setWeight(nodeSourceWeight);
             graph->getNodeByLabel(labelNodeTarget)->setWeight(nodeTargetWeight);
+            if (graph->getNodeIdCounter() >= order)
+                obeyOrder = false;
         }
     }
     // Grafo COM peso nos nós, e COM peso nas arestas
@@ -111,11 +117,13 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
     {
         float nodeSourceWeight, nodeTargetWeight, edgeWeight;
 
-        while (input_file >> labelNodeSource >> nodeSourceWeight >> labelNodeTarget >> nodeTargetWeight >> edgeWeight)
+        while (obeyOrder && (input_file >> labelNodeSource >> nodeSourceWeight >> labelNodeTarget >> nodeTargetWeight >> edgeWeight))
         {
             graph->insertEdge(labelNodeSource, labelNodeTarget, edgeWeight);
             graph->getNodeByLabel(labelNodeSource)->setWeight(nodeSourceWeight);
             graph->getNodeByLabel(labelNodeTarget)->setWeight(nodeTargetWeight);
+            if (graph->getNodeIdCounter() >= order)
+                obeyOrder = false;
         }
     }
 
