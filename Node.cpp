@@ -204,9 +204,9 @@ void Node::decrementOutDegree()
 }
 
 /*a partir de um vértice, avalia se existe aresta ligando a outro vértice alvo
-*em caso verdadeiro retorna a aresta -aresta é um ponteiro-
-*em caso falso retorna ponteiro nulo
-*/
+ *em caso verdadeiro retorna a aresta
+ *em caso falso retorna ponteiro nulo
+ */
 Edge *Node::hasEdgeBetween(int targetId)
 {
 

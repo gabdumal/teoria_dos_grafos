@@ -49,6 +49,10 @@ int Graph::getOrder()
 {
     return this->order;
 }
+int Graph::getNodeIdCounter()
+{
+    return this->nodeIdCounter;
+}
 int Graph::getNumberEdges()
 {
     return this->numberEdges;

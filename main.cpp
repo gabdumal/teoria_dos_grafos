@@ -65,6 +65,7 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
     int labelNodeSource;
     int labelNodeTarget;
     int order;
+    int invalidLines = 0;
 
     // Pegando a ordem do grafo
     input_file >> order;
@@ -118,6 +119,18 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
         }
     }
 
+    // insere nó invalido para cada entrada acima da ordem
+    while (order > graph->getNodeIdCounter())
+    {
+        --invalidLines;
+        graph->insertNode(invalidLines);
+    }
+    // apenas uma inserção mesmo com várias inserções acima da ordem
+    /*while (order > graph->getNodeIdCounter())
+    {
+        graph->insertNode(-1);
+    }*/
+
     return graph;
 }
 
@@ -142,7 +155,7 @@ bool showGraph(string dot)
 }
 
 /*  Shows a menu on terminal windows with 10 options
- *   only two of them works: number one wich prints the graph's complement -on terminal- and number zero wich ends the program
+ *   only two of them works: number one wich prints the graph -on terminal- and number zero wich ends the program
  *   note that the other ones are not suitable for this project
  *   it also shows an error message in case of an incorrect input such letters or numbers others than 0-10
  */
@@ -152,7 +165,7 @@ int menu(string *errors)
 
     cout << "MENU" << endl;
     cout << "----" << endl;
-    cout << "[1] Complementar do grafo" << endl;
+    cout << "[1] Imprimir o grafo" << endl;
     cout << "[2] Imprimir caminhamento em largura" << endl;
     cout << "[3] Busca em profundidade" << endl;
     cout << "[4] Imprimir componentes conexas" << endl;

@@ -32,6 +32,7 @@ public:
     ~Graph();
     // Getters
     int getOrder();
+    int getNodeIdCounter();
     int getNumberEdges();
     bool getDirected();
     bool getWeightedEdge();
