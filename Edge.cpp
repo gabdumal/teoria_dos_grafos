@@ -18,11 +18,9 @@ Edge::Edge(int targetId)
 // Destructor
 Edge::~Edge()
 {
-    if (this->nextEdge != nullptr)
-    {
-        delete this->nextEdge;
-        this->nextEdge = nullptr;
-    }
+    this->targetId = -1;
+    this->nextEdge = nullptr;
+    this->weight = 0;
 }
 
 // Getters

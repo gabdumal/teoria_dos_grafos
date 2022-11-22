@@ -37,21 +37,51 @@ Graph::~Graph()
 
     while (nextNode != nullptr)
     {
-        nextNode->removeAllEdges();
         Node *auxNode = nextNode->getNextNode();
         delete nextNode;
         nextNode = auxNode;
     }
+
+    this->order = 0;
+    this->numberEdges = 0;
+    this->nodeIdCounter = 0;
+    this->firstNode = nullptr;
+    this->lastNode = nullptr;
 }
 
 // Getters
-int Graph::getOrder() { return this->order; }
-int Graph::getNumberEdges() { return this->numberEdges; }
-bool Graph::getDirected() { return this->directed; }
-bool Graph::getWeightedEdge() { return this->weightedEdge; }
-bool Graph::getWeightedNode() { return this->weightedNode; }
-Node *Graph::getFirstNode() { return this->firstNode; }
-Node *Graph::getLastNode() { return this->lastNode; }
+int Graph::getOrder()
+{
+    return this->order;
+}
+int Graph::getNodeIdCounter()
+{
+    return this->nodeIdCounter;
+}
+int Graph::getNumberEdges()
+{
+    return this->numberEdges;
+}
+bool Graph::getDirected()
+{
+    return this->directed;
+}
+bool Graph::getWeightedEdge()
+{
+    return this->weightedEdge;
+}
+bool Graph::getWeightedNode()
+{
+    return this->weightedNode;
+}
+Node *Graph::getFirstNode()
+{
+    return this->firstNode;
+}
+Node *Graph::getLastNode()
+{
+    return this->lastNode;
+}
 
 // Other methods
 /*
