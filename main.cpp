@@ -204,7 +204,7 @@ int menu(string *errors)
 /*  Calls a function according with the entrance option given by user
  *   like the menu, only one and zero matters
  */
-string selectOption(int *selectedOption, Graph *graph)
+string selectOption(int *selectedOption, string *errors, Graph *firstGraph)
 {
     string dot = "";
     int option = *selectedOption;
@@ -213,11 +213,12 @@ string selectOption(int *selectedOption, Graph *graph)
     case 0:
     {
         *selectedOption = OPTION_EXIT;
+        break;
     }
     // Imprimir grafo de entrada
     case 1:
     {
-        dot = exportGraphToDotFormat(graph);
+        dot = exportGraphToDotFormat(firstGraph);
         break;
     }
     // Grafo interseção
@@ -229,6 +230,27 @@ string selectOption(int *selectedOption, Graph *graph)
     // Grafo união
     case 3:
     {
+        cout << "Digite o caminho do arquivo de entrada do segundo grafo:" << endl;
+        string second_input_file_name;
+        cin >> second_input_file_name;
+
+        ifstream second_input_file;
+        second_input_file.open(second_input_file_name, ios::in);
+
+        if (second_input_file.is_open())
+        {
+            Graph *secondGraph = leitura(second_input_file, firstGraph->getDirected(),
+                                         firstGraph->getWeightedEdge(), firstGraph->getWeightedNode());
+            dot = exportGraphToDotFormat(secondGraph);
+            // Deletar segundo grafo
+        }
+        else
+        {
+            *errors += "ERRO: Não foi possível abrir o arquivo de entrada " + second_input_file_name + "!\n";
+            *selectedOption = OPTION_INVALID;
+        }
+
+        second_input_file.close();
 
         break;
     }
@@ -286,7 +308,7 @@ int mainMenu(string outputFileName, Graph *graph)
 
         // Imprime menu de opções
         selectedOption = menu(&errors);
-        dot = selectOption(&selectedOption, graph);
+        dot = selectOption(&selectedOption, &errors, graph);
     }
     return 0;
 }
