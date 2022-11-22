@@ -22,6 +22,9 @@ static const int OPTION_EXPORT = 1;
  */
 string exportGraphToDotFormat(Graph *graph)
 {
+    if (graph == nullptr)
+        return "";
+
     Node *nextNode = graph->getFirstNode();
     string dot = "", connector;
     bool weightedEdge = graph->getWeightedEdge();
@@ -242,7 +245,9 @@ string selectOption(int *selectedOption, string *errors, Graph *firstGraph)
             Graph *secondGraph = leitura(second_input_file, firstGraph->getDirected(),
                                          firstGraph->getWeightedEdge(), firstGraph->getWeightedNode());
             dot = exportGraphToDotFormat(secondGraph);
-            // Deletar segundo grafo
+
+            delete secondGraph;
+            secondGraph = nullptr;
         }
         else
         {

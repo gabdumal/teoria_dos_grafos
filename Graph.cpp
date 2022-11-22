@@ -37,11 +37,16 @@ Graph::~Graph()
 
     while (nextNode != nullptr)
     {
-        nextNode->removeAllEdges();
         Node *auxNode = nextNode->getNextNode();
         delete nextNode;
         nextNode = auxNode;
     }
+
+    this->order = 0;
+    this->numberEdges = 0;
+    this->nodeIdCounter = 0;
+    this->firstNode = nullptr;
+    this->lastNode = nullptr;
 }
 
 // Getters

@@ -32,6 +32,15 @@ Node::~Node()
         delete nextEdge;
         nextEdge = auxEdge;
     }
+
+    this->id = -1;
+    this->label = 0;
+    this->inDegree = 0;
+    this->outDegree = 0;
+    this->weight = 0;
+    this->firstEdge = nullptr;
+    this->lastEdge = nullptr;
+    this->nextNode = nullptr;
 };
 
 // Getters
