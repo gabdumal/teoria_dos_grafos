@@ -17,6 +17,9 @@ static const int OPTION_INVALID = -1;
 static const int OPTION_EXIT = 0;
 static const int OPTION_EXPORT = 1;
 
+// Variáveis globais
+bool directed = false, weightedEdge = false, weightNode = false;
+
 /*  Names a graph according it's kind, either directed or not
  *   writes .dot file after the .txt input
  */
@@ -69,6 +72,11 @@ string exportGraphToDotFormat(Graph *graph)
 */
 Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weightedNode)
 {
+    // Preenchimento das variáveis globais
+    ::directed = directed;
+    ::weightedEdge = weightedEdge;
+    ::weightNode = weightNode;
+
     // Variáveis para auxiliar na criação dos nós no Grafo
     int labelNodeSource;
     int labelNodeTarget;
@@ -146,6 +154,38 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
     }*/
 
     return graph;
+}
+
+Graph *createAuxiliaryGraphFromFile(ifstream &input_file, string input_file_name, int *selectedOption, string *errors)
+{
+    if (input_file.is_open())
+        return leitura(input_file, ::directed, ::weightedEdge, ::weightNode);
+    else
+    {
+        *errors += "ERRO: Não foi possível abrir o arquivo de entrada " + input_file_name + "!\n";
+        *selectedOption = OPTION_INVALID;
+        return nullptr;
+    }
+}
+
+Graph *readAuxiliaryGraph(int *selectedOption, string *errors)
+{
+    cout << "Digite o caminho do arquivo de entrada do grafo auxiliar:" << endl;
+    string auxiliary_input_file_name;
+    cin >> auxiliary_input_file_name;
+
+    ifstream auxiliary_input_file;
+    auxiliary_input_file.open(auxiliary_input_file_name, ios::in);
+
+    Graph *auxiliaryGraph = createAuxiliaryGraphFromFile(auxiliary_input_file, auxiliary_input_file_name, selectedOption, errors);
+
+    auxiliary_input_file.close();
+    return auxiliaryGraph;
+}
+
+string createIntersectionGraph(Graph *firstGraph, Graph *secondGraph)
+{
+    return exportGraphToDotFormat(secondGraph);
 }
 
 /*  Prints the graph on terminal window
@@ -233,30 +273,11 @@ string selectOption(int *selectedOption, string *errors, Graph *firstGraph)
     // Grafo união
     case 3:
     {
-        cout << "Digite o caminho do arquivo de entrada do segundo grafo:" << endl;
-        string second_input_file_name;
-        cin >> second_input_file_name;
+        Graph *secondGraph = readAuxiliaryGraph(selectedOption, errors);
+        dot = createIntersectionGraph(firstGraph, secondGraph);
 
-        ifstream second_input_file;
-        second_input_file.open(second_input_file_name, ios::in);
-
-        if (second_input_file.is_open())
-        {
-            Graph *secondGraph = leitura(second_input_file, firstGraph->getDirected(),
-                                         firstGraph->getWeightedEdge(), firstGraph->getWeightedNode());
-            dot = exportGraphToDotFormat(secondGraph);
-
-            delete secondGraph;
-            secondGraph = nullptr;
-        }
-        else
-        {
-            *errors += "ERRO: Não foi possível abrir o arquivo de entrada " + second_input_file_name + "!\n";
-            *selectedOption = OPTION_INVALID;
-        }
-
-        second_input_file.close();
-
+        delete secondGraph;
+        secondGraph = nullptr;
         break;
     }
     // Grafo diferença
