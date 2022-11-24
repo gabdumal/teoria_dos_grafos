@@ -183,9 +183,39 @@ Graph *readAuxiliaryGraph(int *selectedOption, string *errors)
     return auxiliaryGraph;
 }
 
-string createIntersectionGraph(Graph *firstGraph, Graph *secondGraph)
+string createUnionGraph(Graph *firstGraph, Graph *secondGraph)
 {
-    return exportGraphToDotFormat(secondGraph);
+    Graph *thirdGraph;
+    string dot = "";
+    if (!firstGraph->getDirected())
+    {
+        //COPIA GRAFO1 PARA GRAFO 3
+        thirdGraph = new Graph(0, firstGraph->getDirected(), firstGraph->getWeightedEdge(), firstGraph->getWeightedEdge());
+        //aux 
+        Node *finalNode = firstGraph->getFirstNode();
+        Edge *nextEdge;
+        Node *nodeByIdFromEdge;
+
+        while (finalNode != NULL)
+        {
+            nextEdge = finalNode->getFirstEdge();
+            while (nextEdge != NULL)
+            {
+                nodeByIdFromEdge = firstGraph->getNodeById(nextEdge->getTargetId());
+                thirdGraph->insertEdge(finalNode->getLabel(), nodeByIdFromEdge->getLabel() , 0);
+                nextEdge = nextEdge->getNextEdge();
+            }
+            finalNode = finalNode ->getNextNode();
+        }
+        //VERIFICA QUAIS RELAÇÕES ESTÃO NO SEGUNDO GRAFO E NAO ESTÃO NO TERCEIRO
+
+
+    }
+
+    dot = exportGraphToDotFormat(thirdGraph);
+    delete thirdGraph;
+    thirdGraph = NULL;
+    return dot;
 }
 
 /*  Prints the graph on terminal window
@@ -274,7 +304,7 @@ string selectOption(int *selectedOption, string *errors, Graph *firstGraph)
     case 3:
     {
         Graph *secondGraph = readAuxiliaryGraph(selectedOption, errors);
-        dot = createIntersectionGraph(firstGraph, secondGraph);
+        dot = createUnionGraph(firstGraph, secondGraph);
 
         delete secondGraph;
         secondGraph = nullptr;
