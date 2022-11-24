@@ -208,10 +208,23 @@ string createUnionGraph(Graph *firstGraph, Graph *secondGraph)
             finalNode = finalNode ->getNextNode();
         }
         //VERIFICA QUAIS RELAÇÕES ESTÃO NO SEGUNDO GRAFO E NAO ESTÃO NO TERCEIRO
-
-
+        
+        finalNode = secondGraph->getFirstNode();
+        while (finalNode != NULL)
+        {
+            nextEdge = finalNode->getFirstEdge();
+            while (nextEdge != NULL)
+            {
+                nodeByIdFromEdge = firstGraph->getNodeById(nextEdge->getTargetId());
+                if(!thirdGraph->existEdge(finalNode->getLabel(), nodeByIdFromEdge->getLabel()))
+                {
+                    thirdGraph->insertEdge(finalNode->getLabel(), nodeByIdFromEdge->getLabel() , 0);
+                }
+                nextEdge = nextEdge->getNextEdge();
+            }
+            finalNode = finalNode ->getNextNode();
+        }
     }
-
     dot = exportGraphToDotFormat(thirdGraph);
     delete thirdGraph;
     thirdGraph = NULL;

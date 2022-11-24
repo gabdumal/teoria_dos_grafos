@@ -183,6 +183,24 @@ Node *Graph::getNodeByLabel(int label)
     return nullptr;
 }
 
+bool Graph::existEdge(int labe1, int label2){
+    Node *auxNode = this->getNodeByLabel(labe1);
+    if(auxNode == NULL){
+        return false;
+    }
+    Edge *auxEdge = auxNode->getFirstEdge();
+    Node *compareEdge = this->getNodeById(auxEdge->getTargetId());
+    while(auxEdge!=NULL){
+        if(auxNode->getLabel() == compareEdge->getLabel())
+        {
+            return true;
+        }
+        auxEdge = auxEdge->getNextEdge();
+        compareEdge = this->getNodeById(auxEdge->getTargetId());
+    }
+    return false;
+}
+
 // Function that verifies if there is a path between two nodes
 bool Graph::depthFirstSearch(int initialId, int targetId)
 {

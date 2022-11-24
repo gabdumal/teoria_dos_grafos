@@ -52,6 +52,7 @@ public:
     Graph *getSubjacent();
     bool hasCircuit();
     bool connectedGraph();
+    bool existEdge(int label1, int labe2);
     float **floydMarshall();
     float *dijkstra(int id);
 
