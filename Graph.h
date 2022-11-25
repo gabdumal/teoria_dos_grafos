@@ -41,7 +41,7 @@ public:
     Node *getLastNode();
     // Other methods
     Node *insertNode(int id);
-    void insertEdge(int sourceLabel, int targetLabel, float weight);
+    void insertEdge(int sourceLabel, int targetLabel, float weight, Node **sourceNode, Node **targetNode);
     void removeNode(int id);
     bool searchNode(int id);
     Node *getNodeById(int id);
