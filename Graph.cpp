@@ -104,20 +104,24 @@ Node *Graph::insertNode(int label)
     return newNode;
 }
 
-void Graph::insertEdge(int sourceLabel, int targetLabel, float weight)
+void Graph::insertEdge(int sourceLabel, int targetLabel, float weight, Node **sourceNode, Node **targetNode)
 {
-    // Tratar conexão do nó consigo mesmo?
+    *sourceNode = getNodeByLabel(sourceLabel);
+    if (*sourceNode == nullptr)
+        if (nodeIdCounter < order)
+            *sourceNode = insertNode(sourceLabel);
+        else
+            return;
 
-    Node *sourceNode = getNodeByLabel(sourceLabel);
-    if (sourceNode == nullptr)
-        sourceNode = insertNode(sourceLabel);
+    *targetNode = getNodeByLabel(targetLabel);
+    if (*targetNode == nullptr)
+        if (nodeIdCounter < order)
+            *targetNode = insertNode(targetLabel);
+        else
+            return;
+    int targetNodeId = (*targetNode)->getId();
 
-    Node *targetNode = getNodeByLabel(targetLabel);
-    if (targetNode == nullptr)
-        targetNode = insertNode(targetLabel);
-    int targetNodeId = targetNode->getId();
-
-    Edge *nextEdge = sourceNode->getFirstEdge();
+    Edge *nextEdge = (*sourceNode)->getFirstEdge();
     bool alreadyExists = false;
     while (nextEdge != nullptr)
     {
@@ -127,17 +131,17 @@ void Graph::insertEdge(int sourceLabel, int targetLabel, float weight)
     }
     if (!alreadyExists)
     {
-        sourceNode->insertEdge(targetNodeId, weight);
+        (*sourceNode)->insertEdge(targetNodeId, weight);
         if (!directed)
         {
-            targetNode->insertEdge(sourceNode->getId(), weight);
-            sourceNode->incrementInDegree();
-            targetNode->incrementOutDegree();
+            (*targetNode)->insertEdge((*sourceNode)->getId(), weight);
+            (*sourceNode)->incrementInDegree();
+            (*targetNode)->incrementOutDegree();
         }
     }
 
-    sourceNode->incrementOutDegree();
-    targetNode->incrementInDegree();
+    (*sourceNode)->incrementOutDegree();
+    (*targetNode)->incrementInDegree();
     numberEdges++;
 }
 
