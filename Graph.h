@@ -39,7 +39,9 @@ public:
     bool getWeightedNode();
     Node *getFirstNode();
     Node *getLastNode();
+
     // Other methods
+    void fixOrder();
     Node *insertNode(int id);
     void insertEdge(int sourceLabel, int targetLabel, float weight, Node **sourceNode, Node **targetNode);
     void removeNode(int id);

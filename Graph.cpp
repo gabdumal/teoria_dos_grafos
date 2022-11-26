@@ -88,6 +88,11 @@ Node *Graph::getLastNode()
     The outdegree attribute of nodes is used as a counter for the number of edges in the graph.
     This allows the correct updating of the numbers of edges in the graph being directed or not.
 */
+
+void Graph::fixOrder(){
+    this->order = nodeIdCounter;
+}
+
 Node *Graph::insertNode(int label)
 {
     Node *newNode = new Node(nodeIdCounter++, label);
@@ -106,6 +111,9 @@ Node *Graph::insertNode(int label)
 
 void Graph::insertEdge(int sourceLabel, int targetLabel, float weight, Node **sourceNode, Node **targetNode)
 {
+    if(sourceLabel == targetLabel)
+        return;
+    
     *sourceNode = getNodeByLabel(sourceLabel);
     if (*sourceNode == nullptr)
         if (nodeIdCounter < order)
@@ -131,10 +139,10 @@ void Graph::insertEdge(int sourceLabel, int targetLabel, float weight, Node **so
     }
     if (!alreadyExists)
     {
-        (*sourceNode)->insertEdge(targetNodeId, weight);
+        (*sourceNode)->insertEdge(targetNodeId, targetLabel ,weight);
         if (!directed)
         {
-            (*targetNode)->insertEdge((*sourceNode)->getId(), weight);
+            (*targetNode)->insertEdge((*sourceNode)->getId(), targetLabel , weight);
             (*sourceNode)->incrementInDegree();
             (*targetNode)->incrementOutDegree();
         }
