@@ -39,9 +39,11 @@ public:
     bool getWeightedNode();
     Node *getFirstNode();
     Node *getLastNode();
+
     // Other methods
+    void fixOrder();
     Node *insertNode(int id);
-    void insertEdge(int sourceLabel, int targetLabel, float weight);
+    void insertEdge(int sourceLabel, int targetLabel, float weight, Node **sourceNode, Node **targetNode);
     void removeNode(int id);
     bool searchNode(int id);
     Node *getNodeById(int id);
@@ -52,6 +54,7 @@ public:
     Graph *getSubjacent();
     bool hasCircuit();
     bool connectedGraph();
+    bool existEdge(int label1, int labe2);
     float **floydMarshall();
     float *dijkstra(int id);
 

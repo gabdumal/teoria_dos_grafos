@@ -9,6 +9,7 @@
 #include <chrono>
 #include "Graph.h"
 #include "Node.h"
+#include <climits>
 
 using namespace std;
 
@@ -18,7 +19,7 @@ static const int OPTION_EXIT = 0;
 static const int OPTION_EXPORT = 1;
 
 // Variáveis globais
-bool directed = false, weightedEdge = false, weightNode = false;
+bool directed = false, weightedEdge = false, weightedNode = false;
 
 /*  Names a graph according it's kind, either directed or not
  *   writes .dot file after the .txt input
@@ -75,14 +76,12 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
     // Preenchimento das variáveis globais
     ::directed = directed;
     ::weightedEdge = weightedEdge;
-    ::weightNode = weightNode;
+    ::weightedNode = weightedNode;
 
     // Variáveis para auxiliar na criação dos nós no Grafo
     int labelNodeSource;
     int labelNodeTarget;
     int order;
-    bool obeyOrder = true;
-    int invalidLines = 0;
 
     // Pegando a ordem do grafo
     input_file >> order;
@@ -90,14 +89,16 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
     // Criando objeto grafo
     Graph *graph = new Graph(order, directed, weightedEdge, weightedNode);
 
+    // Leitura de arquivo
+
     // Grafo SEM peso nos nós, e SEM peso nas arestas
     if (!graph->getWeightedEdge() && !graph->getWeightedNode())
     {
-        while (obeyOrder && (input_file >> labelNodeSource >> labelNodeTarget))
+        while (input_file >> labelNodeSource >> labelNodeTarget)
         {
-            graph->insertEdge(labelNodeSource, labelNodeTarget, 0);
-            if (graph->getNodeIdCounter() >= order)
-                obeyOrder = false;
+            Node *sourceNode = nullptr;
+            Node *targetNode = nullptr;
+            graph->insertEdge(labelNodeSource, labelNodeTarget, 0, &sourceNode, &targetNode);
         }
     }
     // Grafo SEM peso nos nós, mas COM peso nas arestas
@@ -105,11 +106,11 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
     {
         float edgeWeight;
 
-        while (obeyOrder && (input_file >> labelNodeSource >> labelNodeTarget >> edgeWeight))
+        while (input_file >> labelNodeSource >> labelNodeTarget >> edgeWeight)
         {
-            graph->insertEdge(labelNodeSource, labelNodeTarget, edgeWeight);
-            if (graph->getNodeIdCounter() >= order)
-                obeyOrder = false;
+            Node *sourceNode = nullptr;
+            Node *targetNode = nullptr;
+            graph->insertEdge(labelNodeSource, labelNodeTarget, edgeWeight, &sourceNode, &targetNode);
         }
     }
     // Grafo COM peso nos nós, mas SEM peso nas arestas
@@ -117,13 +118,15 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
     {
         float nodeSourceWeight, nodeTargetWeight;
 
-        while (obeyOrder && (input_file >> labelNodeSource >> nodeSourceWeight >> labelNodeTarget >> nodeTargetWeight))
+        while (input_file >> labelNodeSource >> nodeSourceWeight >> labelNodeTarget >> nodeTargetWeight)
         {
-            graph->insertEdge(labelNodeSource, labelNodeTarget, 0);
-            graph->getNodeByLabel(labelNodeSource)->setWeight(nodeSourceWeight);
-            graph->getNodeByLabel(labelNodeTarget)->setWeight(nodeTargetWeight);
-            if (graph->getNodeIdCounter() >= order)
-                obeyOrder = false;
+            Node *sourceNode = nullptr;
+            Node *targetNode = nullptr;
+            graph->insertEdge(labelNodeSource, labelNodeTarget, 0, &sourceNode, &targetNode);
+            if (sourceNode != nullptr)
+                sourceNode->setWeight(nodeSourceWeight);
+            if (targetNode != nullptr)
+                targetNode->setWeight(nodeTargetWeight);
         }
     }
     // Grafo COM peso nos nós, e COM peso nas arestas
@@ -131,27 +134,24 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
     {
         float nodeSourceWeight, nodeTargetWeight, edgeWeight;
 
-        while (obeyOrder && (input_file >> labelNodeSource >> nodeSourceWeight >> labelNodeTarget >> nodeTargetWeight >> edgeWeight))
+        while (input_file >> labelNodeSource >> nodeSourceWeight >> labelNodeTarget >> nodeTargetWeight >> edgeWeight)
         {
-            graph->insertEdge(labelNodeSource, labelNodeTarget, edgeWeight);
-            graph->getNodeByLabel(labelNodeSource)->setWeight(nodeSourceWeight);
-            graph->getNodeByLabel(labelNodeTarget)->setWeight(nodeTargetWeight);
-            if (graph->getNodeIdCounter() >= order)
-                obeyOrder = false;
+            Node *sourceNode = nullptr;
+            Node *targetNode = nullptr;
+            graph->insertEdge(labelNodeSource, labelNodeTarget, edgeWeight, &sourceNode, &targetNode);
+            if (sourceNode != nullptr)
+                sourceNode->setWeight(nodeSourceWeight);
+            if (targetNode != nullptr)
+                targetNode->setWeight(nodeTargetWeight);
         }
     }
 
-    // insere nó invalido para cada entrada acima da ordem
+    int i = -1;
     while (order > graph->getNodeIdCounter())
     {
-        --invalidLines;
-        graph->insertNode(invalidLines);
+        graph->insertNode(i);
+        i--;
     }
-    // apenas uma inserção mesmo com várias inserções acima da ordem
-    /*while (order > graph->getNodeIdCounter())
-    {
-        graph->insertNode(-1);
-    }*/
 
     return graph;
 }
@@ -159,7 +159,7 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
 Graph *createAuxiliaryGraphFromFile(ifstream &input_file, string input_file_name, int *selectedOption, string *errors)
 {
     if (input_file.is_open())
-        return leitura(input_file, ::directed, ::weightedEdge, ::weightNode);
+        return leitura(input_file, ::directed, ::weightedEdge, ::weightedNode);
     else
     {
         *errors += "ERRO: Não foi possível abrir o arquivo de entrada " + input_file_name + "!\n";
@@ -183,9 +183,52 @@ Graph *readAuxiliaryGraph(int *selectedOption, string *errors)
     return auxiliaryGraph;
 }
 
-string createIntersectionGraph(Graph *firstGraph, Graph *secondGraph)
+Graph* createUnionGraph(Graph *firstGraph, Graph *secondGraph)
 {
-    return exportGraphToDotFormat(secondGraph);
+    Graph *thirdGraph;
+    string dot = "";
+    if (!firstGraph->getDirected())
+    {
+        // COPIA GRAFO1 PARA GRAFO 3
+        thirdGraph = new Graph(INT_MAX, ::directed, false, false);
+        // aux
+
+        Node *finalNode = firstGraph->getFirstNode();
+        Edge *nextEdge;
+
+        while (finalNode != nullptr)
+        {
+            nextEdge = finalNode->getFirstEdge();
+
+            while (nextEdge != nullptr)
+            {
+                Node *sourceNode = nullptr;
+                Node *targetNode = nullptr;
+                thirdGraph->insertEdge(finalNode->getLabel(), nextEdge->getTargetLabel(), 0, &sourceNode, &targetNode);
+                nextEdge = nextEdge->getNextEdge();
+            }
+            finalNode = finalNode->getNextNode();
+        }
+        // VERIFICA QUAIS RELAÇÕES ESTÃO NO SEGUNDO GRAFO E NAO ESTÃO NO TERCEIRO
+
+        // finalNode = secondGraph->getFirstNode();
+        // while (finalNode != NULL)
+        // {
+        //     nextEdge = finalNode->getFirstEdge();
+        //     while (nextEdge != NULL)
+        //     {
+        //         nodeByIdFromEdge = firstGraph->getNodeById(nextEdge->getTargetId());
+        //         if(!thirdGraph->existEdge(finalNode->getLabel(), nodeByIdFromEdge->getLabel()))
+        //         {
+        //             thirdGraph->insertEdge(finalNode->getLabel(), nodeByIdFromEdge->getLabel() , 0);
+        //         }
+        //         nextEdge = nextEdge->getNextEdge();
+        //     }
+        //     finalNode = finalNode ->getNextNode();
+        // }
+    }
+    thirdGraph->fixOrder();
+    return thirdGraph;
 }
 
 /*  Prints the graph on terminal window
@@ -267,17 +310,19 @@ string selectOption(int *selectedOption, string *errors, Graph *firstGraph)
     // Grafo interseção
     case 2:
     {
-
         break;
     }
     // Grafo união
     case 3:
     {
         Graph *secondGraph = readAuxiliaryGraph(selectedOption, errors);
-        dot = createIntersectionGraph(firstGraph, secondGraph);
+        Graph *thirdGraph = createUnionGraph(firstGraph, secondGraph);
 
+        dot = exportGraphToDotFormat(thirdGraph);
         delete secondGraph;
         secondGraph = nullptr;
+        delete thirdGraph;
+        thirdGraph = nullptr;
         break;
     }
     // Grafo diferença

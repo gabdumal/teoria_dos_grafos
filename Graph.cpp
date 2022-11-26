@@ -88,6 +88,11 @@ Node *Graph::getLastNode()
     The outdegree attribute of nodes is used as a counter for the number of edges in the graph.
     This allows the correct updating of the numbers of edges in the graph being directed or not.
 */
+
+void Graph::fixOrder(){
+    this->order = nodeIdCounter;
+}
+
 Node *Graph::insertNode(int label)
 {
     Node *newNode = new Node(nodeIdCounter++, label);
@@ -104,20 +109,27 @@ Node *Graph::insertNode(int label)
     return newNode;
 }
 
-void Graph::insertEdge(int sourceLabel, int targetLabel, float weight)
+void Graph::insertEdge(int sourceLabel, int targetLabel, float weight, Node **sourceNode, Node **targetNode)
 {
-    // Tratar conexão do nó consigo mesmo?
+    if(sourceLabel == targetLabel)
+        return;
+    
+    *sourceNode = getNodeByLabel(sourceLabel);
+    if (*sourceNode == nullptr)
+        if (nodeIdCounter < order)
+            *sourceNode = insertNode(sourceLabel);
+        else
+            return;
 
-    Node *sourceNode = getNodeByLabel(sourceLabel);
-    if (sourceNode == nullptr)
-        sourceNode = insertNode(sourceLabel);
+    *targetNode = getNodeByLabel(targetLabel);
+    if (*targetNode == nullptr)
+        if (nodeIdCounter < order)
+            *targetNode = insertNode(targetLabel);
+        else
+            return;
+    int targetNodeId = (*targetNode)->getId();
 
-    Node *targetNode = getNodeByLabel(targetLabel);
-    if (targetNode == nullptr)
-        targetNode = insertNode(targetLabel);
-    int targetNodeId = targetNode->getId();
-
-    Edge *nextEdge = sourceNode->getFirstEdge();
+    Edge *nextEdge = (*sourceNode)->getFirstEdge();
     bool alreadyExists = false;
     while (nextEdge != nullptr)
     {
@@ -127,17 +139,17 @@ void Graph::insertEdge(int sourceLabel, int targetLabel, float weight)
     }
     if (!alreadyExists)
     {
-        sourceNode->insertEdge(targetNodeId, weight);
+        (*sourceNode)->insertEdge(targetNodeId, targetLabel ,weight);
         if (!directed)
         {
-            targetNode->insertEdge(sourceNode->getId(), weight);
-            sourceNode->incrementInDegree();
-            targetNode->incrementOutDegree();
+            (*targetNode)->insertEdge((*sourceNode)->getId(), targetLabel , weight);
+            (*sourceNode)->incrementInDegree();
+            (*targetNode)->incrementOutDegree();
         }
     }
 
-    sourceNode->incrementOutDegree();
-    targetNode->incrementInDegree();
+    (*sourceNode)->incrementOutDegree();
+    (*targetNode)->incrementInDegree();
     numberEdges++;
 }
 
@@ -181,6 +193,24 @@ Node *Graph::getNodeByLabel(int label)
         nextNode = nextNode->getNextNode();
     }
     return nullptr;
+}
+
+bool Graph::existEdge(int labe1, int label2){
+    Node *auxNode = this->getNodeByLabel(labe1);
+    if(auxNode == NULL){
+        return false;
+    }
+    Edge *auxEdge = auxNode->getFirstEdge();
+    Node *compareEdge = this->getNodeById(auxEdge->getTargetId());
+    while(auxEdge!=NULL){
+        if(auxNode->getLabel() == compareEdge->getLabel())
+        {
+            return true;
+        }
+        auxEdge = auxEdge->getNextEdge();
+        compareEdge = this->getNodeById(auxEdge->getTargetId());
+    }
+    return false;
 }
 
 // Function that verifies if there is a path between two nodes
