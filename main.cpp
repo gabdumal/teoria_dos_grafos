@@ -183,7 +183,7 @@ Graph *readAuxiliaryGraph(int *selectedOption, string *errors)
     return auxiliaryGraph;
 }
 
-Graph* createUnionGraph(Graph *firstGraph, Graph *secondGraph)
+Graph *createUnionGraph(Graph *firstGraph, Graph *secondGraph)
 {
     Graph *thirdGraph;
     string dot = "";
@@ -211,21 +211,22 @@ Graph* createUnionGraph(Graph *firstGraph, Graph *secondGraph)
         }
         // VERIFICA QUAIS RELAÇÕES ESTÃO NO SEGUNDO GRAFO E NAO ESTÃO NO TERCEIRO
 
-        // finalNode = secondGraph->getFirstNode();
-        // while (finalNode != NULL)
-        // {
-        //     nextEdge = finalNode->getFirstEdge();
-        //     while (nextEdge != NULL)
-        //     {
-        //         nodeByIdFromEdge = firstGraph->getNodeById(nextEdge->getTargetId());
-        //         if(!thirdGraph->existEdge(finalNode->getLabel(), nodeByIdFromEdge->getLabel()))
-        //         {
-        //             thirdGraph->insertEdge(finalNode->getLabel(), nodeByIdFromEdge->getLabel() , 0);
-        //         }
-        //         nextEdge = nextEdge->getNextEdge();
-        //     }
-        //     finalNode = finalNode ->getNextNode();
-        // }
+        finalNode = secondGraph->getFirstNode();
+        while (finalNode != nullptr)
+        {
+            nextEdge = finalNode->getFirstEdge();
+            while (nextEdge != nullptr)
+            {
+                if (!thirdGraph->existEdge(finalNode->getLabel(), nextEdge->getTargetLabel()))
+                {
+                    Node *sourceNode = nullptr;
+                    Node *targetNode = nullptr;
+                    thirdGraph->insertEdge(finalNode->getLabel(), nextEdge->getTargetLabel(), 0,&sourceNode, &targetNode );
+                }
+                nextEdge = nextEdge->getNextEdge();
+            }
+            finalNode = finalNode->getNextNode();
+        }
     }
     thirdGraph->fixOrder();
     return thirdGraph;

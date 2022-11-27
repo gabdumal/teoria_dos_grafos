@@ -196,19 +196,17 @@ Node *Graph::getNodeByLabel(int label)
 }
 
 bool Graph::existEdge(int labe1, int label2){
-    Node *auxNode = this->getNodeByLabel(labe1);
-    if(auxNode == NULL){
+    Node *firstNode = this->getNodeByLabel(labe1);
+    if(firstNode == NULL){
         return false;
     }
-    Edge *auxEdge = auxNode->getFirstEdge();
-    Node *compareEdge = this->getNodeById(auxEdge->getTargetId());
-    while(auxEdge!=NULL){
-        if(auxNode->getLabel() == compareEdge->getLabel())
+    Edge *auxEdge = firstNode->getFirstEdge();
+    while(auxEdge != NULL){
+        if(auxEdge->getTargetLabel() == label2)
         {
             return true;
         }
         auxEdge = auxEdge->getNextEdge();
-        compareEdge = this->getNodeById(auxEdge->getTargetId());
     }
     return false;
 }
