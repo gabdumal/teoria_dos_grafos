@@ -187,47 +187,47 @@ Graph *createUnionGraph(Graph *firstGraph, Graph *secondGraph)
 {
     Graph *thirdGraph;
     string dot = "";
-    if (!firstGraph->getDirected())
+    // COPIA GRAFO1 PARA GRAFO 3
+    thirdGraph = new Graph(INT_MAX, firstGraph->getDirected(), false, false);
+
+    // aux
+    Node *finalNode = firstGraph->getFirstNode();
+    Edge *nextEdge;
+
+    while (finalNode != nullptr)
     {
-        // COPIA GRAFO1 PARA GRAFO 3
-        thirdGraph = new Graph(INT_MAX, ::directed, false, false);
-        // aux
+        nextEdge = finalNode->getFirstEdge();
 
-        Node *finalNode = firstGraph->getFirstNode();
-        Edge *nextEdge;
-
-        while (finalNode != nullptr)
+        while (nextEdge != nullptr)
         {
-            nextEdge = finalNode->getFirstEdge();
+            Node *sourceNode = nullptr;
+            Node *targetNode = nullptr;
+            thirdGraph->insertEdge(finalNode->getLabel(), nextEdge->getTargetLabel(), 0, &sourceNode, &targetNode);
+            nextEdge = nextEdge->getNextEdge();
+        }
+        finalNode = finalNode->getNextNode();
+    }
 
-            while (nextEdge != nullptr)
+    // VERIFICA QUAIS RELAÇÕES ESTÃO NO SEGUNDO GRAFO E NAO ESTÃO NO TERCEIRO
+
+    finalNode = secondGraph->getFirstNode();
+    while (finalNode != nullptr)
+    {
+        nextEdge = finalNode->getFirstEdge();
+        while (nextEdge != nullptr)
+        {
+            if (!thirdGraph->existEdge(finalNode->getLabel(), nextEdge->getTargetLabel()))
             {
                 Node *sourceNode = nullptr;
                 Node *targetNode = nullptr;
                 thirdGraph->insertEdge(finalNode->getLabel(), nextEdge->getTargetLabel(), 0, &sourceNode, &targetNode);
-                nextEdge = nextEdge->getNextEdge();
             }
-            finalNode = finalNode->getNextNode();
+            nextEdge = nextEdge->getNextEdge();
         }
-        // VERIFICA QUAIS RELAÇÕES ESTÃO NO SEGUNDO GRAFO E NAO ESTÃO NO TERCEIRO
-
-        finalNode = secondGraph->getFirstNode();
-        while (finalNode != nullptr)
-        {
-            nextEdge = finalNode->getFirstEdge();
-            while (nextEdge != nullptr)
-            {
-                if (!thirdGraph->existEdge(finalNode->getLabel(), nextEdge->getTargetLabel()))
-                {
-                    Node *sourceNode = nullptr;
-                    Node *targetNode = nullptr;
-                    thirdGraph->insertEdge(finalNode->getLabel(), nextEdge->getTargetLabel(), 0,&sourceNode, &targetNode );
-                }
-                nextEdge = nextEdge->getNextEdge();
-            }
-            finalNode = finalNode->getNextNode();
-        }
+        finalNode = finalNode->getNextNode();
     }
+
+    // CORRIGE ORDEM DO GRAFO
     thirdGraph->fixOrder();
     return thirdGraph;
 }
