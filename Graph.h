@@ -28,8 +28,10 @@ private:
 public:
     // Constructor
     Graph(int order, bool directed, bool weightedEdge, bool weightedNode);
+
     // Destructor
     ~Graph();
+
     // Getters
     int getOrder();
     int getNodeIdCounter();
@@ -39,9 +41,12 @@ public:
     bool getWeightedNode();
     Node *getFirstNode();
     Node *getLastNode();
+
     // Other methods
-    Node *insertNode(int id);
+    Node *insertNode(int label);
+    Node *insertNode(int label, float weight);
     void insertEdge(int sourceLabel, int targetLabel, float weight, Node **sourceNode, Node **targetNode);
+    void insertEdge(Node *sourceNode, Node *targetNode, float weight);
     void removeNode(int id);
     bool searchNode(int id);
     Node *getNodeById(int id);
@@ -52,11 +57,15 @@ public:
     Graph *getSubjacent();
     bool hasCircuit();
     bool connectedGraph();
+
+    // Algoritmos predefinidos
     float **floydMarshall();
     float *dijkstra(int id);
+    Graph *kruskal();
 
 private:
-    // Auxiliar methods
+    // Métodos auxiliares
+    bool depthFirstSearchAux(Node *currentNode, int targetId, bool visitedList[]);
 };
 
 #endif // GRAPH_H_INCLUDED

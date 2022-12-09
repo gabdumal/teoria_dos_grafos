@@ -24,7 +24,7 @@ bool directed = false, weightedEdge = false, weightedNode = false;
  *   writes .dot file after the .txt input
  */
 string exportGraphToDotFormat(Graph *graph)
-{
+{ // dot -Tpng output.dot -o graph1.png
     if (graph == nullptr)
         return "";
 
@@ -57,7 +57,10 @@ string exportGraphToDotFormat(Graph *graph)
             dot += "\n  " + to_string(nextNode->getLabel()) + connector +
                    to_string(graph->getNodeById(nextEdge->getTargetId())->getLabel());
             if (weightedEdge)
-                dot += " [weight = " + to_string(nextEdge->getWeight()) + "];";
+            {
+                string edgeWeight = to_string(nextEdge->getWeight());
+                dot += " [weight = " + edgeWeight + "] [label = " + edgeWeight + "];";
+            }
             nextEdge = nextEdge->getNextEdge();
         }
         nextNode = nextNode->getNextNode();
@@ -284,6 +287,12 @@ string selectOption(int *selectedOption, string *errors, Graph *firstGraph)
     case 5:
     {
 
+        break;
+    }
+    // Teste
+    case 6:
+    {
+        return exportGraphToDotFormat(firstGraph->kruskal());
         break;
     }
     default:

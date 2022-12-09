@@ -1,6 +1,7 @@
 #include "Graph.h"
 #include "Node.h"
 #include "Edge.h"
+#include "PointerEdge.h"
 #include <iostream>
 #include <fstream>
 #include <stack>
@@ -11,6 +12,7 @@
 #include <ctime>
 #include <float.h>
 #include <iomanip>
+#include <algorithm>
 
 using namespace std;
 
@@ -103,6 +105,12 @@ Node *Graph::insertNode(int label)
     }
     return newNode;
 }
+Node *Graph::insertNode(int label, float weight)
+{
+    Node *newNode = this->insertNode(label);
+    newNode->setWeight(weight);
+    return newNode;
+}
 
 void Graph::insertEdge(int sourceLabel, int targetLabel, float weight, Node **sourceNode, Node **targetNode)
 {
@@ -131,17 +139,37 @@ void Graph::insertEdge(int sourceLabel, int targetLabel, float weight, Node **so
     }
     if (!alreadyExists)
     {
-        (*sourceNode)->insertEdge(targetNodeId, weight);
+        (*sourceNode)->insertEdge((*sourceNode)->getId(), targetNodeId, weight);
         if (!directed)
         {
-            (*targetNode)->insertEdge((*sourceNode)->getId(), weight);
-            (*sourceNode)->incrementInDegree();
-            (*targetNode)->incrementOutDegree();
+            (*targetNode)->insertEdge(targetNodeId, (*sourceNode)->getId(), weight);
+            // (*sourceNode)->incrementInDegree();
+            // (*targetNode)->incrementOutDegree();
         }
     }
 
     (*sourceNode)->incrementOutDegree();
     (*targetNode)->incrementInDegree();
+    numberEdges++;
+}
+
+void Graph::insertEdge(Node *sourceNode, Node *targetNode, float weight)
+{
+    if (sourceNode != nullptr && targetNode != nullptr)
+    {
+        int sourceNodeId = sourceNode->getId();
+        int targetNodeId = targetNode->getId();
+        sourceNode->insertEdge(sourceNodeId, targetNodeId, weight);
+        if (!directed)
+        {
+            targetNode->insertEdge(targetNodeId, sourceNodeId, weight);
+            // sourceNode->incrementInDegree();
+            // targetNode->incrementOutDegree();
+        }
+    }
+
+    sourceNode->incrementInDegree();
+    targetNode->incrementOutDegree();
     numberEdges++;
 }
 
@@ -187,9 +215,31 @@ Node *Graph::getNodeByLabel(int label)
     return nullptr;
 }
 
-// Function that verifies if there is a path between two nodes
+// Verifica se há um caminho entre dois nós
 bool Graph::depthFirstSearch(int initialId, int targetId)
 {
+    bool *visitedList = new bool[this->nodeIdCounter];
+    for (int i = 0; i < this->nodeIdCounter; i++)
+        visitedList[i] = false;
+    return depthFirstSearchAux(this->getNodeById(initialId), targetId, visitedList);
+}
+bool Graph::depthFirstSearchAux(Node *currentNode, int targetId, bool visitedList[])
+{
+    int currentNodeId = currentNode->getId();
+    if (currentNodeId == targetId)
+        return true;
+    if (visitedList[currentNodeId])
+        return false;
+    visitedList[currentNodeId] = true;
+
+    for (Edge *e = currentNode->getFirstEdge(); e != nullptr; e = e->getNextEdge())
+    {
+        Node *nextNode = this->getNodeById(e->getTargetId());
+        bool found = this->depthFirstSearchAux(nextNode, targetId, visitedList);
+        if (found)
+            return true;
+    }
+    return false;
 }
 
 void Graph::breadthFirstSearch(ofstream &output_file)
@@ -219,4 +269,45 @@ float **Graph::floydMarshall()
 
 float *Graph::dijkstra(int id)
 {
+}
+
+Graph *Graph::kruskal()
+{
+    Graph *solutionGraph = new Graph(order, directed, weightedEdge, weightedNode);
+
+    if (this->directed)
+    {
+        cout << "ERRO: Algoritmo de Kruskal não funciona para grafos direcionados!";
+        return solutionGraph;
+    }
+
+    list<PointerEdge> allEdges;
+
+    for (Node *n = firstNode; n != nullptr && n->getLabel() > 0; n = n->getNextNode())
+        solutionGraph->insertNode(n->getLabel(), n->getWeight());
+
+    // Cria lista de arestas
+    for (Node *n = firstNode; n != nullptr && n->getLabel() > 0; n = n->getNextNode())
+        for (Edge *e = n->getFirstEdge(); e != nullptr; e = e->getNextEdge())
+            allEdges.emplace_back(solutionGraph->getNodeById(n->getId()),
+                                  solutionGraph->getNodeById(e->getTargetId()), e->getWeight());
+
+    allEdges.sort([](PointerEdge const &edge1, PointerEdge const &edge2)
+                  { return edge1.getWeight() < edge2.getWeight(); });
+
+    // Constrói árvore geradora mínima
+    int i = 0;
+    while (i < nodeIdCounter - 1 && !allEdges.empty())
+    {
+        PointerEdge currentEdge = allEdges.front();
+        allEdges.pop_front();
+
+        if (!solutionGraph->depthFirstSearch(currentEdge.getSourceNode()->getId(), currentEdge.getTargetNode()->getId()))
+        {
+            solutionGraph->insertEdge(currentEdge.getSourceNode(), currentEdge.getTargetNode(), currentEdge.getWeight());
+            i++;
+        }
+    }
+
+    return solutionGraph;
 }
