@@ -9,6 +9,7 @@
 #include <chrono>
 #include "Graph.h"
 #include "Node.h"
+#include <climits>
 
 using namespace std;
 
@@ -98,7 +99,9 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
     {
         while (input_file >> labelNodeSource >> labelNodeTarget)
         {
-            graph->insertEdge(labelNodeSource, labelNodeTarget, 0, nullptr, nullptr);
+            Node *sourceNode = nullptr;
+            Node *targetNode = nullptr;
+            graph->insertEdge(labelNodeSource, labelNodeTarget, 0, &sourceNode, &targetNode);
         }
     }
     // Grafo SEM peso nos nós, mas COM peso nas arestas
@@ -108,7 +111,9 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
 
         while (input_file >> labelNodeSource >> labelNodeTarget >> edgeWeight)
         {
-            graph->insertEdge(labelNodeSource, labelNodeTarget, edgeWeight, nullptr, nullptr);
+            Node *sourceNode = nullptr;
+            Node *targetNode = nullptr;
+            graph->insertEdge(labelNodeSource, labelNodeTarget, edgeWeight, &sourceNode, &targetNode);
         }
     }
     // Grafo COM peso nos nós, mas SEM peso nas arestas
@@ -181,9 +186,53 @@ Graph *readAuxiliaryGraph(int *selectedOption, string *errors)
     return auxiliaryGraph;
 }
 
-string createIntersectionGraph(Graph *firstGraph, Graph *secondGraph)
+Graph *createUnionGraph(Graph *firstGraph, Graph *secondGraph)
 {
-    return exportGraphToDotFormat(secondGraph);
+    Graph *thirdGraph;
+    string dot = "";
+    // COPIA GRAFO1 PARA GRAFO 3
+    thirdGraph = new Graph(INT_MAX, firstGraph->getDirected(), false, false);
+
+    // aux
+    Node *finalNode = firstGraph->getFirstNode();
+    Edge *nextEdge;
+
+    while (finalNode != nullptr)
+    {
+        nextEdge = finalNode->getFirstEdge();
+
+        while (nextEdge != nullptr)
+        {
+            Node *sourceNode = nullptr;
+            Node *targetNode = nullptr;
+            thirdGraph->insertEdge(finalNode->getLabel(), nextEdge->getTargetLabel(), 0, &sourceNode, &targetNode);
+            nextEdge = nextEdge->getNextEdge();
+        }
+        finalNode = finalNode->getNextNode();
+    }
+
+    // VERIFICA QUAIS RELAÇÕES ESTÃO NO SEGUNDO GRAFO E NAO ESTÃO NO TERCEIRO
+
+    finalNode = secondGraph->getFirstNode();
+    while (finalNode != nullptr)
+    {
+        nextEdge = finalNode->getFirstEdge();
+        while (nextEdge != nullptr)
+        {
+            if (!thirdGraph->existEdge(finalNode->getLabel(), nextEdge->getTargetLabel()))
+            {
+                Node *sourceNode = nullptr;
+                Node *targetNode = nullptr;
+                thirdGraph->insertEdge(finalNode->getLabel(), nextEdge->getTargetLabel(), 0, &sourceNode, &targetNode);
+            }
+            nextEdge = nextEdge->getNextEdge();
+        }
+        finalNode = finalNode->getNextNode();
+    }
+
+    // CORRIGE ORDEM DO GRAFO
+    thirdGraph->fixOrder();
+    return thirdGraph;
 }
 
 /*  Prints the graph on terminal window
@@ -265,16 +314,19 @@ string selectOption(int *selectedOption, string *errors, Graph *firstGraph)
     // Grafo interseção
     case 2:
     {
-        Graph *secondGraph = readAuxiliaryGraph(selectedOption, errors);
-        dot = createIntersectionGraph(firstGraph, secondGraph);
-
-        delete secondGraph;
-        secondGraph = nullptr;
         break;
     }
     // Grafo união
     case 3:
     {
+        Graph *secondGraph = readAuxiliaryGraph(selectedOption, errors);
+        Graph *thirdGraph = createUnionGraph(firstGraph, secondGraph);
+
+        dot = exportGraphToDotFormat(thirdGraph);
+        delete secondGraph;
+        secondGraph = nullptr;
+        delete thirdGraph;
+        thirdGraph = nullptr;
         break;
     }
     // Grafo diferença

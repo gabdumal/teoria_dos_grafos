@@ -14,18 +14,21 @@ class Edge
     // Attributes
 private:
     int sourceId;
+    int sourceLabel;
     int targetId;
+    int targetLabel;
     Edge *nextEdge;
     float weight;
 
 public:
     // Constructor
-    Edge(int sourceId, int targetId);
+    Edge(int sourceId, int sourceLabel, int targetId, int targetLabel);
     // Destructor
     ~Edge();
     // Getters
     int getSourceId();
     int getTargetId();
+    int getTargetLabel();
     Edge *getNextEdge();
     float getWeight() const;
     // Setters

@@ -42,7 +42,7 @@ public:
     void setWeight(float weight);
     // Other methods
     bool searchEdge(int targetId);
-    void insertEdge(int sourceId, int targetId, float weight);
+    void insertEdge(int sourceId, int sourceLabel, int targetId, int targetLabel, float weight);
     void removeAllEdges();
     int removeEdge(int id, bool directed, Node *targetNode);
     void incrementOutDegree();
