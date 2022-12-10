@@ -10,6 +10,7 @@
 #include "Graph.h"
 #include "Node.h"
 #include <climits>
+#include <sstream>
 
 using namespace std;
 
@@ -59,8 +60,11 @@ string exportGraphToDotFormat(Graph *graph)
                    to_string(graph->getNodeById(nextEdge->getTargetId())->getLabel());
             if (weightedEdge)
             {
-                string edgeWeight = to_string(nextEdge->getWeight());
-                dot += " [weight = " + edgeWeight + "] [label = " + edgeWeight + "];";
+                float edgeWeight = nextEdge->getWeight();
+                std::stringstream stream;
+                stream << std::fixed << std::setprecision(2) << edgeWeight;
+                std::string formatedWeight = stream.str();
+                dot += " [weight = " + to_string(nextEdge->getWeight()) + "] [label = " + formatedWeight + "];";
             }
             nextEdge = nextEdge->getNextEdge();
         }
@@ -74,7 +78,7 @@ string exportGraphToDotFormat(Graph *graph)
 /*  Reads from .txt file
     it also evaluetas three possible natures of the graph, if it is: directed, weighted on edges, weighted on nodes
 */
-Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weightedNode)
+Graph *readFile(ifstream &input_file, int directed, int weightedEdge, int weightedNode)
 {
     // Preenchimento das variáveis globais
     ::directed = directed;
@@ -101,7 +105,7 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
         {
             Node *sourceNode = nullptr;
             Node *targetNode = nullptr;
-            graph->insertEdge(labelNodeSource, labelNodeTarget, 0, &sourceNode, &targetNode);
+            graph->insertEdge(abs(labelNodeSource), abs(labelNodeTarget), 1, &sourceNode, &targetNode);
         }
     }
     // Grafo SEM peso nos nós, mas COM peso nas arestas
@@ -113,7 +117,7 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
         {
             Node *sourceNode = nullptr;
             Node *targetNode = nullptr;
-            graph->insertEdge(labelNodeSource, labelNodeTarget, edgeWeight, &sourceNode, &targetNode);
+            graph->insertEdge(abs(labelNodeSource), abs(labelNodeTarget), edgeWeight, &sourceNode, &targetNode);
         }
     }
     // Grafo COM peso nos nós, mas SEM peso nas arestas
@@ -125,7 +129,7 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
         {
             Node *sourceNode = nullptr;
             Node *targetNode = nullptr;
-            graph->insertEdge(labelNodeSource, labelNodeTarget, 0, &sourceNode, &targetNode);
+            graph->insertEdge(abs(labelNodeSource), abs(labelNodeTarget), 1, &sourceNode, &targetNode);
             if (sourceNode != nullptr)
                 sourceNode->setWeight(nodeSourceWeight);
             if (targetNode != nullptr)
@@ -141,7 +145,7 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
         {
             Node *sourceNode = nullptr;
             Node *targetNode = nullptr;
-            graph->insertEdge(labelNodeSource, labelNodeTarget, edgeWeight, &sourceNode, &targetNode);
+            graph->insertEdge(abs(labelNodeSource), abs(labelNodeTarget), edgeWeight, &sourceNode, &targetNode);
             if (sourceNode != nullptr)
                 sourceNode->setWeight(nodeSourceWeight);
             if (targetNode != nullptr)
@@ -162,7 +166,7 @@ Graph *leitura(ifstream &input_file, int directed, int weightedEdge, int weighte
 Graph *createAuxiliaryGraphFromFile(ifstream &input_file, string input_file_name, int *selectedOption, string *errors)
 {
     if (input_file.is_open())
-        return leitura(input_file, ::directed, ::weightedEdge, ::weightedNode);
+        return readFile(input_file, ::directed, ::weightedEdge, ::weightedNode);
     else
     {
         *errors += "ERRO: Não foi possível abrir o arquivo de entrada " + input_file_name + "!\n";
@@ -344,7 +348,7 @@ string selectOption(int *selectedOption, string *errors, Graph *firstGraph)
     // Teste
     case 6:
     {
-        return exportGraphToDotFormat(firstGraph->kruskal());
+        return exportGraphToDotFormat(firstGraph->prim());
         break;
     }
     default:
@@ -419,7 +423,7 @@ int main(int argc, char const *argv[])
     Graph *graph;
 
     if (input_file.is_open())
-        graph = leitura(input_file, atoi(argv[3]), atoi(argv[4]), atoi(argv[5]));
+        graph = readFile(input_file, atoi(argv[3]), atoi(argv[4]), atoi(argv[5]));
     else
     {
         cout << "ERRO: Não foi possível abrir o arquivo de entrada " << input_file_name << "!" << endl;

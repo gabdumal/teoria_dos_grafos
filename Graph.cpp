@@ -10,9 +10,10 @@
 #include <math.h>
 #include <cstdlib>
 #include <ctime>
-#include <float.h>
+#include <cfloat>
 #include <iomanip>
 #include <algorithm>
+#include <climits>
 
 using namespace std;
 
@@ -152,8 +153,8 @@ void Graph::insertEdge(int sourceLabel, int targetLabel, float weight, Node **so
         if (!directed)
         {
             (*targetNode)->insertEdge(targetNodeId, targetLabel, (*sourceNode)->getId(), sourceLabel, weight);
-            // (*sourceNode)->incrementInDegree();
-            // (*targetNode)->incrementOutDegree();
+            (*sourceNode)->incrementInDegree();
+            (*targetNode)->incrementOutDegree();
         }
     }
 
@@ -168,17 +169,19 @@ void Graph::insertEdge(Node *sourceNode, Node *targetNode, float weight)
     {
         int sourceNodeId = sourceNode->getId();
         int targetNodeId = targetNode->getId();
-        sourceNode->insertEdge(sourceNodeId, targetNodeId, weight);
+        int sourceNodeLabel = sourceNode->getLabel();
+        int targetNodeLabel = targetNode->getLabel();
+        sourceNode->insertEdge(sourceNodeId, sourceNodeLabel, targetNodeId, targetNodeLabel, weight);
         if (!directed)
         {
-            targetNode->insertEdge(targetNodeId, sourceNodeId, weight);
-            // sourceNode->incrementInDegree();
-            // targetNode->incrementOutDegree();
+            targetNode->insertEdge(targetNodeId, targetNodeLabel, sourceNodeId, sourceNodeLabel, weight);
+            sourceNode->incrementInDegree();
+            targetNode->incrementOutDegree();
         }
     }
 
-    sourceNode->incrementInDegree();
-    targetNode->incrementOutDegree();
+    sourceNode->incrementOutDegree();
+    targetNode->incrementInDegree();
     numberEdges++;
 }
 
@@ -224,6 +227,7 @@ Node *Graph::getNodeByLabel(int label)
     return nullptr;
 }
 
+// Verifica se existe aresta entre dois nós
 bool Graph::existEdge(int firstNodeLabel, int secondNodeLabel)
 {
     Node *firstNode = this->getNodeByLabel(firstNodeLabel);
@@ -301,25 +305,26 @@ float *Graph::dijkstra(int id)
 
 Graph *Graph::kruskal()
 {
-    Graph *solutionGraph = new Graph(order, directed, weightedEdge, weightedNode);
-
     if (this->directed)
     {
-        cout << "ERRO: Algoritmo de Kruskal não funciona para grafos direcionados!";
-        return solutionGraph;
+        cout << "ERRO: Algoritmo de Kruskal nao funciona para grafos direcionados!";
+        return nullptr;
     }
 
-    list<PointerEdge> allEdges;
-
-    for (Node *n = firstNode; n != nullptr && n->getLabel() > 0; n = n->getNextNode())
-        solutionGraph->insertNode(n->getLabel(), n->getWeight());
+    // Copia nós do grafo
+    Graph *solutionGraph = new Graph(INT_MAX, directed, weightedEdge, weightedNode);
+    for (Node *n = firstNode; n != nullptr; n = n->getNextNode())
+        if (n->getLabel() >= 0)
+            solutionGraph->insertNode(n->getLabel(), n->getWeight());
+    solutionGraph->fixOrder();
 
     // Cria lista de arestas
-    for (Node *n = firstNode; n != nullptr && n->getLabel() > 0; n = n->getNextNode())
-        for (Edge *e = n->getFirstEdge(); e != nullptr; e = e->getNextEdge())
-            allEdges.emplace_back(solutionGraph->getNodeById(n->getId()),
-                                  solutionGraph->getNodeById(e->getTargetId()), e->getWeight());
-
+    list<PointerEdge> allEdges;
+    for (Node *n = firstNode; n != nullptr; n = n->getNextNode())
+        if (n->getLabel() >= 0)
+            for (Edge *e = n->getFirstEdge(); e != nullptr; e = e->getNextEdge())
+                allEdges.emplace_back(solutionGraph->getNodeById(n->getId()),
+                                      solutionGraph->getNodeById(e->getTargetId()), e->getWeight());
     allEdges.sort([](PointerEdge const &edge1, PointerEdge const &edge2)
                   { return edge1.getWeight() < edge2.getWeight(); });
 
@@ -336,6 +341,93 @@ Graph *Graph::kruskal()
             i++;
         }
     }
+    return solutionGraph;
+}
+
+Graph *Graph::prim()
+{
+    if (this->directed)
+    {
+        cout << "ERRO: Algoritmo de Prim nao funciona para grafos direcionados!";
+        return nullptr;
+    }
+
+    // Copia nós do grafo
+    Graph *solutionGraph = new Graph(1, directed, weightedEdge, weightedNode);
+    for (Node *n = firstNode; n != nullptr; n = n->getNextNode())
+        if (n->getLabel() >= 0)
+            solutionGraph->insertNode(n->getLabel(), n->getWeight());
+    solutionGraph->fixOrder();
+
+    // Cria lista de arestas
+    list<SimpleEdge> allEdges;
+    list<SimpleEdge> solutionEdges;
+    for (Node *n = this->firstNode; n != nullptr; n = n->getNextNode())
+        if (n->getLabel() >= 0)
+            for (Edge *e = n->getFirstEdge(); e != nullptr; e = e->getNextEdge())
+            {
+                SimpleEdge simpleEdge;
+                simpleEdge.sourceNodeId = e->getSourceId();
+                simpleEdge.targetNodeId = e->getTargetId();
+                simpleEdge.weight = e->getWeight();
+
+                allEdges.emplace_back(simpleEdge);
+            }
+    allEdges.sort([](SimpleEdge const &edge1, SimpleEdge const &edge2)
+                  { return edge1.weight < edge2.weight; });
+
+    // Cria listas auxiliares de distância
+    int *nearestNodeList = new int[solutionGraph->order];
+    float *auxNodeList = new float[solutionGraph->order];
+
+    // Adiciona primeira aresta
+    SimpleEdge currentEdge = allEdges.front();
+    allEdges.pop_front();
+    solutionEdges.emplace_back(currentEdge);
+    int sourceNodeId = currentEdge.sourceNodeId;
+    int targetNodeId = currentEdge.targetNodeId;
+    int k = 0;
+    for (Node *n = this->firstNode; n != nullptr && k < solutionGraph->order; n = n->getNextNode())
+    {
+        if (n->getLabel() < 0)
+            continue;
+
+        float distanceCurrentToSource = n->distanceToOtherNode(sourceNodeId);
+        float distanceCurrentToTarget = n->distanceToOtherNode(targetNodeId);
+        if (distanceCurrentToSource < distanceCurrentToTarget)
+        {
+            nearestNodeList[k] = sourceNodeId;
+            auxNodeList[k] = distanceCurrentToSource;
+        }
+        else
+        {
+            nearestNodeList[k] = targetNodeId;
+            auxNodeList[k] = distanceCurrentToTarget;
+        }
+        k++;
+    }
+
+    // Seleção das arestas
+    for (int i = 0; i < count; i++)
+    {
+        /* code */
+    }
+
+    for (int i = 0; i < solutionGraph->order; i++)
+        cout << "| " << this->getNodeById(i)->getLabel() << " ";
+    cout << endl;
+    for (int i = 0; i < solutionGraph->order; i++)
+        cout << "| " << this->getNodeById(nearestNodeList[i])->getLabel() << " ";
+    cout << endl;
+    for (int i = 0; i < solutionGraph->order; i++)
+    {
+        float distance = auxNodeList[i];
+        if (distance == FLT_MAX)
+            cout << "| $ ";
+        else
+            cout << "| " << distance << " ";
+    }
+    cout << endl;
 
     return solutionGraph;
 }

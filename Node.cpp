@@ -1,6 +1,7 @@
 #include "Node.h"
 #include "Edge.h"
 #include <iostream>
+#include <cfloat>
 
 using namespace std;
 
@@ -190,25 +191,21 @@ bool Node::searchEdge(int targetId)
 
 void Node::incrementInDegree()
 {
-
     this->inDegree++;
 }
 
 void Node::incrementOutDegree()
 {
-
     this->outDegree++;
 }
 
 void Node::decrementInDegree()
 {
-
     this->inDegree--;
 }
 
 void Node::decrementOutDegree()
 {
-
     this->outDegree--;
 }
 
@@ -218,11 +215,21 @@ void Node::decrementOutDegree()
  */
 Edge *Node::hasEdgeBetween(int targetId)
 {
-
     for (Edge *auxEdge = this->firstEdge; auxEdge != nullptr; auxEdge = auxEdge->getNextEdge())
     {
         if (auxEdge->getTargetId() == targetId)
             return auxEdge;
     }
     return nullptr;
+}
+
+float Node::distanceToOtherNode(int targetId)
+{
+    if (this->id == targetId)
+        return 0;
+    Edge *edgeBetween = this->hasEdgeBetween(targetId);
+    if (edgeBetween != nullptr)
+        return edgeBetween->getWeight();
+    else
+        return FLT_MAX;
 }

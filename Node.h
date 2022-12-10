@@ -26,8 +26,10 @@ private:
 public:
     // Constructor
     Node(int id, int label);
+
     // Destructor
     ~Node();
+
     // Getters
     Edge *getFirstEdge();
     Edge *getLastEdge();
@@ -37,9 +39,11 @@ public:
     int getOutDegree();
     float getWeight();
     Node *getNextNode();
+
     // Setters
     void setNextNode(Node *node);
     void setWeight(float weight);
+
     // Other methods
     bool searchEdge(int targetId);
     void insertEdge(int sourceId, int sourceLabel, int targetId, int targetLabel, float weight);
@@ -49,7 +53,9 @@ public:
     void decrementOutDegree();
     void incrementInDegree();
     void decrementInDegree();
+
     Edge *hasEdgeBetween(int targetId);
+    float distanceToOtherNode(int targetId);
     // Auxiliar methods
 };
 
