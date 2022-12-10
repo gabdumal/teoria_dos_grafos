@@ -168,10 +168,12 @@ void Graph::insertEdge(Node *sourceNode, Node *targetNode, float weight)
     {
         int sourceNodeId = sourceNode->getId();
         int targetNodeId = targetNode->getId();
-        sourceNode->insertEdge(sourceNodeId, targetNodeId, weight);
+        int sourceNodeLabel = sourceNode->getLabel();
+        int targetNodelabel = targetNode->getLabel();
+        sourceNode->insertEdge(sourceNodeId, sourceNodeLabel, targetNodeId, targetNodelabel, weight);
         if (!directed)
         {
-            targetNode->insertEdge(targetNodeId, sourceNodeId, weight);
+            targetNode->insertEdge(sourceNodeId, sourceNodeLabel, targetNodeId, targetNodelabel, weight);
             // sourceNode->incrementInDegree();
             // targetNode->incrementOutDegree();
         }
