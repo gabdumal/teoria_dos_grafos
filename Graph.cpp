@@ -163,6 +163,13 @@ void Graph::insertEdge(int sourceLabel, int targetLabel, float weight, Node **so
     numberEdges++;
 }
 
+void Graph::insertEdge(int sourceLabel, int targetLabel, float weight)
+{
+    Node *sourceNode = nullptr;
+    Node *targetNode = nullptr;
+    this->insertEdge(sourceLabel, targetLabel, weight, &sourceNode, &targetNode);
+}
+
 void Graph::insertEdge(Node *sourceNode, Node *targetNode, float weight)
 {
     if (sourceNode != nullptr && targetNode != nullptr)
@@ -303,6 +310,12 @@ float *Graph::dijkstra(int id)
 {
 }
 
+bool Graph::isConnected()
+{
+    // TO DO
+    return true;
+}
+
 Graph *Graph::kruskal()
 {
     if (this->directed)
@@ -310,27 +323,30 @@ Graph *Graph::kruskal()
         cout << "ERRO: Algoritmo de Kruskal nao funciona para grafos direcionados!";
         return nullptr;
     }
+    if (!this->isConnected())
+    {
+        cout << "ERRO: Algoritmo de Kruskal nao funciona para grafos nao conexos!";
+        return nullptr;
+    }
 
     // Copia nós do grafo
     Graph *solutionGraph = new Graph(INT_MAX, directed, weightedEdge, weightedNode);
     for (Node *n = firstNode; n != nullptr; n = n->getNextNode())
-        if (n->getLabel() >= 0)
-            solutionGraph->insertNode(n->getLabel(), n->getWeight());
+        solutionGraph->insertNode(n->getLabel(), n->getWeight());
     solutionGraph->fixOrder();
 
     // Cria lista de arestas
     list<PointerEdge> allEdges;
     for (Node *n = firstNode; n != nullptr; n = n->getNextNode())
-        if (n->getLabel() >= 0)
-            for (Edge *e = n->getFirstEdge(); e != nullptr; e = e->getNextEdge())
-                allEdges.emplace_back(solutionGraph->getNodeById(n->getId()),
-                                      solutionGraph->getNodeById(e->getTargetId()), e->getWeight());
+        for (Edge *e = n->getFirstEdge(); e != nullptr; e = e->getNextEdge())
+            allEdges.emplace_back(solutionGraph->getNodeById(n->getId()),
+                                  solutionGraph->getNodeById(e->getTargetId()), e->getWeight());
     allEdges.sort([](PointerEdge const &edge1, PointerEdge const &edge2)
                   { return edge1.getWeight() < edge2.getWeight(); });
 
     // Constrói árvore geradora mínima
     int i = 0;
-    while (i < nodeIdCounter - 1 && !allEdges.empty())
+    while (i < order - 1 && !allEdges.empty())
     {
         PointerEdge currentEdge = allEdges.front();
         allEdges.pop_front();
@@ -351,47 +367,42 @@ Graph *Graph::prim()
         cout << "ERRO: Algoritmo de Prim nao funciona para grafos direcionados!";
         return nullptr;
     }
-
-    // Copia nós do grafo
-    Graph *solutionGraph = new Graph(1, directed, weightedEdge, weightedNode);
-    for (Node *n = firstNode; n != nullptr; n = n->getNextNode())
-        if (n->getLabel() >= 0)
-            solutionGraph->insertNode(n->getLabel(), n->getWeight());
-    solutionGraph->fixOrder();
+    if (!this->isConnected())
+    {
+        cout << "ERRO: Algoritmo de Prim nao funciona para grafos nao conexos!";
+        return nullptr;
+    }
 
     // Cria lista de arestas
     list<SimpleEdge> allEdges;
     list<SimpleEdge> solutionEdges;
     for (Node *n = this->firstNode; n != nullptr; n = n->getNextNode())
-        if (n->getLabel() >= 0)
-            for (Edge *e = n->getFirstEdge(); e != nullptr; e = e->getNextEdge())
-            {
-                SimpleEdge simpleEdge;
-                simpleEdge.sourceNodeId = e->getSourceId();
-                simpleEdge.targetNodeId = e->getTargetId();
-                simpleEdge.weight = e->getWeight();
-
-                allEdges.emplace_back(simpleEdge);
-            }
-    allEdges.sort([](SimpleEdge const &edge1, SimpleEdge const &edge2)
-                  { return edge1.weight < edge2.weight; });
+        for (Edge *e = n->getFirstEdge(); e != nullptr; e = e->getNextEdge())
+        {
+            SimpleEdge simpleEdge;
+            simpleEdge.sourceNodeId = e->getSourceId();
+            simpleEdge.targetNodeId = e->getTargetId();
+            simpleEdge.weight = e->getWeight();
+            allEdges.emplace_back(simpleEdge);
+        }
+    SimpleEdge shortestEdge = allEdges.front();
+    for (auto &&e : allEdges)
+    {
+        if (e.weight < shortestEdge.weight)
+            shortestEdge = e;
+    }
 
     // Cria listas auxiliares de distância
-    int *nearestNodeList = new int[solutionGraph->order];
-    float *auxNodeList = new float[solutionGraph->order];
+    int *nearestNodeList = new int[this->order];
+    float *auxNodeList = new float[this->order];
 
     // Adiciona primeira aresta
-    SimpleEdge currentEdge = allEdges.front();
-    allEdges.pop_front();
-    solutionEdges.emplace_back(currentEdge);
-    int sourceNodeId = currentEdge.sourceNodeId;
-    int targetNodeId = currentEdge.targetNodeId;
+    solutionEdges.emplace_back(shortestEdge);
+    int sourceNodeId = shortestEdge.sourceNodeId;
+    int targetNodeId = shortestEdge.targetNodeId;
     int k = 0;
-    for (Node *n = this->firstNode; n != nullptr && k < solutionGraph->order; n = n->getNextNode())
+    for (Node *n = this->firstNode; n != nullptr && k < this->order; n = n->getNextNode())
     {
-        if (n->getLabel() < 0)
-            continue;
-
         float distanceCurrentToSource = n->distanceToOtherNode(sourceNodeId);
         float distanceCurrentToTarget = n->distanceToOtherNode(targetNodeId);
         if (distanceCurrentToSource < distanceCurrentToTarget)
@@ -406,28 +417,85 @@ Graph *Graph::prim()
         }
         k++;
     }
+    int static alreadyInSolution = -1;
+    nearestNodeList[sourceNodeId] = alreadyInSolution;
+    nearestNodeList[targetNodeId] = alreadyInSolution;
 
     // Seleção das arestas
-    for (int i = 0; i < count; i++)
+    for (int i = 0; i < this->order - 2; i++)
     {
-        /* code */
+        int minDistanceSourceId;
+        int m;
+        for (m = 0; m < this->order; m++)
+        {
+            if (nearestNodeList[m] > alreadyInSolution)
+            {
+                minDistanceSourceId = m;
+                break;
+            }
+        }
+        float distanceNodes = 0;
+        for (int n = m + 1; n < this->order; n++)
+        {
+            distanceNodes = auxNodeList[n];
+            if (nearestNodeList[n] > alreadyInSolution && distanceNodes < auxNodeList[minDistanceSourceId])
+                minDistanceSourceId = n;
+        }
+
+        SimpleEdge shortestAvailableEdge;
+        shortestAvailableEdge.sourceNodeId = minDistanceSourceId;
+        shortestAvailableEdge.targetNodeId = nearestNodeList[minDistanceSourceId];
+        shortestAvailableEdge.weight = auxNodeList[minDistanceSourceId];
+        solutionEdges.emplace_back(shortestAvailableEdge);
+
+        nearestNodeList[minDistanceSourceId] = alreadyInSolution;
+        auxNodeList[minDistanceSourceId] = 0;
+        Node *currentNode = this->getNodeById(minDistanceSourceId);
+
+        for (int m = 0; m < this->order; m++)
+        {
+            if (nearestNodeList[m] > alreadyInSolution)
+            {
+                float distanceCurrentToM = currentNode->distanceToOtherNode(m);
+                if (auxNodeList[m] > distanceCurrentToM)
+                {
+                    nearestNodeList[m] = minDistanceSourceId;
+                    auxNodeList[m] = distanceCurrentToM;
+                }
+            }
+        }
+
+        //     cout << "J = " << currentNode->getLabel() << endl;
+        //     for (int i = 0; i < this->order; i++)
+        //         cout << "| " << this->getNodeById(i)->getLabel() << " ";
+        //     cout << endl;
+        //     for (int i = 0; i < this->order; i++)
+        //         if (nearestNodeList[i] == -1)
+        //             cout << "| A ";
+        //         else
+        //             cout << "| " << this->getNodeById(nearestNodeList[i])->getLabel() << " ";
+        //     cout << endl;
+        //     for (int i = 0; i < this->order; i++)
+        //     {
+        //         float distance = auxNodeList[i];
+        //         if (distance == FLT_MAX)
+        //             cout << "| $ ";
+        //         else
+        //             cout << "| " << distance << " ";
+        //     }
+        //     cout << endl
+        //          << endl;
     }
 
-    for (int i = 0; i < solutionGraph->order; i++)
-        cout << "| " << this->getNodeById(i)->getLabel() << " ";
-    cout << endl;
-    for (int i = 0; i < solutionGraph->order; i++)
-        cout << "| " << this->getNodeById(nearestNodeList[i])->getLabel() << " ";
-    cout << endl;
-    for (int i = 0; i < solutionGraph->order; i++)
+    // Constrói grafo resultado
+    Graph *solutionGraph = new Graph(order, directed, weightedEdge, weightedNode);
+    for (auto &&e : solutionEdges)
     {
-        float distance = auxNodeList[i];
-        if (distance == FLT_MAX)
-            cout << "| $ ";
-        else
-            cout << "| " << distance << " ";
+        Node *sourceNode = this->getNodeById(e.sourceNodeId);
+        Node *targetNode = this->getNodeById(e.targetNodeId);
+        solutionGraph->insertEdge(sourceNode->getLabel(), targetNode->getLabel(), e.weight);
     }
-    cout << endl;
+    solutionGraph->fixOrder();
 
     return solutionGraph;
 }

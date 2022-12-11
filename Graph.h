@@ -46,6 +46,7 @@ public:
     Node *insertNode(int label);
     Node *insertNode(int label, float weight);
     void fixOrder();
+    void insertEdge(int sourceLabel, int targetLabel, float weight);
     void insertEdge(int sourceLabel, int targetLabel, float weight, Node **sourceNode, Node **targetNode);
     void insertEdge(Node *sourceNode, Node *targetNode, float weight);
     void removeNode(int id);
@@ -59,6 +60,7 @@ public:
     bool hasCircuit();
     bool connectedGraph();
     bool existEdge(int firstNodeLabel, int secondNodeLabel);
+    bool isConnected();
 
     // Algoritmos predefinidos
     float **floydMarshall();
