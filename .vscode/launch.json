@@ -9,8 +9,8 @@
                 "input.txt",
                 "output.dot",
                 "0",
-                "1",
-                "1"
+                "0",
+                "0"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

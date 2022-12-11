@@ -235,6 +235,51 @@ Graph *createUnionGraph(Graph *firstGraph, Graph *secondGraph)
     return thirdGraph;
 }
 
+Graph *graphDifference(Graph *originalGraph, Graph *toSubtractGraph)
+{
+    // instancia grafo resultado com características do grafo original
+    Graph *resultedGraph;
+    resultedGraph = new Graph(INT_MAX, originalGraph->getDirected(), false, false);
+
+    // aux
+    Node *auxNodeOriginalGraph = originalGraph->getFirstNode();     // nó auxiliar recebe o primeiro nó do grafo original
+    Node *auxNodeToSubtractGraph = toSubtractGraph->getFirstNode(); // nó auxiliar recebe o primeiro nó do grafo a subtrair
+    Edge *auxEdgeOriginalGraph;
+    Edge *auxEdgeToSubtractGraph;
+    int sourceLabel;
+    int targetLabel;
+
+    while (auxNodeOriginalGraph != nullptr)
+    {
+        auxEdgeOriginalGraph = auxNodeOriginalGraph->getFirstEdge(); // aresta auxiliar recebe primeira aresta do primeiro nó do grafo original
+        auxEdgeToSubtractGraph = auxNodeToSubtractGraph->getFirstEdge();
+        // enquanto há arestas em um nó
+        while (auxEdgeOriginalGraph != nullptr)
+        {
+            sourceLabel = auxNodeOriginalGraph->getLabel();
+            targetLabel = auxEdgeOriginalGraph->getTargetLabel();
+            if (originalGraph->existEdge(sourceLabel, targetLabel))
+            {
+                while (auxEdgeToSubtractGraph != nullptr)
+                {
+                    if (!toSubtractGraph->existEdge(sourceLabel, targetLabel) && originalGraph->existEdge(sourceLabel, targetLabel))
+                    {
+                        Node *sourceNode = nullptr;
+                        Node *targetNode = nullptr;
+                        resultedGraph->insertEdge(sourceLabel, targetLabel, 0, &sourceNode, &targetNode);
+                    }
+                    auxEdgeToSubtractGraph = auxEdgeToSubtractGraph->getNextEdge();
+                }
+            }
+            auxEdgeOriginalGraph = auxEdgeOriginalGraph->getNextEdge();
+        }
+        // avança para o próximo nó
+        auxNodeOriginalGraph = auxNodeOriginalGraph->getNextNode();
+    }
+    resultedGraph->fixOrder();
+    return resultedGraph;
+}
+
 /*  Prints the graph on terminal window
  *   at the end returns a boolean which is used either to export the graph or not
  */
@@ -332,7 +377,14 @@ string selectOption(int *selectedOption, string *errors, Graph *firstGraph)
     // Grafo diferença
     case 4:
     {
+        Graph *secondGraph = readAuxiliaryGraph(selectedOption, errors);
+        Graph *thirdGraph = graphDifference(firstGraph, secondGraph);
 
+        dot = exportGraphToDotFormat(thirdGraph);
+        delete secondGraph;
+        secondGraph = nullptr;
+        delete thirdGraph;
+        thirdGraph = nullptr;
         break;
     }
     // Rede Pert
