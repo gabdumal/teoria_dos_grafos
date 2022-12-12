@@ -5,13 +5,13 @@
 #ifndef NODE_H_INCLUDED
 #define NODE_H_INCLUDED
 #include "Edge.h" // Include of the Edge class
+#include <list>
 
 using namespace std;
 
 // Definition of the Node class
 class Node
 {
-
     // Attributes
 private:
     Edge *firstEdge;
@@ -33,7 +33,7 @@ public:
     // Getters
     Edge *getFirstEdge();
     Edge *getLastEdge();
-    int getId();
+    int getId() const;
     int getLabel();
     int getInDegree();
     int getOutDegree();
@@ -45,18 +45,19 @@ public:
     void setWeight(float weight);
 
     // Other methods
-    bool searchEdge(int targetId);
-    void insertEdge(int sourceId, int sourceLabel, int targetId, int targetLabel, float weight);
-    void removeAllEdges();
-    int removeEdge(int id, bool directed, Node *targetNode);
     void incrementOutDegree();
     void decrementOutDegree();
     void incrementInDegree();
     void decrementInDegree();
 
-    Edge *hasEdgeBetween(int targetId);
-    float distanceToOtherNode(int targetId);
     // Auxiliar methods
+    void insertEdge(int sourceId, int sourceLabel, int targetId, int targetLabel, float weight);
+    int removeEdge(int id, bool directed, Node *targetNode);
+    void removeAllEdges();
+    Edge *getEdgeBetween(int targetId);
+    bool hasEdgeBetween(int targetId);
+    float distanceToOtherNode(int targetId);
+    list<SimpleEdge> distanceToConnectedNodes();
 };
 
 #endif // NODE_H_INCLUDED

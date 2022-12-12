@@ -2,7 +2,6 @@
 #include "Edge.h"
 #include <iostream>
 #include <cfloat>
-
 using namespace std;
 
 /**************************************************************************************************
@@ -53,7 +52,7 @@ Edge *Node::getLastEdge()
 {
     return this->lastEdge;
 }
-int Node::getId()
+int Node::getId() const
 {
     return this->id;
 }
@@ -114,40 +113,36 @@ void Node::removeAllEdges()
     // Verifies whether there are at least one edge in the node
     if (this->firstEdge != nullptr)
     {
-
         Edge *next = nullptr;
         Edge *aux = this->firstEdge;
         // Removing all edges of the node
         while (aux != nullptr)
         {
-
             next = aux->getNextEdge();
             delete aux;
         }
     }
-
     this->firstEdge = this->lastEdge = nullptr;
 }
 
 int Node::removeEdge(int id, bool directed, Node *targetNode)
 {
     // Verifies whether the edge to remove is in the node
-    if (this->searchEdge(id))
+    if (this->hasEdgeBetween(id))
     {
-
         Edge *aux = this->firstEdge;
         Edge *previous = nullptr;
+
         // Searching for the edge to be removed
         while (aux->getTargetId() != id)
         {
-
             previous = aux;
             aux = aux->getNextEdge();
         }
+
         // Keeping the integrity of the edge list
         if (previous != nullptr)
             previous->setNextEdge(aux->getNextEdge());
-
         else
             this->firstEdge = aux->getNextEdge();
 
@@ -158,35 +153,19 @@ int Node::removeEdge(int id, bool directed, Node *targetNode)
             this->lastEdge = aux->getNextEdge();
 
         delete aux;
+
         // Verifies whether the graph is directed
         if (directed)
             this->decrementOutDegree();
-
         else
         {
-
             this->decrementInDegree();
             targetNode->decrementInDegree();
         }
 
         return 1;
     }
-
     return 0;
-}
-
-bool Node::searchEdge(int targetId)
-{
-    // Verifies whether there are at least one edge in the node
-    if (this->firstEdge != nullptr)
-    {
-        // Searching for a specific edge of target id equal to target id
-        for (Edge *aux = this->firstEdge; aux != nullptr; aux = aux->getNextEdge())
-            if (aux->getTargetId() == targetId)
-                return true;
-    }
-
-    return false;
 }
 
 void Node::incrementInDegree()
@@ -213,7 +192,7 @@ void Node::decrementOutDegree()
  *em caso verdadeiro retorna a aresta
  *em caso falso retorna ponteiro nulo
  */
-Edge *Node::hasEdgeBetween(int targetId)
+Edge *Node::getEdgeBetween(int targetId)
 {
     for (Edge *auxEdge = this->firstEdge; auxEdge != nullptr; auxEdge = auxEdge->getNextEdge())
     {
@@ -223,13 +202,32 @@ Edge *Node::hasEdgeBetween(int targetId)
     return nullptr;
 }
 
+bool Node::hasEdgeBetween(int targetId)
+{
+    return this->getEdgeBetween(targetId) != nullptr;
+}
+
 float Node::distanceToOtherNode(int targetId)
 {
     if (this->id == targetId)
         return 0;
-    Edge *edgeBetween = this->hasEdgeBetween(targetId);
+    Edge *edgeBetween = this->getEdgeBetween(targetId);
     if (edgeBetween != nullptr)
         return edgeBetween->getWeight();
     else
         return FLT_MAX;
+}
+
+list<SimpleEdge> Node::distanceToConnectedNodes()
+{
+    list<SimpleEdge> connectedEdges;
+    for (Edge *auxEdge = this->firstEdge; auxEdge != nullptr; auxEdge = auxEdge->getNextEdge())
+    {
+        SimpleEdge simpleEdge;
+        simpleEdge.sourceNodeId = this->id;
+        simpleEdge.targetNodeId = auxEdge->getTargetId();
+        simpleEdge.weight = auxEdge->getWeight();
+        connectedEdges.emplace_back(simpleEdge);
+    }
+    return connectedEdges;
 }

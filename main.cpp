@@ -22,6 +22,13 @@ static const int OPTION_EXPORT = 1;
 // Variáveis globais
 bool directed = false, weightedEdge = false, weightedNode = false;
 
+string formatFloat(float value, int precision)
+{
+    std::stringstream stream;
+    stream << std::fixed << std::setprecision(2) << value;
+    return stream.str();
+}
+
 /*  Names a graph according it's kind, either directed or not
  *   writes .dot file after the .txt input
  */
@@ -47,7 +54,7 @@ string exportGraphToDotFormat(Graph *graph)
     while (nextNode != nullptr)
     {
         dot += "  " + to_string(nextNode->getLabel()) +
-               " [weight = " + to_string(nextNode->getWeight()) + "];\n";
+               " [weight = " + formatFloat(nextNode->getWeight(), 2) + "];\n";
         nextNode = nextNode->getNextNode();
     }
     nextNode = graph->getFirstNode();
@@ -60,11 +67,8 @@ string exportGraphToDotFormat(Graph *graph)
                    to_string(graph->getNodeById(nextEdge->getTargetId())->getLabel());
             if (weightedEdge)
             {
-                float edgeWeight = nextEdge->getWeight();
-                std::stringstream stream;
-                stream << std::fixed << std::setprecision(2) << edgeWeight;
-                std::string formatedWeight = stream.str();
-                dot += " [weight = " + to_string(nextEdge->getWeight()) + "] [label = " + formatedWeight + "];";
+                dot += " [weight = " + formatFloat(nextEdge->getWeight(), 2) +
+                       "] [label = " + formatFloat(nextEdge->getWeight(), 2) + "];";
             }
             nextEdge = nextEdge->getNextEdge();
         }
@@ -90,14 +94,14 @@ Graph *readFile(ifstream &input_file, int directed, int weightedEdge, int weight
     int labelNodeTarget;
     int order;
 
-    // Pegando a ordem do grafo
+    // Obtém a ordem do grafo
     input_file >> order;
 
-    // Criando objeto grafo
+    // Cria objeto grafo
     Graph *graph = new Graph(order, directed, weightedEdge, weightedNode);
 
     // Leitura de arquivo
-
+    //
     // Grafo SEM peso nos nós, e SEM peso nas arestas
     if (!graph->getWeightedEdge() && !graph->getWeightedNode())
     {
@@ -400,7 +404,25 @@ string selectOption(int *selectedOption, string *errors, Graph *firstGraph)
     // Teste
     case 6:
     {
-        return exportGraphToDotFormat(firstGraph->prim());
+        dot = "[";
+        for (int i = 0; i < firstGraph->getOrder(); i++)
+        {
+            dot += "   " + to_string(firstGraph->getNodeById(i)->getLabel()) + ", ";
+        }
+        dot.pop_back();
+        dot.pop_back();
+        dot += "]\n";
+
+        dot += "[";
+        float *minPathsFromFirstNode = firstGraph->dijkstra(0);
+        for (int i = 0; i < firstGraph->getOrder(); i++)
+        {
+            dot += formatFloat(minPathsFromFirstNode[i], 2) + ", ";
+        }
+        dot.pop_back();
+        dot.pop_back();
+        dot += "]\n";
+
         break;
     }
     default:

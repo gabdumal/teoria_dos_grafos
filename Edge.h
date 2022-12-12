@@ -36,4 +36,11 @@ public:
     void setWeight(float weight);
 };
 
+typedef struct
+{
+    int sourceNodeId;
+    int targetNodeId;
+    float weight;
+} SimpleEdge;
+
 #endif // EDGE_H_INCLUDED

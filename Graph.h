@@ -64,20 +64,13 @@ public:
 
     // Algoritmos predefinidos
     float **floydMarshall();
-    float *dijkstra(int id);
+    float *dijkstra(int startId);
     Graph *kruskal();
     Graph *prim();
 
 private:
     // Métodos auxiliares
     bool depthFirstSearchAux(Node *currentNode, int targetId, bool visitedList[]);
-
-    typedef struct
-    {
-        int sourceNodeId;
-        int targetNodeId;
-        float weight;
-    } SimpleEdge;
 };
 
 #endif // GRAPH_H_INCLUDED

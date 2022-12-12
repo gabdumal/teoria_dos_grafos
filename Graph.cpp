@@ -287,27 +287,153 @@ void Graph::breadthFirstSearch(ofstream &output_file)
 
 Graph *Graph::getComplement()
 {
+    return nullptr;
 }
 
 // A function that returns a subjacent of a directed graph, which is a graph which the arcs have opposite directions to the original graph
 Graph *Graph::getSubjacent()
 {
+    return nullptr;
 }
 
 bool Graph::connectedGraph()
 {
+    return false;
 }
 
 bool Graph::hasCircuit()
 {
+    return false;
 }
 
 float **Graph::floydMarshall()
 {
+    return nullptr;
 }
 
-float *Graph::dijkstra(int id)
+float *Graph::dijkstra(int startId)
 {
+    bool *solution = new bool[this->order];
+    int solutionQuantity = 1;
+    float *minPath = new float[this->order];
+    list<Node *> nodeList;
+    list<SimpleEdge> incidentEdges = this->firstNode->distanceToConnectedNodes();
+
+    for (Node *n = this->firstNode; n != nullptr; n = n->getNextNode())
+        nodeList.emplace_back(n);
+    nodeList.sort([](Node *const &node1, Node *const &node2)
+                  { return node1->getId() < node2->getId(); });
+
+    solution[0] = true;
+    minPath[0] = 0;
+    for (int auxNodeId = 1; auxNodeId < this->order; auxNodeId++)
+    {
+        solution[auxNodeId] = false;
+        minPath[auxNodeId] = FLT_MAX;
+        for (auto &&e : incidentEdges)
+        {
+            if (e.targetNodeId == auxNodeId)
+                minPath[auxNodeId] = e.weight;
+        }
+    }
+
+    // string printPartialResult = "[";
+    // for (int i = 0; i < this->getOrder(); i++)
+    // {
+    //     int label = this->getNodeById(i)->getLabel();
+    //     printPartialResult += "    " + to_string(label) + ", ";
+    // }
+    // printPartialResult.pop_back();
+    // printPartialResult.pop_back();
+    // printPartialResult += "]\n";
+    // cout << printPartialResult;
+
+    // printPartialResult = "[";
+    // for (int i = 0; i < this->getOrder(); i++)
+    // {
+    //     float path = minPath[i];
+    //     string formatedFloat = "";
+    //     if (path == FLT_MAX)
+    //         formatedFloat += "    &";
+    //     else
+    //     {
+    //         if (path < 10)
+    //             formatedFloat += "0";
+    //         std::stringstream stream;
+    //         stream << std::fixed << std::setprecision(2) << path;
+    //         formatedFloat += stream.str();
+    //     }
+    //     printPartialResult += formatedFloat + ", ";
+    // }
+    // printPartialResult.pop_back();
+    // printPartialResult.pop_back();
+    // printPartialResult += "]\n";
+    // cout << printPartialResult;
+
+    while (solutionQuantity < this->order)
+    {
+        // Seleciona o nó com menor caminho
+        int minPathNodeId;
+        int m;
+        for (m = 1; m < this->order; m++)
+        {
+            if (!solution[m])
+            {
+                minPathNodeId = m;
+                break;
+            }
+        }
+        float pathValue = 0;
+        for (int n = m + 1; n < this->order; n++)
+        {
+            pathValue = minPath[n];
+            if (!solution[n] && pathValue < minPath[minPathNodeId])
+                minPathNodeId = n;
+        }
+
+        // Adiciona o nó com menor caminho à solução
+        solution[minPathNodeId] = true;
+        solutionQuantity++;
+        Node *minPathNode = this->getNodeById(minPathNodeId);
+        incidentEdges = minPathNode->distanceToConnectedNodes();
+
+        // Recalcula caminho para nós adjacentes
+        for (auto &&e : incidentEdges)
+        {
+            int targetNodeId = e.targetNodeId;
+            float newPath = minPath[minPathNodeId] + e.weight;
+            if (newPath < minPath[targetNodeId])
+            {
+                solution[targetNodeId] = false;
+                solutionQuantity--;
+                minPath[targetNodeId] = newPath;
+            }
+        }
+
+        // printPartialResult = "[";
+        // for (int i = 0; i < this->getOrder(); i++)
+        // {
+        //     float path = minPath[i];
+        //     string formatedFloat = "";
+        //     if (path == FLT_MAX)
+        //         formatedFloat += "    &";
+        //     else
+        //     {
+        //         if (path < 10)
+        //             formatedFloat += "0";
+        //         std::stringstream stream;
+        //         stream << std::fixed << std::setprecision(2) << path;
+        //         formatedFloat += stream.str();
+        //     }
+        //     printPartialResult += formatedFloat + ", ";
+        // }
+        // printPartialResult.pop_back();
+        // printPartialResult.pop_back();
+        // printPartialResult += "]\n";
+        // cout << printPartialResult;
+    }
+
+    return minPath;
 }
 
 bool Graph::isConnected()
@@ -401,6 +527,7 @@ Graph *Graph::prim()
     int sourceNodeId = shortestEdge.sourceNodeId;
     int targetNodeId = shortestEdge.targetNodeId;
     int k = 0;
+    // Preenche distâncias para nós conectados aos presentes na menor aresta
     for (Node *n = this->firstNode; n != nullptr && k < this->order; n = n->getNextNode())
     {
         float distanceCurrentToSource = n->distanceToOtherNode(sourceNodeId);
@@ -424,6 +551,7 @@ Graph *Graph::prim()
     // Seleção das arestas
     for (int i = 0; i < this->order - 2; i++)
     {
+        // Seleciona id do nó de menor distância
         int minDistanceSourceId;
         int m;
         for (m = 0; m < this->order; m++)
@@ -442,16 +570,17 @@ Graph *Graph::prim()
                 minDistanceSourceId = n;
         }
 
+        // Adiciona aresta de menor custo à solução
         SimpleEdge shortestAvailableEdge;
         shortestAvailableEdge.sourceNodeId = minDistanceSourceId;
         shortestAvailableEdge.targetNodeId = nearestNodeList[minDistanceSourceId];
         shortestAvailableEdge.weight = auxNodeList[minDistanceSourceId];
         solutionEdges.emplace_back(shortestAvailableEdge);
 
+        // Atualiza listas de próximos nós e distâncias
         nearestNodeList[minDistanceSourceId] = alreadyInSolution;
         auxNodeList[minDistanceSourceId] = 0;
         Node *currentNode = this->getNodeById(minDistanceSourceId);
-
         for (int m = 0; m < this->order; m++)
         {
             if (nearestNodeList[m] > alreadyInSolution)
@@ -465,6 +594,7 @@ Graph *Graph::prim()
             }
         }
 
+        // Impressão passo-a-passo
         //     cout << "J = " << currentNode->getLabel() << endl;
         //     for (int i = 0; i < this->order; i++)
         //         cout << "| " << this->getNodeById(i)->getLabel() << " ";
