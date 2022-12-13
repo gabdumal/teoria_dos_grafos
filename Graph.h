@@ -5,8 +5,13 @@
 #ifndef GRAPH_H_INCLUDED
 #define GRAPH_H_INCLUDED
 #include "Node.h"
+#include <iostream>
+#include <math.h>
+#include <cstdlib>
+#include <algorithm>
+#include <climits>
+#include <cfloat>
 #include <fstream>
-#include <stack>
 #include <list>
 
 using namespace std;
@@ -14,7 +19,7 @@ using namespace std;
 class Graph
 {
 
-    // Atributes
+    // Atributos
 private:
     int order;
     int numberEdges;
@@ -26,10 +31,10 @@ private:
     int nodeIdCounter;
 
 public:
-    // Constructor
+    // Construtor
     Graph(int order, bool directed, bool weightedEdge, bool weightedNode);
 
-    // Destructor
+    // Destrutor
     ~Graph();
 
     // Getters
@@ -42,7 +47,7 @@ public:
     Node *getFirstNode();
     Node *getLastNode();
 
-    // Other methods
+    // Métodos de manipulação
     Node *insertNode(int label);
     Node *insertNode(int label, float weight);
     void fixOrder();
@@ -51,16 +56,19 @@ public:
     void insertEdge(Node *sourceNode, Node *targetNode, float weight);
     void removeNode(int id);
     bool searchNode(int id);
+
+    // Métodos auxiliares
     Node *getNodeById(int id);
     Node *getNodeByLabel(int label);
+    int getLabelById(int id);
     bool depthFirstSearch(int initialId, int targetId);
     void breadthFirstSearch(ofstream &output_file);
     Graph *getComplement();
     Graph *getSubjacent();
     bool hasCircuit();
-    bool connectedGraph();
     bool existEdge(int firstNodeLabel, int secondNodeLabel);
     bool isConnected();
+    float getWeightBetweenNodes(int sourceId, int targetId);
 
     // Algoritmos predefinidos
     float **floydMarshall();

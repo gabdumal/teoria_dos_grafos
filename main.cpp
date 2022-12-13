@@ -1,16 +1,15 @@
+#include "Graph.h"
+#include "Node.h"
 #include <iostream>
+#include <iomanip>
+#include <stdlib.h>
 #include <fstream>
 #include <string>
 #include <math.h>
 #include <utility>
-#include <tuple>
-#include <iomanip>
-#include <stdlib.h>
-#include <chrono>
-#include "Graph.h"
-#include "Node.h"
-#include <climits>
 #include <sstream>
+#include <climits>
+#include <cfloat>
 
 using namespace std;
 
@@ -22,11 +21,34 @@ static const int OPTION_EXPORT = 1;
 // Variáveis globais
 bool directed = false, weightedEdge = false, weightedNode = false;
 
-string formatFloat(float value, int precision)
+string formatFloat(float value, int precision, int totalLength)
 {
-    std::stringstream stream;
-    stream << std::fixed << std::setprecision(2) << value;
-    return stream.str();
+    string returnString = "";
+    if (value == FLT_MAX)
+        returnString = "&";
+    else
+    {
+        std::stringstream stream;
+        stream << std::fixed << std::setprecision(2) << value;
+        returnString = stream.str();
+    }
+    int missingSpaces = totalLength - returnString.length();
+    if (missingSpaces > 0)
+        returnString.insert(0, missingSpaces, ' ');
+    return returnString;
+}
+
+string formatInt(int value, int totalLength)
+{
+    string returnString = "";
+    if (value == INT_MAX)
+        returnString = "&";
+    else
+        returnString = to_string(value);
+    int missingSpaces = totalLength - returnString.length();
+    if (missingSpaces > 0)
+        returnString.insert(0, missingSpaces, ' ');
+    return returnString;
 }
 
 /*  Names a graph according it's kind, either directed or not
@@ -54,7 +76,7 @@ string exportGraphToDotFormat(Graph *graph)
     while (nextNode != nullptr)
     {
         dot += "  " + to_string(nextNode->getLabel()) +
-               " [weight = " + formatFloat(nextNode->getWeight(), 2) + "];\n";
+               " [weight = " + formatFloat(nextNode->getWeight(), 2, 5) + "];\n";
         nextNode = nextNode->getNextNode();
     }
     nextNode = graph->getFirstNode();
@@ -67,8 +89,8 @@ string exportGraphToDotFormat(Graph *graph)
                    to_string(graph->getNodeById(nextEdge->getTargetId())->getLabel());
             if (weightedEdge)
             {
-                dot += " [weight = " + formatFloat(nextEdge->getWeight(), 2) +
-                       "] [label = " + formatFloat(nextEdge->getWeight(), 2) + "];";
+                dot += " [weight = " + formatFloat(nextEdge->getWeight(), 2, 5) +
+                       "] [label = " + formatFloat(nextEdge->getWeight(), 2, 5) + "];";
             }
             nextEdge = nextEdge->getNextEdge();
         }
@@ -404,25 +426,16 @@ string selectOption(int *selectedOption, string *errors, Graph *firstGraph)
     // Teste
     case 6:
     {
-        dot = "[";
+        float **minPath = firstGraph->floydMarshall();
+        for (int i = 0; i < firstGraph->getOrder(); i++)
+            cout << formatInt(firstGraph->getLabelById(i), 5) << " ";
+        cout << endl;
         for (int i = 0; i < firstGraph->getOrder(); i++)
         {
-            dot += "   " + to_string(firstGraph->getNodeById(i)->getLabel()) + ", ";
+            for (int j = 0; j < firstGraph->getOrder(); j++)
+                cout << formatFloat(minPath[i][j], 2, 5) << " ";
+            cout << endl;
         }
-        dot.pop_back();
-        dot.pop_back();
-        dot += "]\n";
-
-        dot += "[";
-        float *minPathsFromFirstNode = firstGraph->dijkstra(0);
-        for (int i = 0; i < firstGraph->getOrder(); i++)
-        {
-            dot += formatFloat(minPathsFromFirstNode[i], 2) + ", ";
-        }
-        dot.pop_back();
-        dot.pop_back();
-        dot += "]\n";
-
         break;
     }
     default:

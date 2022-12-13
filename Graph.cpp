@@ -2,18 +2,6 @@
 #include "Node.h"
 #include "Edge.h"
 #include "PointerEdge.h"
-#include <iostream>
-#include <fstream>
-#include <stack>
-#include <queue>
-#include <list>
-#include <math.h>
-#include <cstdlib>
-#include <ctime>
-#include <cfloat>
-#include <iomanip>
-#include <algorithm>
-#include <climits>
 
 using namespace std;
 
@@ -198,14 +186,7 @@ void Graph::removeNode(int id)
 
 bool Graph::searchNode(int id)
 {
-    Node *nextNode = this->firstNode;
-    while (nextNode != nullptr)
-    {
-        if (nextNode->getId() == id)
-            return true;
-        nextNode = nextNode->getNextNode();
-    }
-    return false;
+    return this->getNodeById(id) != nullptr;
 }
 
 Node *Graph::getNodeById(int id)
@@ -232,6 +213,15 @@ Node *Graph::getNodeByLabel(int label)
         nextNode = nextNode->getNextNode();
     }
     return nullptr;
+}
+
+int Graph::getLabelById(int id)
+{
+    Node *node = this->getNodeById(id);
+    if (node != nullptr)
+        return node->getLabel();
+    else
+        return INT_MAX;
 }
 
 // Verifica se existe aresta entre dois nós
@@ -296,9 +286,10 @@ Graph *Graph::getSubjacent()
     return nullptr;
 }
 
-bool Graph::connectedGraph()
+bool Graph::isConnected()
 {
-    return false;
+    // TO DO
+    return true;
 }
 
 bool Graph::hasCircuit()
@@ -306,9 +297,69 @@ bool Graph::hasCircuit()
     return false;
 }
 
+float Graph::getWeightBetweenNodes(int sourceId, int targetId)
+{
+    return this->getNodeById(sourceId)->distanceToOtherNode(targetId);
+}
+
 float **Graph::floydMarshall()
 {
-    return nullptr;
+    float **minPathCurrent = new float *[this->order];
+    float minPathPrevious[this->order][this->order];
+
+    // Calcula distâncias entre todos os nós sem intermediários
+    for (int i = 0; i < this->order; i++)
+    {
+        for (int j = 0; j < this->order; j++)
+        {
+            minPathCurrent[i] = new float[this->order];
+            minPathPrevious[i][j] = this->getWeightBetweenNodes(i, j);
+        }
+    }
+
+    for (int k = 0; k < this->order; k++)
+    {
+        for (int i = 0; i < this->order; i++)
+        {
+            for (int j = 0; j < this->order; j++)
+            {
+                // Verifica se é melhor usar o nó K como intermediário
+                float previousPath = minPathPrevious[i][j];
+                float pathUsingK = minPathPrevious[i][k] + minPathPrevious[k][j];
+                minPathCurrent[i][j] = min(previousPath, pathUsingK);
+            }
+        }
+
+        // Copia a matriz atual para a anterior
+        for (int i = 0; i < this->order; i++)
+            for (int j = 0; j < this->order; j++)
+                minPathPrevious[i][j] = minPathCurrent[i][j];
+
+        // // Impressão de cada iteração
+        // for (int i = 0; i < this->getOrder(); i++)
+        // {
+        //     for (int j = 0; j < this->getOrder(); j++)
+        //     {
+        //         float path = minPathCurrent[i][j];
+        //         string formatedFloat = "";
+        //         if (path == FLT_MAX)
+        //             formatedFloat += "   &";
+        //         else
+        //         {
+        //             if (path < 10)
+        //                 formatedFloat += "0";
+        //             std::stringstream stream;
+        //             stream << std::fixed << std::setprecision(1) << path;
+        //             formatedFloat += stream.str();
+        //         }
+        //         cout << formatedFloat << " ";
+        //     }
+        //     cout << endl;
+        // }
+        // cout << endl;
+    }
+
+    return minPathCurrent;
 }
 
 float *Graph::dijkstra(int startId)
@@ -434,12 +485,6 @@ float *Graph::dijkstra(int startId)
     }
 
     return minPath;
-}
-
-bool Graph::isConnected()
-{
-    // TO DO
-    return true;
 }
 
 Graph *Graph::kruskal()

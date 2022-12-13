@@ -3,3 +3,4 @@ launch.json
 *.txt
 *.dot
 *.png
+/img
