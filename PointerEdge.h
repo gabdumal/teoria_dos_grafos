@@ -9,11 +9,11 @@
 
 using namespace std;
 
-// Definition of the PointerEdge class
+// Definição da classe PointerEdge (Aresta com ponteiro)
 class PointerEdge
 {
 
-    // Attributes
+    // Atributos
 private:
     Node *sourceNode;
     Node *targetNode;
@@ -21,15 +21,18 @@ private:
     float weight;
 
 public:
-    // Constructor
+    // Construtor
     PointerEdge(Node *sourceNode, Node *targetNode, float weight);
-    // Destructor
+
+    // Destrutor
     ~PointerEdge();
+
     // Getters
     Node *getSourceNode();
     Node *getTargetNode();
     PointerEdge *getNextEdge();
     float getWeight() const;
+
     // Setters
     void setNextEdge(PointerEdge *edge);
     void setWeight(float weight);

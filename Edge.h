@@ -7,11 +7,10 @@
 
 using namespace std;
 
-// Definition of the Edge class
+// Definição da classe Edge (Aresta)
 class Edge
 {
-
-    // Attributes
+    // Atributos
 private:
     int sourceId;
     int sourceLabel;
@@ -21,21 +20,25 @@ private:
     float weight;
 
 public:
-    // Constructor
+    // Construtor
     Edge(int sourceId, int sourceLabel, int targetId, int targetLabel);
-    // Destructor
+
+    // Destrutor
     ~Edge();
+
     // Getters
     int getSourceId();
     int getTargetId();
     int getTargetLabel();
     Edge *getNextEdge();
     float getWeight() const;
+
     // Setters
     void setNextEdge(Edge *edge);
     void setWeight(float weight);
 };
 
+// Structs para representação simplificada
 typedef struct
 {
     int sourceNodeId;

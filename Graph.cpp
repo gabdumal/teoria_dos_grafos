@@ -2,14 +2,20 @@
 #include "Node.h"
 #include "Edge.h"
 #include "PointerEdge.h"
-
+#include <math.h>
+#include <cstdlib>
+#include <algorithm>
+#include <climits>
+#include <cfloat>
+#include <fstream>
+#include <list>
 using namespace std;
 
 /**************************************************************************************************
  * Defining the Graph's methods
  **************************************************************************************************/
 
-// Constructor
+// Construtor
 Graph::Graph(int order, bool directed, bool weightedEdge, bool weightedNode)
 {
     this->order = order;
@@ -21,7 +27,7 @@ Graph::Graph(int order, bool directed, bool weightedEdge, bool weightedNode)
     this->nodeIdCounter = 0;
 }
 
-// Destructor
+// Destrutor
 Graph::~Graph()
 {
     Node *nextNode = this->firstNode;
@@ -74,12 +80,8 @@ Node *Graph::getLastNode()
     return this->lastNode;
 }
 
-// Other methods
-/*
-    The outdegree attribute of nodes is used as a counter for the number of edges in the graph.
-    This allows the correct updating of the numbers of edges in the graph being directed or not.
-*/
-
+// Métodos de manipulação
+//
 void Graph::fixOrder()
 {
     this->order = nodeIdCounter;
@@ -150,14 +152,12 @@ void Graph::insertEdge(int sourceLabel, int targetLabel, float weight, Node **so
     (*targetNode)->incrementInDegree();
     numberEdges++;
 }
-
 void Graph::insertEdge(int sourceLabel, int targetLabel, float weight)
 {
     Node *sourceNode = nullptr;
     Node *targetNode = nullptr;
     this->insertEdge(sourceLabel, targetLabel, weight, &sourceNode, &targetNode);
 }
-
 void Graph::insertEdge(Node *sourceNode, Node *targetNode, float weight)
 {
     if (sourceNode != nullptr && targetNode != nullptr)
@@ -184,6 +184,8 @@ void Graph::removeNode(int id)
 {
 }
 
+// Métodos auxiliares
+//
 bool Graph::searchNode(int id)
 {
     return this->getNodeById(id) != nullptr;
@@ -225,23 +227,10 @@ int Graph::getLabelById(int id)
 }
 
 // Verifica se existe aresta entre dois nós
-bool Graph::existEdge(int firstNodeLabel, int secondNodeLabel)
+bool Graph::thereIsEdgeBetweenLabel(int sourceLabel, int targetLabel)
 {
-    Node *firstNode = this->getNodeByLabel(firstNodeLabel);
-    if (firstNode == nullptr)
-    {
-        return false;
-    }
-    Edge *auxEdge = firstNode->getFirstEdge();
-    while (auxEdge != nullptr)
-    {
-        if (auxEdge->getTargetLabel() == secondNodeLabel)
-        {
-            return true;
-        }
-        auxEdge = auxEdge->getNextEdge();
-    }
-    return false;
+    Node *sourceNode = this->getNodeByLabel(sourceLabel);
+    return sourceNode->hasEdgeBetweenLabel(targetLabel);
 }
 
 // Verifica se há um caminho entre dois nós
@@ -302,6 +291,8 @@ float Graph::getWeightBetweenNodes(int sourceId, int targetId)
     return this->getNodeById(sourceId)->distanceToOtherNode(targetId);
 }
 
+// Algoritmos predefinidos
+//
 float **Graph::floydMarshall()
 {
     float **minPathCurrent = new float *[this->order];

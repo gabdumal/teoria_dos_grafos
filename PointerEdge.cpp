@@ -7,7 +7,7 @@ using namespace std;
  * Defining the PointerEdge's methods
  **************************************************************************************************/
 
-// Constructor
+// Construtor
 PointerEdge::PointerEdge(Node *sourceNode, Node *targetNode, float weight)
 {
     this->sourceNode = sourceNode;
@@ -16,7 +16,7 @@ PointerEdge::PointerEdge(Node *sourceNode, Node *targetNode, float weight)
     this->weight = weight;
 }
 
-// Destructor
+// Destrutor
 PointerEdge::~PointerEdge()
 {
     this->sourceNode = nullptr;

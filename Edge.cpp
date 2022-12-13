@@ -1,5 +1,6 @@
 #include "Edge.h"
 #include <iostream>
+#include <climits>
 
 using namespace std;
 
@@ -7,7 +8,7 @@ using namespace std;
  * Defining the Edge's methods
  **************************************************************************************************/
 
-// Constructor
+// Construtor
 Edge::Edge(int sourceId, int sourceLabel, int targetId, int targetLabel)
 {
     this->sourceId = sourceId;
@@ -18,13 +19,13 @@ Edge::Edge(int sourceId, int sourceLabel, int targetId, int targetLabel)
     this->weight = 1;
 }
 
-// Destructor
+// Destrutor
 Edge::~Edge()
 {
     this->sourceId = -1;
-    this->sourceLabel = -1;
+    this->sourceLabel = INT_MIN;
     this->targetId = -1;
-    this->targetLabel = -1;
+    this->targetLabel = INT_MIN;
     this->nextEdge = nullptr;
     this->weight = 0;
 }

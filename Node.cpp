@@ -2,13 +2,14 @@
 #include "Edge.h"
 #include <iostream>
 #include <cfloat>
+#include <climits>
 using namespace std;
 
 /**************************************************************************************************
  * Defining the Node's methods
  **************************************************************************************************/
 
-// Constructor
+// Construtor
 Node::Node(int id, int label)
 {
     this->id = id;
@@ -21,7 +22,7 @@ Node::Node(int id, int label)
     this->nextNode = nullptr;
 };
 
-// Destructor
+// Destrutor
 Node::~Node()
 {
     Edge *nextEdge = this->firstEdge;
@@ -34,7 +35,7 @@ Node::~Node()
     }
 
     this->id = -1;
-    this->label = 0;
+    this->label = INT_MIN;
     this->inDegree = 0;
     this->outDegree = 0;
     this->weight = 0;
@@ -87,7 +88,8 @@ void Node::setWeight(float weight)
     this->weight = weight;
 }
 
-// Other methods
+// Métodos de manipulação
+//
 void Node::insertEdge(int sourceId, int sourceLabel, int targetId, int targetLabel, float weight)
 {
     // Verifies whether there are at least one edge in the node
@@ -168,43 +170,69 @@ int Node::removeEdge(int id, bool directed, Node *targetNode)
     return 0;
 }
 
+// Outros métodos
+//
 void Node::incrementInDegree()
 {
     this->inDegree++;
 }
-
 void Node::incrementOutDegree()
 {
     this->outDegree++;
 }
-
 void Node::decrementInDegree()
 {
     this->inDegree--;
 }
-
 void Node::decrementOutDegree()
 {
     this->outDegree--;
 }
 
+// Métodos auxiliares
+//
 /*a partir de um vértice, avalia se existe aresta ligando a outro vértice alvo
  *em caso verdadeiro retorna a aresta
  *em caso falso retorna ponteiro nulo
  */
 Edge *Node::getEdgeBetween(int targetId)
 {
-    for (Edge *auxEdge = this->firstEdge; auxEdge != nullptr; auxEdge = auxEdge->getNextEdge())
-    {
-        if (auxEdge->getTargetId() == targetId)
-            return auxEdge;
-    }
+    if (this == nullptr)
+        return nullptr;
+    else
+        for (Edge *auxEdge = this->firstEdge; auxEdge != nullptr; auxEdge = auxEdge->getNextEdge())
+        {
+            if (auxEdge->getTargetId() == targetId)
+                return auxEdge;
+        }
+    return nullptr;
+}
+Edge *Node::getEdgeBetweenLabel(int targetLabel)
+{
+    if (this == nullptr)
+        return nullptr;
+    else
+        for (Edge *auxEdge = this->firstEdge; auxEdge != nullptr; auxEdge = auxEdge->getNextEdge())
+        {
+            if (auxEdge->getTargetLabel() == targetLabel)
+                return auxEdge;
+        }
     return nullptr;
 }
 
 bool Node::hasEdgeBetween(int targetId)
 {
-    return this->getEdgeBetween(targetId) != nullptr;
+    if (this == nullptr)
+        return false;
+    else
+        return this->getEdgeBetween(targetId) != nullptr;
+}
+bool Node::hasEdgeBetweenLabel(int targetLabel)
+{
+    if (this == nullptr)
+        return false;
+    else
+        return this->getEdgeBetweenLabel(targetLabel) != nullptr;
 }
 
 float Node::distanceToOtherNode(int targetId)

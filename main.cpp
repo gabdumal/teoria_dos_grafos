@@ -249,7 +249,7 @@ Graph *createUnionGraph(Graph *firstGraph, Graph *secondGraph)
         nextEdge = finalNode->getFirstEdge();
         while (nextEdge != nullptr)
         {
-            if (!thirdGraph->existEdge(finalNode->getLabel(), nextEdge->getTargetLabel()))
+            if (!thirdGraph->thereIsEdgeBetweenLabel(finalNode->getLabel(), nextEdge->getTargetLabel()))
             {
                 Node *sourceNode = nullptr;
                 Node *targetNode = nullptr;
@@ -267,13 +267,13 @@ Graph *createUnionGraph(Graph *firstGraph, Graph *secondGraph)
 
 Graph *graphDifference(Graph *originalGraph, Graph *toSubtractGraph)
 {
-    // instancia grafo resultado com características do grafo original
+    // Instancia grafo resultado com características do grafo original
     Graph *resultedGraph;
     resultedGraph = new Graph(INT_MAX, originalGraph->getDirected(), false, false);
 
-    // aux
-    Node *auxNodeOriginalGraph = originalGraph->getFirstNode();     // nó auxiliar recebe o primeiro nó do grafo original
-    Node *auxNodeToSubtractGraph = toSubtractGraph->getFirstNode(); // nó auxiliar recebe o primeiro nó do grafo a subtrair
+    // Variáveis auxiliares
+    Node *auxNodeOriginalGraph = originalGraph->getFirstNode();     // Nó auxiliar recebe o primeiro nó do grafo original
+    Node *auxNodeToSubtractGraph = toSubtractGraph->getFirstNode(); // Nó auxiliar recebe o primeiro nó do grafo a subtrair
     Edge *auxEdgeOriginalGraph;
     Edge *auxEdgeToSubtractGraph;
     int sourceLabel;
@@ -281,29 +281,19 @@ Graph *graphDifference(Graph *originalGraph, Graph *toSubtractGraph)
 
     while (auxNodeOriginalGraph != nullptr)
     {
-        auxEdgeOriginalGraph = auxNodeOriginalGraph->getFirstEdge(); // aresta auxiliar recebe primeira aresta do primeiro nó do grafo original
+        auxEdgeOriginalGraph = auxNodeOriginalGraph->getFirstEdge(); // Aresta auxiliar recebe primeira aresta do primeiro nó do grafo original
         auxEdgeToSubtractGraph = auxNodeToSubtractGraph->getFirstEdge();
-        // enquanto há arestas em um nó
+        // Enquanto há arestas em um nó...
         while (auxEdgeOriginalGraph != nullptr)
         {
             sourceLabel = auxNodeOriginalGraph->getLabel();
             targetLabel = auxEdgeOriginalGraph->getTargetLabel();
-            if (originalGraph->existEdge(sourceLabel, targetLabel))
-            {
-                while (auxEdgeToSubtractGraph != nullptr)
-                {
-                    if (!toSubtractGraph->existEdge(sourceLabel, targetLabel) && originalGraph->existEdge(sourceLabel, targetLabel))
-                    {
-                        Node *sourceNode = nullptr;
-                        Node *targetNode = nullptr;
-                        resultedGraph->insertEdge(sourceLabel, targetLabel, 0, &sourceNode, &targetNode);
-                    }
-                    auxEdgeToSubtractGraph = auxEdgeToSubtractGraph->getNextEdge();
-                }
-            }
+            // Se há aresta no grafo original, e não há no secundário, adiciona ao resultado
+            if (!toSubtractGraph->thereIsEdgeBetweenLabel(sourceLabel, targetLabel))
+                resultedGraph->insertEdge(sourceLabel, targetLabel, 0);
             auxEdgeOriginalGraph = auxEdgeOriginalGraph->getNextEdge();
         }
-        // avança para o próximo nó
+        // Avança para o próximo nó
         auxNodeOriginalGraph = auxNodeOriginalGraph->getNextNode();
     }
     resultedGraph->fixOrder();
@@ -346,6 +336,8 @@ int menu(string *errors)
     cout << "[3] Gerar Grafo União" << endl;
     cout << "[4] Gerar Grafo Diferença" << endl;
     cout << "[5] Gerar Rede PERT" << endl;
+    cout << "[9] Imprimir Grafo Qualquer" << endl;
+
     cout << "[0] Sair" << endl;
 
     cin >> selectedOption;
@@ -438,6 +430,15 @@ string selectOption(int *selectedOption, string *errors, Graph *firstGraph)
         }
         break;
     }
+    // Impressão qualquer
+    case 9:
+    {
+        Graph *secondGraph = readAuxiliaryGraph(selectedOption, errors);
+        dot = exportGraphToDotFormat(secondGraph);
+        delete secondGraph;
+        secondGraph = nullptr;
+        break;
+    }
     default:
     {
         *selectedOption = OPTION_INVALID;
@@ -458,7 +459,6 @@ int mainMenu(string outputFileName, Graph *graph)
     // Loop de interface
     while (selectedOption != OPTION_EXIT)
     {
-
         // Impressão do grafo resultante, caso opção não seja inválida
         if (selectedOption != OPTION_INVALID)
         {
@@ -527,8 +527,3 @@ int main(int argc, char const *argv[])
 
     return endingCode;
 }
-
-/*
- *  Comando para gerar imagem do grafo
-    dot -Tpng output.dot -o graph.png
-*/

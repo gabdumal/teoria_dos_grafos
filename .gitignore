@@ -4,3 +4,4 @@ launch.json
 *.dot
 *.png
 /img
+/src

@@ -6,19 +6,11 @@
 #define GRAPH_H_INCLUDED
 #include "Node.h"
 #include <iostream>
-#include <math.h>
-#include <cstdlib>
-#include <algorithm>
-#include <climits>
-#include <cfloat>
-#include <fstream>
-#include <list>
 
 using namespace std;
 
 class Graph
 {
-
     // Atributos
 private:
     int order;
@@ -55,9 +47,9 @@ public:
     void insertEdge(int sourceLabel, int targetLabel, float weight, Node **sourceNode, Node **targetNode);
     void insertEdge(Node *sourceNode, Node *targetNode, float weight);
     void removeNode(int id);
-    bool searchNode(int id);
 
     // Métodos auxiliares
+    bool searchNode(int id);
     Node *getNodeById(int id);
     Node *getNodeByLabel(int label);
     int getLabelById(int id);
@@ -66,8 +58,8 @@ public:
     Graph *getComplement();
     Graph *getSubjacent();
     bool hasCircuit();
-    bool existEdge(int firstNodeLabel, int secondNodeLabel);
     bool isConnected();
+    bool thereIsEdgeBetweenLabel(int sourceLabel, int targetLabel);
     float getWeightBetweenNodes(int sourceId, int targetId);
 
     // Algoritmos predefinidos
