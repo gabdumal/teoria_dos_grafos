@@ -240,7 +240,6 @@ Graph *createUnionGraph(Graph *firstGraph, Graph *secondGraph)
         }
         finalNode = finalNode->getNextNode();
     }
-
     // VERIFICA QUAIS RELAÇÕES ESTÃO NO SEGUNDO GRAFO E NAO ESTÃO NO TERCEIRO
 
     finalNode = secondGraph->getFirstNode();
@@ -261,6 +260,38 @@ Graph *createUnionGraph(Graph *firstGraph, Graph *secondGraph)
     }
 
     // CORRIGE ORDEM DO GRAFO
+    thirdGraph->fixOrder();
+    return thirdGraph;
+}
+
+Graph *createIntersectionGraph(Graph *firstGraph, Graph *secondGraph)
+{
+    Graph *thirdGraph;
+    thirdGraph = new Graph(INT_MAX, firstGraph->getDirected(), false, false);
+
+    Node *auxNodeFirstGraph = firstGraph->getFirstNode();
+    Node *auxNodeSecondGraph = secondGraph->getFirstNode();
+    Edge *auxEdgeFirstGraph;
+    Edge *auxEdgeSecondGraph;
+    int sourceLabel;
+    int targetLabel;
+
+    while (auxNodeFirstGraph != nullptr)
+    {
+        auxEdgeFirstGraph = auxNodeFirstGraph->getFirstEdge();
+        auxEdgeSecondGraph = auxNodeSecondGraph->getFirstEdge();
+        while (auxEdgeFirstGraph != nullptr)
+        {
+            sourceLabel = auxNodeFirstGraph->getLabel();
+            targetLabel = auxEdgeFirstGraph->getTargetLabel();
+
+            if (secondGraph->thereIsEdgeBetweenLabel(sourceLabel, targetLabel))
+                thirdGraph->insertEdge(sourceLabel, targetLabel, 0);
+            auxEdgeFirstGraph = auxEdgeFirstGraph->getNextEdge();
+        }
+        auxNodeFirstGraph = auxNodeFirstGraph->getNextNode();
+    }
+
     thirdGraph->fixOrder();
     return thirdGraph;
 }
@@ -381,6 +412,14 @@ string selectOption(int *selectedOption, string *errors, Graph *firstGraph)
     // Grafo interseção
     case 2:
     {
+        Graph *secondGraph = readAuxiliaryGraph(selectedOption, errors);
+        Graph *thirdGraph = createIntersectionGraph(firstGraph, secondGraph);
+
+        dot = exportGraphToDotFormat(thirdGraph);
+        delete secondGraph;
+        secondGraph = nullptr;
+        delete thirdGraph;
+        thirdGraph = nullptr;
         break;
     }
     // Grafo união
