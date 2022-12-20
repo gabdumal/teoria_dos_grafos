@@ -54,13 +54,11 @@ public:
     Node *getNodeByLabel(int label);
     int getLabelById(int id);
     bool depthFirstSearch(int initialId, int targetId);
-    void breadthFirstSearch(ofstream &output_file);
-    Graph *getComplement();
-    Graph *getSubjacent();
-    bool hasCircuit();
     bool isConnected();
     bool thereIsEdgeBetweenLabel(int sourceLabel, int targetLabel);
     float getWeightBetweenNodes(int sourceId, int targetId);
+
+    // Conjunto dominante
 
     // Algoritmos predefinidos
     float **floydMarshall();

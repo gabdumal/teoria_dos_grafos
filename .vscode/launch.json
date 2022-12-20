@@ -12,6 +12,10 @@
                 "0",
                 "0"
             ],
+            // "args": [
+            //     "src/Problem.dat_50_50_3",
+            //     "output.dot"
+            // ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],

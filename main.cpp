@@ -101,10 +101,66 @@ string exportGraphToDotFormat(Graph *graph)
     return dot;
 }
 
+Graph *readFileSecondPart(ifstream &input_file)
+{
+    // Preenchimento das variáveis globais
+    ::directed = false;
+    ::weightedEdge = false;
+    ::weightedNode = true;
+
+    // Variáveis para auxiliar na criação dos nós no Grafo
+    int labelNodeSource;
+    int labelNodeTarget;
+    int order;
+    float weight;
+    int existEdge;
+
+    // Obtém a ordem do grafo
+    string line;
+    input_file >> line;
+    input_file >> order;
+
+    // Cria objeto grafo
+    Graph *graph = new Graph(order, directed, weightedEdge, weightedNode);
+
+    // Leitura de arquivo
+    if (!graph->getWeightedEdge() && !graph->getWeightedNode())
+    {
+        while (input_file >> labelNodeSource >> labelNodeTarget)
+        {
+            Node *sourceNode = nullptr;
+            Node *targetNode = nullptr;
+            graph->insertEdge(abs(labelNodeSource), abs(labelNodeTarget), 1, &sourceNode, &targetNode);
+        }
+    }
+    // Posições
+    for (int i = 0; i < order + 3; i++)
+        getline(input_file, line);
+    // Pesos dos nós
+    for (int i = 0; i < order; i++)
+    {
+        input_file >> weight;
+        graph->insertNode(i + 1, weight);
+    }
+    input_file >> line;
+    // Arestas
+    for (int i = 0; i < order - 1; i++)
+    {
+        for (int j = 0; j < order; j++)
+        {
+            input_file >> existEdge;
+            if (j > i && existEdge == 1)
+                graph->insertEdge(i + 1, j + 1, 1);
+        }
+    }
+
+    return graph;
+}
+
 /*  Reads from .txt file
     it also evaluetas three possible natures of the graph, if it is: directed, weighted on edges, weighted on nodes
 */
-Graph *readFile(ifstream &input_file, int directed, int weightedEdge, int weightedNode)
+Graph *readFileFirstPart(ifstream &input_file, int directed, int weightedEdge, int weightedNode)
 {
     // Preenchimento das variáveis globais
     ::directed = directed;
@@ -192,7 +248,7 @@ Graph *readFile(ifstream &input_file, int directed, int weightedEdge, int weight
 Graph *createAuxiliaryGraphFromFile(ifstream &input_file, string input_file_name, int *selectedOption, string *errors)
 {
     if (input_file.is_open())
-        return readFile(input_file, ::directed, ::weightedEdge, ::weightedNode);
+        return readFileFirstPart(input_file, ::directed, ::weightedEdge, ::weightedNode);
     else
     {
         *errors += "ERRO: Não foi possível abrir o arquivo de entrada " + input_file_name + "!\n";
@@ -325,19 +381,29 @@ bool showGraph(string dot)
  *   note that the other ones are not suitable for this project
  *   it also shows an error message in case of an incorrect input such letters or numbers others than 0-10
  */
-int menu(string *errors)
+int menu(string *errors, bool isSecondPart)
 {
     string selectedOption;
 
     cout << "MENU" << endl;
     cout << "----" << endl;
-    cout << "[1] Imprimir Grafo de Entrada" << endl;
-    cout << "[2] Gerar Grafo Interseção" << endl;
-    cout << "[3] Gerar Grafo União" << endl;
-    cout << "[4] Gerar Grafo Diferença" << endl;
-    cout << "[5] Gerar Rede PERT" << endl;
-    cout << "[9] Imprimir Grafo Qualquer" << endl;
-
+    if (isSecondPart)
+    {
+        cout << "Selecione o algoritmo de processamento" << endl;
+        cout << "[1] Guloso" << endl;
+        cout << "[2] Guloso randomizado" << endl;
+        cout << "[3] Guloso randomizado reativo" << endl;
+        cout << "[9] Imprimir grafo" << endl;
+    }
+    else
+    {
+        cout << "[1] Imprimir Grafo de Entrada" << endl;
+        cout << "[2] Gerar Grafo Interseção" << endl;
+        cout << "[3] Gerar Grafo União" << endl;
+        cout << "[4] Gerar Grafo Diferença" << endl;
+        cout << "[5] Gerar Rede PERT" << endl;
+        cout << "[9] Imprimir Grafo Qualquer" << endl;
+    }
     cout << "[0] Sair" << endl;
 
     cin >> selectedOption;
@@ -361,7 +427,7 @@ int menu(string *errors)
 /*  Calls a function according with the entrance option given by user
  *   like the menu, only one and zero matters
  */
-string selectOption(int *selectedOption, string *errors, Graph *firstGraph)
+string selectOptionFirstPart(int *selectedOption, string *errors, Graph *firstGraph)
 {
     string dot = "";
     int option = *selectedOption;
@@ -440,12 +506,51 @@ string selectOption(int *selectedOption, string *errors, Graph *firstGraph)
     }
     return dot;
 }
+string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)
+{
+    string returnText = "";
+    int option = *selectedOption;
+    switch (option)
+    {
+    case 0:
+    {
+        *selectedOption = OPTION_EXIT;
+        break;
+    }
+    // Guloso
+    case 1:
+    {
+        break;
+    }
+    // Guloso randomizado
+    case 2:
+    {
+        break;
+    }
+    // Guloso randomizado reativo
+    case 3:
+    {
+        break;
+    }
+    // Impressão
+    case 9:
+    {
+        returnText = exportGraphToDotFormat(graph);
+        break;
+    }
+    default:
+    {
+        *selectedOption = OPTION_INVALID;
+    }
+    }
+    return returnText;
+}
 
 /*  cleans terminal windows
  *   evaluates if the graph will be exported or not based on value of "shouldExport"
  *   also prints on terminal an error message in case of failure opening output file
  */
-int mainMenu(string outputFileName, Graph *graph)
+int mainMenu(string outputFileName, Graph *graph, bool isSecondPart)
 {
     string dot = "", errors = "";
     int selectedOption = OPTION_INVALID;
@@ -473,8 +578,11 @@ int mainMenu(string outputFileName, Graph *graph)
         errors = "";
 
         // Imprime menu de opções
-        selectedOption = menu(&errors);
-        dot = selectOption(&selectedOption, &errors, graph);
+        selectedOption = menu(&errors, isSecondPart);
+        if (isSecondPart)
+            dot = selectOptionSecondPart(&selectedOption, &errors, graph);
+        else
+            dot = selectOptionFirstPart(&selectedOption, &errors, graph);
     }
     return 0;
 }
@@ -486,38 +594,52 @@ int mainMenu(string outputFileName, Graph *graph)
 int main(int argc, char const *argv[])
 {
     // Verifica se todos os argumentos foram fornecidos
-    if (argc != 6)
+    if (argc == 3 || argc == 6)
     {
-        cout << "ERRO: Espera-se: ./<program_name> <input_file> <output_file> <directed> <weighted_edge> <weighted_node>" << endl;
-        return 1;
+        int endingCode = 0;
+
+        // Captura argumentos
+        string program_name(argv[0]);
+        string input_file_name(argv[1]);
+        string output_file_name(argv[2]);
+
+        // Abre arquivos de entrada e saída
+        ifstream input_file;
+        ofstream output_file;
+        input_file.open(input_file_name, ios::in);
+
+        Graph *graph;
+
+        if (input_file.is_open())
+        {
+            // Executa versão adequada do programa
+            if (argc == 6)
+            {
+                graph = readFileFirstPart(input_file, atoi(argv[3]), atoi(argv[4]), atoi(argv[5]));
+                endingCode = mainMenu(output_file_name, graph, false);
+            }
+            else
+            {
+                graph = readFileSecondPart(input_file);
+                endingCode = mainMenu(output_file_name, graph, true);
+            }
+        }
+        else
+        {
+            cout << "ERRO: Não foi possível abrir o arquivo de entrada " << input_file_name << "!" << endl;
+            return 1;
+        }
+
+        // Fecha arquivo de entrada
+        input_file.close();
+        // Fecha arquivo de saída
+        output_file.close();
+
+        return endingCode;
     }
-
-    string program_name(argv[0]);
-    string input_file_name(argv[1]);
-    string output_file_name(argv[2]);
-
-    // Abrindo arquivos de entrada e saída
-    ifstream input_file;
-    ofstream output_file;
-    input_file.open(input_file_name, ios::in);
-
-    Graph *graph;
-
-    if (input_file.is_open())
-        graph = readFile(input_file, atoi(argv[3]), atoi(argv[4]), atoi(argv[5]));
     else
     {
-        cout << "ERRO: Não foi possível abrir o arquivo de entrada " << input_file_name << "!" << endl;
+        cout << "ERRO: Espera-se: ./<program_name> <input_file> [<output_file> <directed> <weighted_edge> <weighted_node>]" << endl;
         return 1;
     }
-
-    int endingCode = mainMenu(output_file_name, graph);
-
-    // Fechando arquivo de entrada
-    input_file.close();
-
-    // Fechando arquivo de saída
-    output_file.close();
-
-    return endingCode;
 }

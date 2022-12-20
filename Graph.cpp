@@ -259,30 +259,10 @@ bool Graph::depthFirstSearchAux(Node *currentNode, int targetId, bool visitedLis
     return false;
 }
 
-void Graph::breadthFirstSearch(ofstream &output_file)
-{
-}
-
-Graph *Graph::getComplement()
-{
-    return nullptr;
-}
-
-// A function that returns a subjacent of a directed graph, which is a graph which the arcs have opposite directions to the original graph
-Graph *Graph::getSubjacent()
-{
-    return nullptr;
-}
-
 bool Graph::isConnected()
 {
     // TO DO
     return true;
-}
-
-bool Graph::hasCircuit()
-{
-    return false;
 }
 
 float Graph::getWeightBetweenNodes(int sourceId, int targetId)
@@ -474,6 +454,7 @@ float *Graph::dijkstra(int startId)
         // cout << printPartialResult;
     }
 
+    delete solution;
     return minPath;
 }
 
@@ -546,6 +527,8 @@ Graph *Graph::kruskal()
             cout << components[j] << " ";
         cout << endl;
     }
+
+    delete components;
     return solutionGraph;
 }
 
@@ -690,5 +673,7 @@ Graph *Graph::prim()
     }
     solutionGraph->fixOrder();
 
+    delete nearestNodeList;
+    delete auxNodeList;
     return solutionGraph;
 }
