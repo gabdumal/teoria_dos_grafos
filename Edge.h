@@ -28,6 +28,7 @@ public:
 
     // Getters
     int getSourceId();
+    int getSourceLabel();
     int getTargetId();
     int getTargetLabel();
     Edge *getNextEdge();
@@ -43,6 +44,8 @@ typedef struct
 {
     int sourceNodeId;
     int targetNodeId;
+    int sourceNodeLabel;
+    int targetNodeLabel;
     float weight;
 } SimpleEdge;
 

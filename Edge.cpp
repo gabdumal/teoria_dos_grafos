@@ -32,6 +32,7 @@ Edge::~Edge()
 
 // Getters
 int Edge::getSourceId() { return this->sourceId; }
+int Edge::getSourceLabel() { return this->sourceLabel; }
 int Edge::getTargetId() { return this->targetId; }
 int Edge::getTargetLabel() { return this->targetLabel; }
 Edge *Edge::getNextEdge() { return this->nextEdge; }

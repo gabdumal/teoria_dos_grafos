@@ -418,16 +418,10 @@ string selectOption(int *selectedOption, string *errors, Graph *firstGraph)
     // Teste
     case 6:
     {
-        float **minPath = firstGraph->floydMarshall();
-        for (int i = 0; i < firstGraph->getOrder(); i++)
-            cout << formatInt(firstGraph->getLabelById(i), 5) << " ";
-        cout << endl;
-        for (int i = 0; i < firstGraph->getOrder(); i++)
-        {
-            for (int j = 0; j < firstGraph->getOrder(); j++)
-                cout << formatFloat(minPath[i][j], 2, 5) << " ";
-            cout << endl;
-        }
+        Graph *secondGraph = firstGraph->kruskal();
+        dot = exportGraphToDotFormat(secondGraph);
+        delete secondGraph;
+        secondGraph = nullptr;
         break;
     }
     // Impressão qualquer

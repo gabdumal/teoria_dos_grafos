@@ -1,7 +1,6 @@
 #include "Graph.h"
 #include "Node.h"
 #include "Edge.h"
-#include "PointerEdge.h"
 #include <math.h>
 #include <cstdlib>
 #include <algorithm>
@@ -496,28 +495,56 @@ Graph *Graph::kruskal()
     for (Node *n = firstNode; n != nullptr; n = n->getNextNode())
         solutionGraph->insertNode(n->getLabel(), n->getWeight());
     solutionGraph->fixOrder();
+    int *components = new int[this->order];
+    for (int i = 0; i < this->order; i++)
+        components[i] = i;
 
     // Cria lista de arestas
-    list<PointerEdge> allEdges;
-    for (Node *n = firstNode; n != nullptr; n = n->getNextNode())
+    list<SimpleEdge> allEdges;
+    for (Node *n = this->firstNode; n != nullptr; n = n->getNextNode())
         for (Edge *e = n->getFirstEdge(); e != nullptr; e = e->getNextEdge())
-            allEdges.emplace_back(solutionGraph->getNodeById(n->getId()),
-                                  solutionGraph->getNodeById(e->getTargetId()), e->getWeight());
-    allEdges.sort([](PointerEdge const &edge1, PointerEdge const &edge2)
-                  { return edge1.getWeight() < edge2.getWeight(); });
+        {
+            SimpleEdge simpleEdge;
+            simpleEdge.sourceNodeId = e->getSourceId();
+            simpleEdge.targetNodeId = e->getTargetId();
+            simpleEdge.sourceNodeLabel = e->getSourceLabel();
+            simpleEdge.targetNodeLabel = e->getTargetLabel();
+            simpleEdge.weight = e->getWeight();
+            allEdges.emplace_back(simpleEdge);
+        }
+    allEdges.sort([](SimpleEdge const &edge1, SimpleEdge const &edge2)
+                  { return edge1.weight < edge2.weight; });
 
     // Constrói árvore geradora mínima
     int i = 0;
     while (i < order - 1 && !allEdges.empty())
     {
-        PointerEdge currentEdge = allEdges.front();
+        SimpleEdge currentEdge = allEdges.front();
         allEdges.pop_front();
 
-        if (!solutionGraph->depthFirstSearch(currentEdge.getSourceNode()->getId(), currentEdge.getTargetNode()->getId()))
+        if (components[currentEdge.sourceNodeId] != components[currentEdge.targetNodeId])
         {
-            solutionGraph->insertEdge(currentEdge.getSourceNode(), currentEdge.getTargetNode(), currentEdge.getWeight());
+            solutionGraph->insertEdge(currentEdge.sourceNodeLabel, currentEdge.targetNodeLabel, currentEdge.weight);
+            if (components[currentEdge.sourceNodeId] > components[currentEdge.targetNodeId])
+            {
+                int oldComponent = components[currentEdge.sourceNodeId];
+                for (int j = 0; j < this->order; j++)
+                    if (components[j] == oldComponent)
+                        components[j] = components[currentEdge.targetNodeId];
+            }
+            else
+            {
+                int oldComponent = components[currentEdge.targetNodeId];
+                for (int j = 0; j < this->order; j++)
+                    if (components[j] == oldComponent)
+                        components[j] = components[currentEdge.sourceNodeId];
+            }
             i++;
         }
+
+        for (int j = 0; j < this->order; j++)
+            cout << components[j] << " ";
+        cout << endl;
     }
     return solutionGraph;
 }
