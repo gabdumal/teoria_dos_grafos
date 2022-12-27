@@ -13,7 +13,7 @@
             //     "0"
             // ],
             "args": [
-                "src/Problem.dat_50_50_3",
+                "src/input.txt",
                 "output.dot"
             ],
             "stopAtEntry": false,

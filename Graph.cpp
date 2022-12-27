@@ -224,21 +224,6 @@ int Graph::getLabelById(int id)
         return INT_MAX;
 }
 
-Node **Graph::copyNodePointersToArray(int *size)
-{
-    Node **nodeList = new Node *[this->order];
-    Node *nextNode = this->firstNode;
-    int i = 0;
-    while (nextNode != nullptr)
-    {
-        nodeList[i] = nextNode;
-        nextNode = nextNode->getNextNode();
-        i++;
-    }
-    *size = i;
-    return nodeList;
-}
-
 // Verifica se existe aresta entre dois nós
 bool Graph::thereIsEdgeBetweenLabel(int sourceLabel, int targetLabel)
 {
@@ -694,17 +679,39 @@ Graph *Graph::prim()
 
 // Conjunto dominante
 //
-void Graph::sortNodesByInDegree(Node **nodeList, int size)
+Node **Graph::copyNodePointersToArray(int *size, int **degreeList, bool **coveredList)
+{
+    Node **nodeList = new Node *[this->order];
+    *degreeList = new int[this->order];
+    *coveredList = new bool[this->order];
+    Node *nextNode = this->firstNode;
+    int i = 0;
+    while (nextNode != nullptr)
+    {
+        nodeList[i] = nextNode;
+        (*degreeList)[i] = nextNode->getInDegree();
+        (*coveredList)[i] = false;
+        nextNode = nextNode->getNextNode();
+        i++;
+    }
+    *size = i;
+    return nodeList;
+}
+
+void Graph::sortNodesByDegree(Node **nodeList, int size, int *degreeList)
 {
     for (int i = 0; i < size; i++)
     {
         for (int j = 0; j < size - i - 1; j++)
         {
-            if (nodeList[j]->getInDegree() < nodeList[j + 1]->getInDegree())
+            if (degreeList[j] > degreeList[j + 1])
             {
                 Node *auxNode = nodeList[j];
+                int auxDegree = degreeList[j];
                 nodeList[j] = nodeList[j + 1];
+                degreeList[j] = degreeList[j + 1];
                 nodeList[j + 1] = auxNode;
+                degreeList[j + 1] = auxDegree;
             }
         }
     }
@@ -714,15 +721,69 @@ list<SimpleNode> Graph::dominatingSet(int *totalCost)
 {
     list<SimpleNode> solutionSet;
     int candidates;
-    Node **nodeList = this->copyNodePointersToArray(&candidates);
-    this->sortNodesByInDegree(nodeList, candidates);
+    int *degreeIter;
+    bool *nodeCovered;
+    Node **nodeList = this->copyNodePointersToArray(&candidates, &degreeIter, &nodeCovered);
+    bool solutionCompleted = false;
 
-    int i = 0;
-    while (candidates > 0)
+    // Processo iterativo
+    while (candidates > 0 && !solutionCompleted)
     {
-        cout << nodeList[i]->getLabel() << " ";
+        this->sortNodesByDegree(nodeList, candidates, degreeIter);
+        int bestId = nodeList[candidates - 1]->getId();
+
+        // // Impressão parcial
+        // for (int j = 0; j < candidates; j++)
+        // {
+        //     cout << nodeList[j]->getLabel() << "  " << degreeIter[j] << "  " << boolalpha << nodeCovered[nodeList[j]->getId()] << endl;
+        // }
+        // cout << endl;
+
+        // Verifica se já está coberto
+        while (nodeCovered[bestId] && candidates > 0)
+        {
+            if (candidates == 1)
+                solutionCompleted = true;
+            else
+                bestId = nodeList[candidates - 1]->getId();
+            candidates--;
+        }
+        if (solutionCompleted)
+            break;
+
+        // Adiciona à solução
+        SimpleNode simpleNode;
+        simpleNode.id = bestId;
+        simpleNode.label = nodeList[candidates - 1]->getLabel();
+        simpleNode.degree = nodeList[candidates - 1]->getInDegree();
+        simpleNode.weight = nodeList[candidates - 1]->getWeight();
+        solutionSet.emplace_back(simpleNode);
+        nodeCovered[bestId] = true;
+
+        // Atualiza graus
+        for (Edge *e = nodeList[candidates - 1]->getFirstEdge(); e != nullptr; e = e->getNextEdge())
+        {
+            int targetId = e->getTargetId();
+            nodeCovered[targetId] = true;
+            int i;
+            // Percorre lista de nós até encontrar o target ID
+            for (i = 0; i < this->order && nodeList[i]->getId() != targetId; i++)
+            {
+            }
+            degreeIter[i]--;
+        }
+
         candidates--;
-        i++;
+
+        solutionCompleted = true;
+        for (int i = 0; i < candidates; i++)
+        {
+            if (degreeIter[i] > 0)
+            {
+                solutionCompleted = false;
+                break;
+            }
+        }
     }
 
     return solutionSet;

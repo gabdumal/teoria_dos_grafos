@@ -53,14 +53,14 @@ public:
     Node *getNodeById(int id);
     Node *getNodeByLabel(int label);
     int getLabelById(int id);
-    Node **copyNodePointersToArray(int *size);
     bool depthFirstSearch(int initialId, int targetId);
     bool isConnected();
     bool thereIsEdgeBetweenLabel(int sourceLabel, int targetLabel);
     float getWeightBetweenNodes(int sourceId, int targetId);
 
     // Conjunto dominante
-    void sortNodesByInDegree(Node **nodeList, int size);
+    Node **copyNodePointersToArray(int *size, int **degreeList, bool **coveredList);
+    void sortNodesByDegree(Node **nodeList, int size, int *degreeList);
     list<SimpleNode> dominatingSet(int *totalCost);
 
     // Algoritmos predefinidos

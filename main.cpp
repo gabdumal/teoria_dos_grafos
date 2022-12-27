@@ -521,7 +521,9 @@ string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)
     case 1:
     {
         int totalCost = 0;
-        graph->dominatingSet(&totalCost);
+        list<SimpleNode> resultSet = graph->dominatingSet(&totalCost);
+        for (auto &&node : resultSet)
+            returnText += "(" + to_string(node.label) + ")" + to_string(node.degree) + "\n";
         break;
     }
     // Guloso randomizado
