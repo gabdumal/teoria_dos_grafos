@@ -64,4 +64,13 @@ public:
     list<SimpleEdge> distanceToConnectedNodes();
 };
 
+// Structs para representação simplificada
+typedef struct
+{
+    int id;
+    int label;
+    int degree;
+    float weight;
+} SimpleNode;
+
 #endif // NODE_H_INCLUDED

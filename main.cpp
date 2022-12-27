@@ -520,6 +520,8 @@ string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)
     // Guloso
     case 1:
     {
+        int totalCost = 0;
+        graph->dominatingSet(&totalCost);
         break;
     }
     // Guloso randomizado

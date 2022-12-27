@@ -202,7 +202,6 @@ Node *Graph::getNodeById(int id)
     }
     return nullptr;
 }
-
 Node *Graph::getNodeByLabel(int label)
 {
     Node *nextNode = this->firstNode;
@@ -223,6 +222,21 @@ int Graph::getLabelById(int id)
         return node->getLabel();
     else
         return INT_MAX;
+}
+
+Node **Graph::copyNodePointersToArray(int *size)
+{
+    Node **nodeList = new Node *[this->order];
+    Node *nextNode = this->firstNode;
+    int i = 0;
+    while (nextNode != nullptr)
+    {
+        nodeList[i] = nextNode;
+        nextNode = nextNode->getNextNode();
+        i++;
+    }
+    *size = i;
+    return nodeList;
 }
 
 // Verifica se existe aresta entre dois nós
@@ -676,4 +690,40 @@ Graph *Graph::prim()
     delete nearestNodeList;
     delete auxNodeList;
     return solutionGraph;
+}
+
+// Conjunto dominante
+//
+void Graph::sortNodesByInDegree(Node **nodeList, int size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size - i - 1; j++)
+        {
+            if (nodeList[j]->getInDegree() < nodeList[j + 1]->getInDegree())
+            {
+                Node *auxNode = nodeList[j];
+                nodeList[j] = nodeList[j + 1];
+                nodeList[j + 1] = auxNode;
+            }
+        }
+    }
+}
+
+list<SimpleNode> Graph::dominatingSet(int *totalCost)
+{
+    list<SimpleNode> solutionSet;
+    int candidates;
+    Node **nodeList = this->copyNodePointersToArray(&candidates);
+    this->sortNodesByInDegree(nodeList, candidates);
+
+    int i = 0;
+    while (candidates > 0)
+    {
+        cout << nodeList[i]->getLabel() << " ";
+        candidates--;
+        i++;
+    }
+
+    return solutionSet;
 }
