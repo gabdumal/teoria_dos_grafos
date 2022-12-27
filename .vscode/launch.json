@@ -5,17 +5,17 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}/execGrupo11",
-            "args": [
-                "input.txt",
-                "output.dot",
-                "0",
-                "0",
-                "0"
-            ],
             // "args": [
-            //     "src/Problem.dat_50_50_3",
-            //     "output.dot"
+            //     "input.txt",
+            //     "output.dot",
+            //     "0",
+            //     "0",
+            //     "0"
             // ],
+            "args": [
+                "src/input.txt",
+                "output.dot"
+            ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],

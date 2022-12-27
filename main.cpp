@@ -29,7 +29,7 @@ string formatFloat(float value, int precision, int totalLength)
     else
     {
         std::stringstream stream;
-        stream << std::fixed << std::setprecision(2) << value;
+        stream << std::fixed << std::setprecision(precision) << value;
         returnString = stream.str();
     }
     int missingSpaces = totalLength - returnString.length();
@@ -61,6 +61,7 @@ string exportGraphToDotFormat(Graph *graph)
 
     Node *nextNode = graph->getFirstNode();
     string dot = "", connector;
+    bool weightedNode = graph->getWeightedNode();
     bool weightedEdge = graph->getWeightedEdge();
 
     dot += "strict ";
@@ -76,7 +77,10 @@ string exportGraphToDotFormat(Graph *graph)
     while (nextNode != nullptr)
     {
         dot += "  " + to_string(nextNode->getLabel()) +
-               " [weight = " + formatFloat(nextNode->getWeight(), 2, 5) + "];\n";
+               " [weight = " + formatFloat(nextNode->getWeight(), 2, 5) + "]";
+        // if (weightedNode)
+        //     dot += " [xlabel = " + formatFloat(nextNode->getWeight(), 0, 5) + "]";
+        dot += ";\n";
         nextNode = nextNode->getNextNode();
     }
     nextNode = graph->getFirstNode();
@@ -359,17 +363,27 @@ Graph *graphDifference(Graph *originalGraph, Graph *toSubtractGraph)
 /*  Prints the graph on terminal window
  *   at the end returns a boolean which is used either to export the graph or not
  */
-bool showGraph(string dot)
+bool showResponse(string dot, bool isResultSet)
 {
     string response = "";
 
-    cout << "GRAFO" << endl
+    if (isResultSet)
+        cout << "CONJUNTO";
+    else
+        cout << "GRAFO";
+    cout << endl
          << "-----" << endl
          << dot << endl;
     while (response != "S" && response != "s" && response != "N" && response != "n")
     {
-        cout << "Deseja exportar este grafo? Isso vai apagar o conteúdo atual do arquivo [S/n] ";
-        cin >> response;
+        cout << "Deseja exportar este ";
+        if (isResultSet)
+            cout << "conjunto";
+        else
+            cout << "grafo";
+        cout << "? Isso vai apagar o conteúdo atual do arquivo[S / n] ";
+        cin >>
+            response;
     }
     cout << endl
          << endl;
@@ -520,6 +534,11 @@ string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)
     // Guloso
     case 1:
     {
+        float totalCost = 0;
+        list<SimpleNode> resultSet = graph->dominatingSetWeighted(&totalCost);
+        returnText += "Custo: " + formatFloat(totalCost, 4, 7) + "\n";
+        for (auto &&node : resultSet)
+            returnText += "(" + formatInt(node.label, 4) + ") " + formatInt(node.degree, 4) + "\n";
         break;
     }
     // Guloso randomizado
@@ -561,7 +580,7 @@ int mainMenu(string outputFileName, Graph *graph, bool isSecondPart)
         // Impressão do grafo resultante, caso opção não seja inválida
         if (selectedOption != OPTION_INVALID)
         {
-            bool shouldExport = showGraph(dot);
+            bool shouldExport = showResponse(dot, isSecondPart && selectedOption != 9);
             if (shouldExport)
             {
                 ofstream output_file;
@@ -579,6 +598,7 @@ int mainMenu(string outputFileName, Graph *graph, bool isSecondPart)
 
         // Imprime menu de opções
         selectedOption = menu(&errors, isSecondPart);
+        cout << endl;
         if (isSecondPart)
             dot = selectOptionSecondPart(&selectedOption, &errors, graph);
         else
