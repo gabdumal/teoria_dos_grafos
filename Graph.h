@@ -61,7 +61,9 @@ public:
     // Conjunto dominante
     Node **copyNodePointersToArray(int *size, int **degreeList, bool **coveredList);
     void sortNodesByDegree(Node **nodeList, int size, int *degreeList);
-    list<SimpleNode> dominatingSet(int *totalCost);
+    void sortNodesByDegreeAndWeight(Node **nodeList, int size, int *degreeList);
+    list<SimpleNode> dominatingSet(float *totalCost);
+    list<SimpleNode> dominatingSetWeighted(float *totalCost);
 
     // Algoritmos predefinidos
     float **floydMarshall();
