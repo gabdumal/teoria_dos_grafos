@@ -544,6 +544,18 @@ string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)
     // Guloso randomizado
     case 2:
     {
+        int numInter;
+        float alfa;
+        cout << "Quantas interações?" << endl;
+        cin >> numInter;
+        cout << "Qual a porcentagem do alfa?" << endl;
+        cin >> alfa;
+
+        float totalCost = 0;
+        list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomized(&totalCost, numInter, alfa);
+        returnText += "Custo: " + formatFloat(totalCost, 4, 7) + "\n";
+        for (auto &&node : resultSet)
+            returnText += "(" + formatInt(node.label, 4) + ") " + formatInt(node.degree, 4) + "\n";
         break;
     }
     // Guloso randomizado reativo
