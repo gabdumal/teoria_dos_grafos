@@ -552,7 +552,7 @@ string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)
         cin >> alfa;
 
         float totalCost = 0;
-        list<SimpleNode> resultSet = graph->dominatingSetWeightedGuloso(&totalCost, numInter, alfa);
+        list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomized(&totalCost, numInter, alfa);
         returnText += "Custo: " + formatFloat(totalCost, 4, 7) + "\n";
         for (auto &&node : resultSet)
             returnText += "(" + formatInt(node.label, 4) + ") " + formatInt(node.degree, 4) + "\n";
