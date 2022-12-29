@@ -64,7 +64,7 @@ public:
     void sortNodesByDegreeAndWeight(Node **nodeList, int size, int *degreeList);
     list<SimpleNode> dominatingSet(float *totalCost);
     list<SimpleNode> dominatingSetWeighted(float *totalCost);
-
+    list<SimpleNode> dominatingSetWeightedGuloso(float *totalCost, int numInter, float alfa);
     // Algoritmos predefinidos
     float **floydMarshall();
     float *dijkstra(int startId);

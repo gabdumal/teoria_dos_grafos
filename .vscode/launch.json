@@ -13,7 +13,7 @@
             //     "0"
             // ],
             "args": [
-                "src/input.txt",
+                "input.txt",
                 "output.dot"
             ],
             "stopAtEntry": false,

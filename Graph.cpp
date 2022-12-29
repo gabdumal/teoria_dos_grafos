@@ -885,3 +885,113 @@ list<SimpleNode> Graph::dominatingSetWeighted(float *totalCost)
 
     return solutionSet;
 }
+
+list<SimpleNode> Graph::dominatingSetWeightedGuloso(float *totalCost, int numInter, float alfa)
+{
+    int i = 0;
+    list<SimpleNode> bestSolutionSet;
+    float bestCost = MAXFLOAT;
+
+    while (i < numInter)
+    {
+        i++;
+        *totalCost = 0;
+        list<SimpleNode> solutionSet;
+        int candidates;
+        int *degreeIter;
+        bool *nodeCovered;
+        Node **nodeList = this->copyNodePointersToArray(&candidates, &degreeIter, &nodeCovered);
+        bool solutionCompleted = false;
+        while (candidates > 0 && !solutionCompleted)
+        {
+            this->sortNodesByDegreeAndWeight(nodeList, candidates, degreeIter);
+            
+            float intervalo = candidates * alfa;
+            int arredondado = round(intervalo);
+            int indiceAleatorio;
+            if(arredondado != 0){
+                indiceAleatorio = rand()%arredondado;
+            }else{
+                indiceAleatorio = rand()%1;
+            }
+
+            int bestId = nodeList[(candidates - 1)-indiceAleatorio]->getId();
+
+            // Verifica se já está coberto
+            while (nodeCovered[bestId] && candidates > 0)
+            {
+                if (candidates == 1)
+                    solutionCompleted = true;
+                else
+                    bestId = nodeList[(candidates - 1)-indiceAleatorio]->getId();
+                candidates--;
+            }
+            if (solutionCompleted)
+                break;
+
+            // Adiciona à solução
+            SimpleNode simpleNode;
+            simpleNode.id = bestId;
+            simpleNode.label = nodeList[(candidates - 1)-indiceAleatorio]->getLabel();
+            simpleNode.degree = nodeList[(candidates - 1)-indiceAleatorio]->getInDegree();
+            simpleNode.weight = nodeList[(candidates - 1)-indiceAleatorio]->getWeight();
+            solutionSet.emplace_back(simpleNode);
+            (*totalCost) += simpleNode.weight;
+            nodeCovered[bestId] = true;
+
+    
+            cout << simpleNode.label << endl;
+
+            // Atualiza graus
+            for (Edge *e = nodeList[(candidates - 1)-indiceAleatorio]->getFirstEdge(); e != nullptr; e = e->getNextEdge())
+            {
+                int targetId = e->getTargetId();
+                nodeCovered[targetId] = true;
+                int i;
+                // Percorre lista de nós até encontrar o target ID
+                for (i = 0; i < this->order && nodeList[i]->getId() != targetId; i++)
+                {
+                }
+                degreeIter[i]--;
+            }
+
+            Node *no = nodeList[bestId];
+            int i = (candidates - 1)- indiceAleatorio;
+            int x = (this->order) - 2; // (-2 por conta de ser a ordem do grafo + preciso parar antes do ultimo elemento)
+            while(i <= x ){
+                nodeList[i] = nodeList[i + 1]; // corrige vetor de nós
+                degreeIter[i] = degreeIter[i + 1];
+                i++;
+            }
+            
+            candidates--;
+
+            solutionCompleted = true;
+            for (int i = 0; i < candidates; i++)
+            {
+                if (degreeIter[i] > 0)
+                {
+                    solutionCompleted = false;
+                    break;
+                }
+            }
+        }
+        
+        cout << "-------------------" << endl;
+        float solutionFinalCost = *totalCost;
+
+        //Verifica se a nova solução gerada é melhor que a anterior
+        if (solutionFinalCost < bestCost)
+        {
+            //atualiza a lista da melhor solução;
+            bestCost = solutionFinalCost;
+            bestSolutionSet.clear();
+            for (auto &&node : solutionSet){
+                bestSolutionSet.emplace_back(node);
+            }
+        }
+    }
+    //atualiza valor do ponteiro para o melhor custo
+    *totalCost = bestCost;
+    return bestSolutionSet;
+}
