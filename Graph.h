@@ -59,12 +59,15 @@ public:
     float getWeightBetweenNodes(int sourceId, int targetId);
 
     // Conjunto dominante
+    bool isSolved(Node **nodeList, bool *nodeCovered, int size);
     Node **copyNodePointersToArray(int *size, int **degreeList, bool **coveredList);
-    void sortNodesByDegree(Node **nodeList, int size, int *degreeList);
+    Node **copyNodePointersToArray(int *size, bool **coveredList);
     void sortNodesByDegreeAndWeight(Node **nodeList, int size, int *degreeList);
+    void sortNodesByDegreeAndWeight(Node **nodeList, int size);
     list<SimpleNode> dominatingSet(float *totalCost);
     list<SimpleNode> dominatingSetWeighted(float *totalCost);
     list<SimpleNode> dominatingSetWeightedGuloso(float *totalCost, int numIterations, float alfa);
+
     // Algoritmos predefinidos
     float **floydMarshall();
     float *dijkstra(int startId);

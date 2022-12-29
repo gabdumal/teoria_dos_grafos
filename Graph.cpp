@@ -720,42 +720,29 @@ Node **Graph::copyNodePointersToArray(int *size, int **degreeList, bool **covere
     return nodeList;
 }
 
-// Node **Graph::copyNodePointersToArray(int *size)
-// {
-//     Node **nodeList = new Node *[this->order];
-//     *degreeList = new int[this->order];
-//     *coveredList = new bool[this->order];
-//     Node *nextNode = this->firstNode;
-//     int i = 0;
-//     while (nextNode != nullptr)
-//     {
-//         nodeList[i] = nextNode;
-//         (*degreeList)[i] = nextNode->getInDegree();
-//         (*coveredList)[i] = false;
-//         nextNode = nextNode->getNextNode();
-//         i++;
-//     }
-//     *size = i;
-//     return nodeList;
-// }
+Node **Graph::copyNodePointersToArray(int *size, bool **coveredList)
+{
+    Node **nodeList = new Node *[this->order];
+    *coveredList = new bool[this->order];
+    Node *nextNode = this->firstNode;
+    int i = 0;
+    while (nextNode != nullptr)
+    {
+        nodeList[i] = nextNode;
+        (*coveredList)[i] = false;
+        nextNode = nextNode->getNextNode();
+        i++;
+    }
+    *size = i;
+    return nodeList;
+}
 
-void Graph::sortNodesByDegree(Node **nodeList, int size, int *degreeList)
+bool Graph::isSolved(Node **nodeList, bool *nodeCovered, int size)
 {
     for (int i = 0; i < size; i++)
-    {
-        for (int j = 0; j < size - i - 1; j++)
-        {
-            if (degreeList[j] > degreeList[j + 1])
-            {
-                Node *auxNode = nodeList[j];
-                int auxDegree = degreeList[j];
-                nodeList[j] = nodeList[j + 1];
-                degreeList[j] = degreeList[j + 1];
-                nodeList[j + 1] = auxNode;
-                degreeList[j + 1] = auxDegree;
-            }
-        }
-    }
+        if (!nodeCovered[nodeList[i]->getId()])
+            return false;
+    return true;
 }
 
 void Graph::sortNodesByDegreeAndWeight(Node **nodeList, int size, int *degreeList)
@@ -781,157 +768,85 @@ void Graph::sortNodesByDegreeAndWeight(Node **nodeList, int size, int *degreeLis
     }
 }
 
-list<SimpleNode> Graph::dominatingSet(float *totalCost)
+void Graph::sortNodesByDegreeAndWeight(Node **nodeList, int size)
 {
-    list<SimpleNode> solutionSet;
-    int candidates;
-    int *degreeIter;
-    bool *nodeCovered;
-    Node **nodeList = this->copyNodePointersToArray(&candidates, &degreeIter, &nodeCovered);
-    bool solutionCompleted = false;
-
-    // Processo iterativo
-    while (candidates > 0 && !solutionCompleted)
+    float currentHeuristic = 0;
+    float nextHeuristic = 0;
+    for (int i = 0; i < size; i++)
     {
-        this->sortNodesByDegree(nodeList, candidates, degreeIter);
-        int bestId = nodeList[candidates - 1]->getId();
-
-        // // Impressão parcial
-        // for (int j = 0; j < candidates; j++)
-        // {
-        //     cout << nodeList[j]->getLabel() << "  " << degreeIter[j] << "  " << boolalpha << nodeCovered[nodeList[j]->getId()] << endl;
-        // }
-        // cout << endl;
-
-        // Verifica se já está coberto
-        while (nodeCovered[bestId] && candidates > 0)
+        for (int j = 0; j < size - i - 1; j++)
         {
-            if (candidates == 1)
-                solutionCompleted = true;
-            else
-                bestId = nodeList[candidates - 1]->getId();
-            candidates--;
-        }
-        if (solutionCompleted)
-            break;
-
-        // Adiciona à solução
-        SimpleNode simpleNode;
-        simpleNode.id = bestId;
-        simpleNode.label = nodeList[candidates - 1]->getLabel();
-        simpleNode.degree = nodeList[candidates - 1]->getInDegree();
-        simpleNode.weight = nodeList[candidates - 1]->getWeight();
-        solutionSet.emplace_back(simpleNode);
-        (*totalCost) += simpleNode.weight;
-        nodeCovered[bestId] = true;
-
-        // Atualiza graus
-        for (Edge *e = nodeList[candidates - 1]->getFirstEdge(); e != nullptr; e = e->getNextEdge())
-        {
-            int targetId = e->getTargetId();
-            nodeCovered[targetId] = true;
-            int i;
-            // Percorre lista de nós até encontrar o target ID
-            for (i = 0; i < this->order && nodeList[i]->getId() != targetId; i++)
+            currentHeuristic = nodeList[j]->getInDegree() / nodeList[j]->getWeight();
+            nextHeuristic = nodeList[j + 1]->getInDegree() / nodeList[j + 1]->getWeight();
+            if (currentHeuristic > nextHeuristic)
             {
-            }
-            degreeIter[i]--;
-        }
-
-        candidates--;
-
-        solutionCompleted = true;
-        for (int i = 0; i < candidates; i++)
-        {
-            if (degreeIter[i] > 0)
-            {
-                solutionCompleted = false;
-                break;
+                Node *auxNode = nodeList[j];
+                nodeList[j] = nodeList[j + 1];
+                nodeList[j + 1] = auxNode;
             }
         }
     }
-
-    // Limpa a memória
-    delete[] nodeList;
-    delete[] degreeIter;
-    delete[] nodeCovered;
-
-    return solutionSet;
 }
 
 list<SimpleNode> Graph::dominatingSetWeighted(float *totalCost)
 {
     list<SimpleNode> solutionSet;
     int candidates;
-    int *degreeIter;
     bool *nodeCovered;
-    Node **nodeList = this->copyNodePointersToArray(&candidates, &degreeIter, &nodeCovered);
+    Node **nodeList = this->copyNodePointersToArray(&candidates, &nodeCovered);
     bool solutionCompleted = false;
 
     // Processo iterativo
     while (candidates > 0 && !solutionCompleted)
     {
-        this->sortNodesByDegreeAndWeight(nodeList, candidates, degreeIter);
-        int bestId = nodeList[candidates - 1]->getId();
-        printList(nodeList, candidates, degreeIter, nodeCovered);
+        // Encontra melhor nó
+        this->sortNodesByDegreeAndWeight(nodeList, candidates);
+        int bestIndex = candidates - 1;
+        int bestId = nodeList[bestIndex]->getId();
+        // printList(nodeList, candidates);
+        // cout << "Escolhido: " << nodeList[bestIndex]->getLabel()
+        //      << endl;
 
-        // Verifica se já está coberto
-        while (nodeCovered[bestId] && candidates > 0)
-        {
-            candidates--;
-            if (candidates == 0)
-                solutionCompleted = true;
-            else
-                bestId = nodeList[candidates - 1]->getId();
-        }
-        if (solutionCompleted)
-            break;
-
-        cout << "Escolhido: " << nodeList[candidates - 1]->getLabel()
-             << endl;
-
-        printList(nodeList, candidates, degreeIter, nodeCovered);
-
-        // Adiciona à solução
+        // Adiciona nó à solução
         SimpleNode simpleNode;
         simpleNode.id = bestId;
-        simpleNode.label = nodeList[candidates - 1]->getLabel();
-        simpleNode.degree = nodeList[candidates - 1]->getInDegree();
-        simpleNode.weight = nodeList[candidates - 1]->getWeight();
+        simpleNode.label = nodeList[bestIndex]->getLabel();
+        simpleNode.degree = nodeList[bestIndex]->getInDegree();
+        simpleNode.weight = nodeList[bestIndex]->getWeight();
         solutionSet.emplace_back(simpleNode);
         (*totalCost) += simpleNode.weight;
         nodeCovered[bestId] = true;
 
-        // Atualiza graus
-        for (Edge *e = nodeList[candidates - 1]->getFirstEdge(); e != nullptr; e = e->getNextEdge())
+        // Marca nós ligados como cobertos
+        for (Edge *e = nodeList[bestIndex]->getFirstEdge(); e != nullptr; e = e->getNextEdge())
         {
             int targetId = e->getTargetId();
             nodeCovered[targetId] = true;
-            int i;
-            // Percorre lista de nós até encontrar o target ID
-            for (i = 0; i < this->order && nodeList[i]->getId() != targetId; i++)
-            {
-            }
-            degreeIter[i]--;
         }
-        candidates--;
-        printList(nodeList, candidates, degreeIter, nodeCovered);
-        cout << "=-=-=" << endl;
 
-        solutionCompleted = true;
-        for (int i = 0; i < candidates; i++)
+        // Remove nós cobertos
+        int k = 0;
+        for (int n = 0; n < candidates; n++)
         {
-            if (degreeIter[i] > 0)
+            if (nodeCovered[nodeList[n + k]->getId()])
             {
-                solutionCompleted = false;
-                break;
+                candidates--;
+                k++;
+                n--;
             }
+            else
+                nodeList[n] = nodeList[n + k];
         }
+        // printList(nodeList, candidates);
+        // cout << "=-=-=" << endl;
+
+        // Verifica cobertura total
+        if (isSolved(nodeList, nodeCovered, candidates))
+            break;
     }
 
     // Limpa a memória
     delete[] nodeList;
-    delete[] degreeIter;
     delete[] nodeCovered;
 
     cout << "\nCusto: " << *totalCost << "\n==========" << endl
