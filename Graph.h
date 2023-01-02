@@ -65,6 +65,7 @@ public:
     void sortNodesByDegreeAndWeight(Node **nodeList, int size);
     list<SimpleNode> dominatingSetWeighted(float *totalCost);
     list<SimpleNode> dominatingSetWeightedRandomized(float *totalCost, int numIterations, float alfa);
+    list<SimpleNode> dominatingSetWeightedRandomizedReactive(float *totalCost, int numIterations, float *alfa, int m, int block);
 
     // Algoritmos predefinidos
     float **floydMarshall();

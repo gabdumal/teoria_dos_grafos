@@ -561,6 +561,40 @@ string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)
     // Guloso randomizado reativo
     case 3:
     {
+        // Pré-definição
+        /* int numInter = 2500;
+        int bloco = 250;
+        float alfa[5] = {0.05, 0.10, 0.15, 0.30, 0.50}; */
+
+        int numInter;
+        int bloco;
+        float *alfa;
+        int tam;
+
+        cout << "Quantos valores de alfa?" << endl;
+        cin >> tam;
+
+        alfa = new float[tam];
+
+        cout << "Quais serão os valores de alfa?" << endl;
+        for (int i = 0; i < tam; i++)
+        {
+            cout << "Valor (" << i + 1 << "/" << tam << "): ";
+            cin >> alfa[i];
+        }
+
+        cout << "Quantas interações?" << endl;
+        cin >> numInter;
+
+        cout << "Qual tamanho de cada bloco?" << endl;
+        cin >> bloco;
+
+        float totalCost = 0;
+        list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomizedReactive(&totalCost, numInter, alfa, tam, bloco);
+
+        /* returnText += "Custo: " + formatFloat(totalCost, 4, 7) + "\n";
+        for (auto &&node : resultSet)
+            returnText += "(" + formatInt(node.label, 4) + ") " + formatInt(node.degree, 4) + "\n"; */
         break;
     }
     // Impressão

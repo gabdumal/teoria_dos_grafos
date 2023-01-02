@@ -883,3 +883,9 @@ list<SimpleNode> Graph::dominatingSetWeightedRandomized(float *totalCost, int nu
 
     return bestSolutionSet;
 }
+
+list<SimpleNode> Graph ::dominatingSetWeightedRandomizedReactive(float *totalCost, int numIterations, float *alfa, int m, int block)
+{
+    list<SimpleNode> bestSolutionSet;
+    return bestSolutionSet;
+}
