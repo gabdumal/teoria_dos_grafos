@@ -884,8 +884,130 @@ list<SimpleNode> Graph::dominatingSetWeightedRandomized(float *totalCost, int nu
     return bestSolutionSet;
 }
 
-list<SimpleNode> Graph ::dominatingSetWeightedRandomizedReactive(float *totalCost, int numIterations, float *alfa, int m, int block)
+list<SimpleNode> Graph ::dominatingSetWeightedRandomizedReactive(float *totalCost, int numIterations, float *vetAlfas, int m, int block)
 {
     list<SimpleNode> bestSolutionSet;
+    *totalCost = FLT_MAX;
+
+    // Probabilidade de cada alfa
+    float probabilities[m];
+    // Média da qualidade das soluções obtidas quando se utilizou cada alfa na construção;
+    float averages[m];
+
+    initializeProbabilities(probabilities, averages, m);
+
+    for (int z = 0; z < numIterations; z++)
+    {
+        // cout << "ITERACAO " << (m + 1) << endl
+        //      << endl;
+
+        if (m % block == 0)
+            updateProbabilities(probabilities, averages, *totalCost, m);
+
+        float currentTotalCost = 0;
+        list<SimpleNode> solutionSet;
+        int candidates;
+        bool *nodeCovered;
+        Node **nodeList = this->copyNodePointersToArray(&candidates, &nodeCovered);
+        float alfa = *vetAlfas;
+        while (candidates > 0)
+        {
+            // Seleciona um dentre os melhores nós
+            this->sortNodesByDegreeAndWeight(nodeList, candidates);
+            int randomPosition = xrandom(ceil(candidates * alfa)); // 0 a teto da seleção (excluído)
+            int randomIndex = candidates - 1 - randomPosition;
+            int bestId = nodeList[randomIndex]->getId();
+            // printList(nodeList, candidates);
+            // cout << "Escolhido: " << nodeList[randomIndex]->getLabel()
+            //      << endl;
+
+            // Adiciona à solução
+            SimpleNode simpleNode;
+            simpleNode.id = bestId;
+            simpleNode.label = nodeList[randomIndex]->getLabel();
+            simpleNode.degree = nodeList[randomIndex]->getInDegree();
+            simpleNode.weight = nodeList[randomIndex]->getWeight();
+            solutionSet.emplace_back(simpleNode);
+            currentTotalCost += simpleNode.weight;
+            nodeCovered[bestId] = true;
+
+            // Marca nós ligados como cobertos
+            for (Edge *e = nodeList[randomIndex]->getFirstEdge(); e != nullptr; e = e->getNextEdge())
+            {
+                int targetId = e->getTargetId();
+                nodeCovered[targetId] = true;
+            }
+
+            // Remove nós cobertos
+            int k = 0;
+            for (int n = 0; n < candidates; n++)
+            {
+                if (nodeCovered[nodeList[n + k]->getId()])
+                {
+                    candidates--;
+                    k++;
+                    n--;
+                }
+                else
+                    nodeList[n] = nodeList[n + k];
+            }
+            // printList(nodeList, candidates);
+            // cout << "=-=-=" << endl;
+
+            // Verifica cobertura total
+            if (isSolved(nodeList, nodeCovered, candidates))
+                break;
+        }
+
+        updateAverages(averages, m, currentTotalCost, alfa);
+
+        // Verifica se a nova solução gerada é melhor que a anterior
+        if (currentTotalCost < *totalCost)
+        {
+            // Atualiza a lista da melhor solução;
+            *totalCost = currentTotalCost;
+            bestSolutionSet.clear();
+            for (auto &&node : solutionSet)
+                bestSolutionSet.emplace_back(node);
+        }
+
+        // Limpa a memória
+        delete[] nodeList;
+        delete[] nodeCovered;
+
+        // cout << "\nCusto: " << *totalCost << "\n==========" << endl
+        //      << endl;
+    }
+
     return bestSolutionSet;
+}
+
+void Graph ::initializeProbabilities(float probabilities[], float averages[], int m)
+{
+    for (int i = 0; i < m; i++)
+    {
+        probabilities[i] = 1 / m;
+        averages[i] = 0;
+    }
+}
+
+void Graph::updateProbabilities(float probabilities[], float averages[], int bestCost, int m)
+{
+    // Precisa ordenar as probabilidades em ordem decrescente e ordenar o vetor dos alfas!!!
+
+    float q;
+
+    for (int i = 0; i < m; i++)
+    {
+        q = (bestCost / averages[i]);
+        probabilities[i] = q;
+    }
+}
+
+void Graph::updateAverages(float averages[], int m, int cost, float alfa)
+{
+    for (int i = 0; i < m; i++)
+    {
+        averages[i] = cost;
+    }
 }

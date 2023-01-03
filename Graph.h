@@ -67,6 +67,10 @@ public:
     list<SimpleNode> dominatingSetWeightedRandomized(float *totalCost, int numIterations, float alfa);
     list<SimpleNode> dominatingSetWeightedRandomizedReactive(float *totalCost, int numIterations, float *alfa, int m, int block);
 
+    void initializeProbabilities(float probabilities[], float averages[], int m);
+    void updateProbabilities(float probabilities[], float averages[], int bestCost, int m);
+    void updateAverages(float averages[], int m, int cost, float alfa);
+
     // Algoritmos predefinidos
     float **floydMarshall();
     float *dijkstra(int startId);
