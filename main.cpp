@@ -592,9 +592,9 @@ string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)
         float totalCost = 0;
         list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomizedReactive(&totalCost, numInter, alfa, tam, bloco);
 
-        /* returnText += "Custo: " + formatFloat(totalCost, 4, 7) + "\n";
+        returnText += "Custo: " + formatFloat(totalCost, 4, 7) + "\n";
         for (auto &&node : resultSet)
-            returnText += "(" + formatInt(node.label, 4) + ") " + formatInt(node.degree, 4) + "\n"; */
+            returnText += "(" + formatInt(node.label, 4) + ") " + formatInt(node.degree, 4) + "\n";
         break;
     }
     // Impressão
