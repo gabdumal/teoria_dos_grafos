@@ -902,13 +902,18 @@ list<SimpleNode> Graph ::dominatingSetWeightedRandomizedReactive(float *totalCos
         //      << endl;
 
         if (m % block == 0)
+        {
             updateProbabilities(probabilities, averages, *totalCost, m);
+            sortArrays(vetAlfas, probabilities, averages, m);
+        }
 
         float currentTotalCost = 0;
         list<SimpleNode> solutionSet;
         int candidates;
         bool *nodeCovered;
         Node **nodeList = this->copyNodePointersToArray(&candidates, &nodeCovered);
+
+        // Nesse caso alfa recebe o primeiro valor do vetor de alfas (com maior probabilidade de ser escolhido)
         float alfa = *vetAlfas;
         while (candidates > 0)
         {
@@ -960,6 +965,7 @@ list<SimpleNode> Graph ::dominatingSetWeightedRandomizedReactive(float *totalCos
         }
 
         updateAverages(averages, m, currentTotalCost, alfa);
+        sortArrays(vetAlfas, probabilities, averages, m);
 
         // Verifica se a nova solução gerada é melhor que a anterior
         if (currentTotalCost < *totalCost)
@@ -993,14 +999,21 @@ void Graph ::initializeProbabilities(float probabilities[], float averages[], in
 
 void Graph::updateProbabilities(float probabilities[], float averages[], int bestCost, int m)
 {
-    // Precisa ordenar as probabilidades em ordem decrescente e ordenar o vetor dos alfas!!!
+    // Precisa ordenar as probabilidades em ordem decrescente e ordenar o vetor dos alfas
 
-    float q;
+    float q[m];
 
     for (int i = 0; i < m; i++)
     {
-        q = (bestCost / averages[i]);
-        probabilities[i] = q;
+        q[i] = (bestCost / averages[i]);
+    }
+    for (int i = 0; i < m; i++)
+    {
+        int qSum = 0;
+        for (int j = 0; j < m; j++)
+            qSum += q[j];
+
+        probabilities[i] = q[i] / qSum;
     }
 }
 
@@ -1009,5 +1022,38 @@ void Graph::updateAverages(float averages[], int m, int cost, float alfa)
     for (int i = 0; i < m; i++)
     {
         averages[i] = cost;
+    }
+}
+
+void Graph::sortArrays(float vetAlfas[], float probabilities[], float averages[], int m)
+{
+    // Organiza os vetores de alfas, probabilidades e médias em ordem decrescente
+    // Assim, o alfa de maior probabilidade fica em primeiro
+
+    for (int i = 0; i < m - 1; i++)
+    {
+        // Índice da maior probabilidade
+        int maxIndex = i;
+        for (int j = i + 1; j < m; j++)
+        {
+            if (probabilities[j] > probabilities[maxIndex])
+            {
+                maxIndex = j;
+            }
+        }
+
+        // Organiza equivalentemente os valores de x, e suas respectivas médias e probabilidades
+        float aux;
+        aux = probabilities[i];
+        probabilities[i] = probabilities[maxIndex];
+        probabilities[maxIndex] = aux;
+
+        aux = averages[i];
+        averages[i] = averages[maxIndex];
+        averages[maxIndex] = aux;
+
+        aux = vetAlfas[i];
+        vetAlfas[i] = vetAlfas[maxIndex];
+        vetAlfas[maxIndex] = aux;
     }
 }
