@@ -69,7 +69,7 @@ public:
 
     void initializeProbabilities(float probabilities[], float averages[], int m);
     void updateProbabilities(float probabilities[], float averages[], int bestCost, int m);
-    void updateAverages(float averages[], int m, int cost, float alfa);
+    void updateAverages(float vetAlfas[], float averages[], int m, int cost, float alfa);
     void sortArrays(float vetAlfas[], float probabilities[], float averages[], int m);
 
     // Algoritmos predefinidos

@@ -964,7 +964,7 @@ list<SimpleNode> Graph ::dominatingSetWeightedRandomizedReactive(float *totalCos
                 break;
         }
 
-        updateAverages(averages, m, currentTotalCost, alfa);
+        updateAverages(vetAlfas, averages, m, currentTotalCost, alfa);
         sortArrays(vetAlfas, probabilities, averages, m);
 
         // Verifica se a nova solução gerada é melhor que a anterior
@@ -1017,12 +1017,18 @@ void Graph::updateProbabilities(float probabilities[], float averages[], int bes
     }
 }
 
-void Graph::updateAverages(float averages[], int m, int cost, float alfa)
+void Graph::updateAverages(float vetAlfas[], float averages[], int m, int currentCost, float alfa)
 {
+    int position;
+
     for (int i = 0; i < m; i++)
     {
-        averages[i] = cost;
+
+        if (vetAlfas[i] == alfa)
+            position = i;
     }
+
+    averages[position] = currentCost;
 }
 
 void Graph::sortArrays(float vetAlfas[], float probabilities[], float averages[], int m)
