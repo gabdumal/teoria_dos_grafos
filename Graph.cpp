@@ -1,7 +1,6 @@
 #include "Graph.h"
 #include "Node.h"
 #include "Edge.h"
-#include "random/random.h"
 #include "random/random.cpp"
 #include <math.h>
 #include <cstdlib>
@@ -818,6 +817,7 @@ list<SimpleNode> Graph::dominatingSetWeightedRandomized(float *totalCost, int nu
         {
             // Seleciona um dentre os melhores nós
             this->sortNodesByDegreeAndWeight(nodeList, candidates);
+            xrandomize();
             int randomPosition = xrandom(ceil(candidates * alfa)); // 0 a teto da seleção (excluído)
             int randomIndex = candidates - 1 - randomPosition;
             int bestId = nodeList[randomIndex]->getId();
@@ -941,6 +941,7 @@ list<SimpleNode> Graph ::dominatingSetWeightedRandomizedReactive(float *totalCos
         {
             // Seleciona um dentre os melhores nós
             this->sortNodesByDegreeAndWeight(nodeList, candidates);
+            xrandomize();
             int randomPosition = xrandom(ceil(candidates * alfa)); // 0 a teto da seleção (excluído)
             int randomIndex = candidates - 1 - randomPosition;
             int bestId = nodeList[randomIndex]->getId();

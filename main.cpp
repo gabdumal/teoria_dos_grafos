@@ -1,5 +1,6 @@
 #include "Graph.h"
 #include "Node.h"
+#include "time/util.cpp"
 #include <iostream>
 #include <iomanip>
 #include <stdlib.h>
@@ -17,6 +18,7 @@ using namespace std;
 static const int OPTION_INVALID = -1;
 static const int OPTION_EXIT = 0;
 static const int OPTION_EXPORT = 1;
+static double globalTime;
 
 // Variáveis globais
 bool directed = false, weightedEdge = false, weightedNode = false;
@@ -574,8 +576,12 @@ string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)
     case 1:
     {
         float totalCost = 0;
+        double intialTime = cpuTime();
         list<SimpleNode> resultSet = graph->dominatingSetWeighted(&totalCost);
+        double finalTime = cpuTime();
+        double timeElapsed = finalTime - intialTime;
         returnText += "Custo: " + formatFloat(totalCost, 4, 7) + "\n";
+        returnText += "Tempo: " + to_string(timeElapsed) + "\n";
         for (auto &&node : resultSet)
             returnText += "(" + formatInt(node.label, 4) + ") " + formatInt(node.degree, 4) + "\n";
         break;
@@ -591,10 +597,16 @@ string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)
         cin >> alfa;
 
         float totalCost = 0;
+        double intialTime = cpuTime();
         list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomized(&totalCost, numInter, alfa);
+        double finalTime = cpuTime();
+        double timeElapsed = finalTime - intialTime;
+
         returnText += "Custo: " + formatFloat(totalCost, 4, 7) + "\n";
+        returnText += "Tempo: " + to_string(timeElapsed) + "\n";
         for (auto &&node : resultSet)
             returnText += "(" + formatInt(node.label, 4) + ") " + formatInt(node.degree, 4) + "\n";
+
         break;
     }
     // Guloso randomizado reativo
@@ -629,11 +641,17 @@ string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)
         cin >> bloco;
 
         float totalCost = 0;
+        double intialTime = cpuTime();
         list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomizedReactive(&totalCost, numInter, alfa, tam, bloco);
+        double finalTime = cpuTime();
+        double timeElapsed = finalTime - intialTime;
 
         returnText += "Custo: " + formatFloat(totalCost, 4, 7) + "\n";
+        returnText += "Tempo: " + to_string(timeElapsed) + "\n";
         for (auto &&node : resultSet)
             returnText += "(" + formatInt(node.label, 4) + ") " + formatInt(node.degree, 4) + "\n";
+
+        delete[] alfa;
         break;
     }
     // Impressão
@@ -698,6 +716,7 @@ int mainMenu(string outputFileName, Graph *graph, bool isSecondPart)
  */
 int main(int argc, char const *argv[])
 {
+    ::globalTime = cpuTime();
     // Verifica se todos os argumentos foram fornecidos
     if (argc == 3 || argc == 6)
     {
