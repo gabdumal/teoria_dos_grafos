@@ -889,9 +889,6 @@ list<SimpleNode> Graph ::dominatingSetWeightedRandomizedReactive(float *totalCos
     list<SimpleNode> bestSolutionSet;
     *totalCost = FLT_MAX;
 
-    // for (int i = 0; i < m; i++)
-    //     iterEachAlfa = 0;
-
     // Número de iterações para cada alfa
     int *iterEachAlfa;
     // Probabilidade de cada alfa
@@ -915,17 +912,22 @@ list<SimpleNode> Graph ::dominatingSetWeightedRandomizedReactive(float *totalCos
             counterChooseAlfa = 0;
             auxChooseAlfa = 0;
             updateProbabilities(probabilities, averages, *totalCost, m);
-            for (int y = 0; y < m; y++)
-                numIterPerAlfa[y] = ceil(probabilities[y] * block);
-            // sortArrays(vetAlfas, probabilities, averages, iterEachAlfa, m);
+            int numIterPerAlfaPrevious = 0;
+            for (int y = 0; y < m - 1; y++)
+            {
+                numIterPerAlfa[y] = round(probabilities[y] * block) + numIterPerAlfaPrevious;
+                numIterPerAlfaPrevious = numIterPerAlfa[y];
+            }
+            numIterPerAlfa[m - 1] = block;
+            alfa = vetAlfas[auxChooseAlfa];
         }
 
         // Escolher o alfa
-        if (counterChooseAlfa = numIterPerAlfa[auxChooseAlfa])
+        if (counterChooseAlfa == numIterPerAlfa[auxChooseAlfa])
         {
             auxChooseAlfa++;
+            alfa = vetAlfas[auxChooseAlfa];
         }
-        alfa = vetAlfas[auxChooseAlfa];
         (iterEachAlfa[auxChooseAlfa])++;
 
         // Auxiliares para uma solução
@@ -984,7 +986,7 @@ list<SimpleNode> Graph ::dominatingSetWeightedRandomizedReactive(float *totalCos
                 break;
         }
 
-        updateAverages(vetAlfas, averages, iterEachAlfa, m, currentTotalCost, alfa);
+        updateAverages(vetAlfas, averages, iterEachAlfa, m, currentTotalCost, auxChooseAlfa);
         counterChooseAlfa++;
 
         // Verifica se a nova solução gerada é melhor que a anterior
@@ -1036,7 +1038,7 @@ void Graph::updateProbabilities(float probabilities[], float averages[], float b
 
     for (int i = 0; i < m; i++)
     {
-        q[i] = (bestCost / averages[i]); // Usar potência?
+        q[i] = bestCost / averages[i];
     }
 
     float qSum = 0;
@@ -1049,53 +1051,7 @@ void Graph::updateProbabilities(float probabilities[], float averages[], float b
     delete[] q;
 }
 
-void Graph::updateAverages(float vetAlfas[], float averages[], int iterEachAlfa[], int m, float currentCost, float alfa)
+void Graph::updateAverages(float vetAlfas[], float averages[], int iterEachAlfa[], int m, float currentCost, int auxChooseAlfa)
 {
-    int position;
-    for (int i = 0; i < m; i++)
-    {
-        if (vetAlfas[i] == alfa)
-        {
-            position = i;
-            break;
-        }
-    }
-    averages[position] = (averages[position] * (iterEachAlfa[position] - 1) + currentCost) / iterEachAlfa[position];
-}
-
-void Graph::sortArrays(float vetAlfas[], float probabilities[], float averages[], int iterEachAlfa[], int m)
-{
-    // Organiza os vetores de alfas, probabilidades e médias em ordem decrescente
-    // Assim, o alfa de maior probabilidade fica em primeiro
-
-    for (int i = 0; i < m - 1; i++)
-    {
-        // Índice da maior probabilidade
-        int maxIndex = i;
-        for (int j = i + 1; j < m; j++)
-        {
-            if (probabilities[j] > probabilities[maxIndex])
-            {
-                maxIndex = j;
-            }
-        }
-
-        // Organiza equivalentemente os valores de x, e suas respectivas médias e probabilidades
-        float aux;
-        aux = probabilities[i];
-        probabilities[i] = probabilities[maxIndex];
-        probabilities[maxIndex] = aux;
-
-        aux = averages[i];
-        averages[i] = averages[maxIndex];
-        averages[maxIndex] = aux;
-
-        aux = vetAlfas[i];
-        vetAlfas[i] = vetAlfas[maxIndex];
-        vetAlfas[maxIndex] = aux;
-
-        int auxInt = iterEachAlfa[i];
-        iterEachAlfa[i] = iterEachAlfa[maxIndex];
-        iterEachAlfa[maxIndex] = auxInt;
-    }
+    averages[auxChooseAlfa] = (averages[auxChooseAlfa] * (iterEachAlfa[auxChooseAlfa] - 1) + currentCost) / iterEachAlfa[auxChooseAlfa];
 }

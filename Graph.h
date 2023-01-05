@@ -69,8 +69,7 @@ public:
 
     void initializeProbabilities(int **iterEachAlfa, float **probabilities, int **numIterPerAlfa, float **averages, int m);
     void updateProbabilities(float probabilities[], float averages[], float bestCost, int m);
-    void updateAverages(float vetAlfas[], float averages[], int iterEachAlfa[], int m, float cost, float alfa);
-    void sortArrays(float vetAlfas[], float probabilities[], float averages[], int iterEachAlfa[], int m);
+    void updateAverages(float vetAlfas[], float averages[], int iterEachAlfa[], int m, float cost, int auxChooseAlfa);
 
     // Algoritmos predefinidos
     float **floydMarshall();
