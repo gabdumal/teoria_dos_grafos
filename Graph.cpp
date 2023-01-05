@@ -883,3 +883,219 @@ list<SimpleNode> Graph::dominatingSetWeightedRandomized(float *totalCost, int nu
 
     return bestSolutionSet;
 }
+
+list<SimpleNode> Graph ::dominatingSetWeightedRandomizedReactive(float *totalCost, int numIterations, float *vetAlfas, int m, int block)
+{
+    list<SimpleNode> bestSolutionSet;
+    *totalCost = FLT_MAX;
+
+    // for (int i = 0; i < m; i++)
+    //     iterEachAlfa = 0;
+
+    // Número de iterações para cada alfa
+    int *iterEachAlfa;
+    // Probabilidade de cada alfa
+    float *probabilities;
+    int *numIterPerAlfa;
+    int counterChooseAlfa;
+    int auxChooseAlfa;
+    float alfa = 0;
+    // Média da qualidade das soluções obtidas quando se utilizou cada alfa na construção;
+    float *averages;
+
+    initializeProbabilities(&iterEachAlfa, &probabilities, &numIterPerAlfa, &averages, m);
+
+    // Constrói uma solução
+    for (int z = 0; z < numIterations; z++)
+    {
+        // cout << "ITERACAO " << (m + 1) << endl
+        //      << endl;
+        if (z % block == 0)
+        {
+            counterChooseAlfa = 0;
+            auxChooseAlfa = 0;
+            updateProbabilities(probabilities, averages, *totalCost, m);
+            for (int y = 0; y < m; y++)
+                numIterPerAlfa[y] = ceil(probabilities[y] * block);
+            // sortArrays(vetAlfas, probabilities, averages, iterEachAlfa, m);
+        }
+
+        // Escolher o alfa
+        if (counterChooseAlfa = numIterPerAlfa[auxChooseAlfa])
+        {
+            auxChooseAlfa++;
+        }
+        alfa = vetAlfas[auxChooseAlfa];
+        (iterEachAlfa[auxChooseAlfa])++;
+
+        // Auxiliares para uma solução
+        float currentTotalCost = 0;
+        list<SimpleNode> solutionSet;
+        int candidates;
+        bool *nodeCovered;
+        Node **nodeList = this->copyNodePointersToArray(&candidates, &nodeCovered);
+
+        while (candidates > 0)
+        {
+            // Seleciona um dentre os melhores nós
+            this->sortNodesByDegreeAndWeight(nodeList, candidates);
+            int randomPosition = xrandom(ceil(candidates * alfa)); // 0 a teto da seleção (excluído)
+            int randomIndex = candidates - 1 - randomPosition;
+            int bestId = nodeList[randomIndex]->getId();
+            // printList(nodeList, candidates);
+            // cout << "Escolhido: " << nodeList[randomIndex]->getLabel()
+            //      << endl;
+
+            // Adiciona à solução
+            SimpleNode simpleNode;
+            simpleNode.id = bestId;
+            simpleNode.label = nodeList[randomIndex]->getLabel();
+            simpleNode.degree = nodeList[randomIndex]->getInDegree();
+            simpleNode.weight = nodeList[randomIndex]->getWeight();
+            solutionSet.emplace_back(simpleNode);
+            currentTotalCost += simpleNode.weight;
+            nodeCovered[bestId] = true;
+
+            // Marca nós ligados como cobertos
+            for (Edge *e = nodeList[randomIndex]->getFirstEdge(); e != nullptr; e = e->getNextEdge())
+            {
+                int targetId = e->getTargetId();
+                nodeCovered[targetId] = true;
+            }
+
+            // Remove nós cobertos
+            int k = 0;
+            for (int n = 0; n < candidates; n++)
+            {
+                if (nodeCovered[nodeList[n + k]->getId()])
+                {
+                    candidates--;
+                    k++;
+                    n--;
+                }
+                else
+                    nodeList[n] = nodeList[n + k];
+            }
+            // printList(nodeList, candidates);
+            // cout << "=-=-=" << endl;
+
+            // Verifica cobertura total
+            if (isSolved(nodeList, nodeCovered, candidates))
+                break;
+        }
+
+        updateAverages(vetAlfas, averages, iterEachAlfa, m, currentTotalCost, alfa);
+        counterChooseAlfa++;
+
+        // Verifica se a nova solução gerada é melhor que a anterior
+        if (currentTotalCost < *totalCost)
+        {
+            // Atualiza a lista da melhor solução;
+            *totalCost = currentTotalCost;
+            bestSolutionSet.clear();
+            for (auto &&node : solutionSet)
+                bestSolutionSet.emplace_back(node);
+        }
+
+        // Limpa a memória
+        delete[] nodeList;
+        delete[] nodeCovered;
+
+        // cout << "\nCusto: " << *totalCost << "\n==========" << endl
+        //      << endl;
+    }
+
+    // Limpa a memória
+    delete[] iterEachAlfa;
+    delete[] probabilities;
+    delete[] numIterPerAlfa;
+    delete[] averages;
+
+    return bestSolutionSet;
+}
+
+void Graph ::initializeProbabilities(int **iterEachAlfa, float **probabilities, int **numIterPerAlfa, float **averages, int m)
+{
+    *iterEachAlfa = new int[m];
+    *probabilities = new float[m];
+    *numIterPerAlfa = new int[m];
+    *averages = new float[m];
+    for (int i = 0; i < m; i++)
+    {
+        (*iterEachAlfa)[i] = 0;
+        (*probabilities)[i] = 1 / (float)m;
+        (*numIterPerAlfa)[i] = 0;
+        (*averages)[i] = FLT_MAX;
+    }
+}
+
+void Graph::updateProbabilities(float probabilities[], float averages[], float bestCost, int m)
+{
+    // Precisa ordenar as probabilidades em ordem decrescente e ordenar o vetor dos alfas
+    float *q = new float[m];
+
+    for (int i = 0; i < m; i++)
+    {
+        q[i] = (bestCost / averages[i]); // Usar potência?
+    }
+
+    float qSum = 0;
+    for (int j = 0; j < m; j++)
+        qSum += q[j];
+
+    for (int i = 0; i < m; i++)
+        probabilities[i] = q[i] / qSum;
+
+    delete[] q;
+}
+
+void Graph::updateAverages(float vetAlfas[], float averages[], int iterEachAlfa[], int m, float currentCost, float alfa)
+{
+    int position;
+    for (int i = 0; i < m; i++)
+    {
+        if (vetAlfas[i] == alfa)
+        {
+            position = i;
+            break;
+        }
+    }
+    averages[position] = (averages[position] * (iterEachAlfa[position] - 1) + currentCost) / iterEachAlfa[position];
+}
+
+void Graph::sortArrays(float vetAlfas[], float probabilities[], float averages[], int iterEachAlfa[], int m)
+{
+    // Organiza os vetores de alfas, probabilidades e médias em ordem decrescente
+    // Assim, o alfa de maior probabilidade fica em primeiro
+
+    for (int i = 0; i < m - 1; i++)
+    {
+        // Índice da maior probabilidade
+        int maxIndex = i;
+        for (int j = i + 1; j < m; j++)
+        {
+            if (probabilities[j] > probabilities[maxIndex])
+            {
+                maxIndex = j;
+            }
+        }
+
+        // Organiza equivalentemente os valores de x, e suas respectivas médias e probabilidades
+        float aux;
+        aux = probabilities[i];
+        probabilities[i] = probabilities[maxIndex];
+        probabilities[maxIndex] = aux;
+
+        aux = averages[i];
+        averages[i] = averages[maxIndex];
+        averages[maxIndex] = aux;
+
+        aux = vetAlfas[i];
+        vetAlfas[i] = vetAlfas[maxIndex];
+        vetAlfas[maxIndex] = aux;
+
+        int auxInt = iterEachAlfa[i];
+        iterEachAlfa[i] = iterEachAlfa[maxIndex];
+        iterEachAlfa[maxIndex] = auxInt;
+    }
+}
