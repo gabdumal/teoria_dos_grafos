@@ -393,6 +393,16 @@ Graph *graphDifference(Graph *originalGraph, Graph *toSubtractGraph)
     return resultedGraph;
 }
 
+void printResultSet(string *returnText, list<SimpleNode> resultSet, float totalCost, double timeElapsed)
+{
+    *returnText += "Custo: " + to_string(totalCost) + "\n";
+    *returnText += "Vertices: " + to_string(resultSet.size()) + "\n";
+    *returnText += "Tempo: " + to_string(timeElapsed) + "\n";
+    *returnText += "Label\t|\tCusto\n";
+    for (auto &&node : resultSet)
+        *returnText += formatInt(node.label, 4) + "\t|\t" + formatFloat(node.weight, 3, 6) + "\n";
+}
+
 /*  Prints the graph on terminal window
  *   at the end returns a boolean which is used either to export the graph or not
  */
@@ -405,7 +415,7 @@ bool showResponse(string dot, bool isResultSet)
     else
         cout << "GRAFO";
     cout << endl
-         << "-----" << endl
+         << "--------" << endl
          << dot << endl;
     while (response != "S" && response != "s" && response != "N" && response != "n")
     {
@@ -580,10 +590,7 @@ string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)
         list<SimpleNode> resultSet = graph->dominatingSetWeighted(&totalCost);
         double finalTime = cpuTime();
         double timeElapsed = finalTime - intialTime;
-        returnText += "Custo: " + formatFloat(totalCost, 4, 7) + "\n";
-        returnText += "Tempo: " + to_string(timeElapsed) + "\n";
-        for (auto &&node : resultSet)
-            returnText += "(" + formatInt(node.label, 4) + ") " + formatInt(node.degree, 4) + "\n";
+        printResultSet(&returnText, resultSet, totalCost, timeElapsed);
         break;
     }
     // Guloso randomizado
@@ -595,28 +602,19 @@ string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)
         cin >> numInter;
         cout << "Qual a porcentagem do alfa?" << endl;
         cin >> alfa;
+        cout << endl;
 
         float totalCost = 0;
         double intialTime = cpuTime();
         list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomized(&totalCost, numInter, alfa);
         double finalTime = cpuTime();
         double timeElapsed = finalTime - intialTime;
-
-        returnText += "Custo: " + formatFloat(totalCost, 4, 7) + "\n";
-        returnText += "Tempo: " + to_string(timeElapsed) + "\n";
-        for (auto &&node : resultSet)
-            returnText += "(" + formatInt(node.label, 4) + ") " + formatInt(node.degree, 4) + "\n";
-
+        printResultSet(&returnText, resultSet, totalCost, timeElapsed);
         break;
     }
     // Guloso randomizado reativo
     case 3:
     {
-        // Pré-definição
-        /* int numInter = 2500;
-        int bloco = 250;
-        float alfa[5] = {0.05, 0.10, 0.15, 0.30, 0.50}; */
-
         int numInter;
         int bloco;
         float *alfa;
@@ -639,18 +637,14 @@ string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)
 
         cout << "Qual tamanho de cada bloco?" << endl;
         cin >> bloco;
+        cout << endl;
 
         float totalCost = 0;
         double intialTime = cpuTime();
         list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomizedReactive(&totalCost, numInter, alfa, tam, bloco);
         double finalTime = cpuTime();
         double timeElapsed = finalTime - intialTime;
-
-        returnText += "Custo: " + formatFloat(totalCost, 4, 7) + "\n";
-        returnText += "Tempo: " + to_string(timeElapsed) + "\n";
-        for (auto &&node : resultSet)
-            returnText += "(" + formatInt(node.label, 4) + ") " + formatInt(node.degree, 4) + "\n";
-
+        printResultSet(&returnText, resultSet, totalCost, timeElapsed);
         delete[] alfa;
         break;
     }
@@ -674,7 +668,7 @@ string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)
  */
 int mainMenu(string outputFileName, Graph *graph, bool isSecondPart)
 {
-    string dot = "", errors = "";
+    string returnText = "", errors = "";
     int selectedOption = OPTION_INVALID;
 
     // Loop de interface
@@ -683,12 +677,12 @@ int mainMenu(string outputFileName, Graph *graph, bool isSecondPart)
         // Impressão do grafo resultante, caso opção não seja inválida
         if (selectedOption != OPTION_INVALID)
         {
-            bool shouldExport = showResponse(dot, isSecondPart && selectedOption != 9);
+            bool shouldExport = showResponse(returnText, isSecondPart && selectedOption != 9);
             if (shouldExport)
             {
                 ofstream output_file;
                 output_file.open(outputFileName, ios::out | ios::trunc);
-                output_file << dot;
+                output_file << returnText;
                 output_file.close();
             }
         }
@@ -703,9 +697,9 @@ int mainMenu(string outputFileName, Graph *graph, bool isSecondPart)
         selectedOption = menu(&errors, isSecondPart);
         cout << endl;
         if (isSecondPart)
-            dot = selectOptionSecondPart(&selectedOption, &errors, graph);
+            returnText = selectOptionSecondPart(&selectedOption, &errors, graph);
         else
-            dot = selectOptionFirstPart(&selectedOption, &errors, graph);
+            returnText = selectOptionFirstPart(&selectedOption, &errors, graph);
     }
     return 0;
 }
@@ -718,7 +712,7 @@ int main(int argc, char const *argv[])
 {
     ::globalTime = cpuTime();
     // Verifica se todos os argumentos foram fornecidos
-    if (argc == 3 || argc == 6)
+    if (argc == 3 || argc == 4 || argc == 6 || argc >= 8)
     {
         int endingCode = 0;
 
@@ -737,7 +731,7 @@ int main(int argc, char const *argv[])
         if (input_file.is_open())
         {
             // Executa versão adequada do programa
-            if (argc == 6)
+            if (argc == 6 && atoi(argv[3]) != 2)
             {
                 graph = readFileFirstPart(input_file, atoi(argv[3]), atoi(argv[4]), atoi(argv[5]));
                 endingCode = mainMenu(output_file_name, graph, false);
@@ -745,7 +739,51 @@ int main(int argc, char const *argv[])
             else
             {
                 graph = readFileSecondPart(input_file);
-                endingCode = mainMenu(output_file_name, graph, true);
+                // Menu da segunda parte
+                if (argc == 3)
+                    endingCode = mainMenu(output_file_name, graph, true);
+                else
+                {
+                    string returnText = "";
+                    float totalCost = 0;
+                    // Guloso
+                    if (argc == 4)
+                    {
+                        // program input output 1
+                        double intialTime = cpuTime();
+                        list<SimpleNode> resultSet = graph->dominatingSetWeighted(&totalCost);
+                        double finalTime = cpuTime();
+                        double timeElapsed = finalTime - intialTime;
+                        printResultSet(&returnText, resultSet, totalCost, timeElapsed);
+                    }
+                    else if (argc == 6)
+                    {
+                        // program input output 2 numIterations alfa
+                        double intialTime = cpuTime();
+                        list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomized(&totalCost, atoi(argv[4]), atoi(argv[5]));
+                        double finalTime = cpuTime();
+                        double timeElapsed = finalTime - intialTime;
+                        printResultSet(&returnText, resultSet, totalCost, timeElapsed);
+                    }
+                    else if (argc >= 8)
+                    {
+                        // program input output 3 numIterations block numAlfas alfas...
+                        int numAlfas = atoi(argv[6]);
+                        float *vetAlfas = new float[numAlfas];
+                        for (int i = 7; i < 7 + numAlfas; i++)
+                            vetAlfas[i - 7] = atof(argv[i]);
+
+                        double intialTime = cpuTime();
+                        list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomizedReactive(&totalCost, atoi(argv[4]), vetAlfas, atoi(argv[6]), atoi(argv[5]));
+                        double finalTime = cpuTime();
+                        double timeElapsed = finalTime - intialTime;
+                        printResultSet(&returnText, resultSet, totalCost, timeElapsed);
+                    }
+                    ofstream output_file;
+                    output_file.open(output_file_name, ios::out | ios::trunc);
+                    output_file << returnText;
+                    output_file.close();
+                }
             }
         }
         else

@@ -793,8 +793,8 @@ list<SimpleNode> Graph::dominatingSetWeighted(float *totalCost)
     delete[] nodeList;
     delete[] nodeCovered;
 
-    cout << "\nCusto: " << *totalCost << "\n==========" << endl
-         << endl;
+    // cout << "\nCusto: " << *totalCost << "\n==========" << endl
+    //      << endl;
 
     return solutionSet;
 }
@@ -804,9 +804,9 @@ list<SimpleNode> Graph::dominatingSetWeightedRandomized(float *totalCost, int nu
     list<SimpleNode> bestSolutionSet;
     *totalCost = FLT_MAX;
 
-    for (int m = 0; m < numIterations; m++)
+    for (int z = 0; z < numIterations; z++)
     {
-        // cout << "ITERACAO " << (m + 1) << endl
+        // cout << "ITERACAO " << (z + 1) << endl
         //      << endl;
         float currentTotalCost = 0;
         list<SimpleNode> solutionSet;
@@ -884,7 +884,7 @@ list<SimpleNode> Graph::dominatingSetWeightedRandomized(float *totalCost, int nu
     return bestSolutionSet;
 }
 
-list<SimpleNode> Graph ::dominatingSetWeightedRandomizedReactive(float *totalCost, int numIterations, float *vetAlfas, int m, int block)
+list<SimpleNode> Graph ::dominatingSetWeightedRandomizedReactive(float *totalCost, int numIterations, float *vetAlfas, int tam, int block)
 {
     list<SimpleNode> bestSolutionSet;
     *totalCost = FLT_MAX;
@@ -900,25 +900,25 @@ list<SimpleNode> Graph ::dominatingSetWeightedRandomizedReactive(float *totalCos
     // Média da qualidade das soluções obtidas quando se utilizou cada alfa na construção;
     float *averages;
 
-    initializeProbabilities(&iterEachAlfa, &probabilities, &numIterPerAlfa, &averages, m);
+    initializeProbabilities(&iterEachAlfa, &probabilities, &numIterPerAlfa, &averages, tam);
 
     // Constrói uma solução
     for (int z = 0; z < numIterations; z++)
     {
-        // cout << "ITERACAO " << (m + 1) << endl
+        // cout << "ITERACAO " << (z + 1) << endl
         //      << endl;
         if (z % block == 0)
         {
             counterChooseAlfa = 0;
             auxChooseAlfa = 0;
-            updateProbabilities(probabilities, averages, *totalCost, m);
+            updateProbabilities(probabilities, averages, *totalCost, tam);
             int numIterPerAlfaPrevious = 0;
-            for (int y = 0; y < m - 1; y++)
+            for (int y = 0; y < tam - 1; y++)
             {
                 numIterPerAlfa[y] = round(probabilities[y] * block) + numIterPerAlfaPrevious;
                 numIterPerAlfaPrevious = numIterPerAlfa[y];
             }
-            numIterPerAlfa[m - 1] = block;
+            numIterPerAlfa[tam - 1] = block;
             alfa = vetAlfas[auxChooseAlfa];
         }
 
@@ -987,7 +987,7 @@ list<SimpleNode> Graph ::dominatingSetWeightedRandomizedReactive(float *totalCos
                 break;
         }
 
-        updateAverages(vetAlfas, averages, iterEachAlfa, m, currentTotalCost, auxChooseAlfa);
+        updateAverages(vetAlfas, averages, iterEachAlfa, tam, currentTotalCost, auxChooseAlfa);
         counterChooseAlfa++;
 
         // Verifica se a nova solução gerada é melhor que a anterior
@@ -1017,42 +1017,42 @@ list<SimpleNode> Graph ::dominatingSetWeightedRandomizedReactive(float *totalCos
     return bestSolutionSet;
 }
 
-void Graph ::initializeProbabilities(int **iterEachAlfa, float **probabilities, int **numIterPerAlfa, float **averages, int m)
+void Graph ::initializeProbabilities(int **iterEachAlfa, float **probabilities, int **numIterPerAlfa, float **averages, int tam)
 {
-    *iterEachAlfa = new int[m];
-    *probabilities = new float[m];
-    *numIterPerAlfa = new int[m];
-    *averages = new float[m];
-    for (int i = 0; i < m; i++)
+    *iterEachAlfa = new int[tam];
+    *probabilities = new float[tam];
+    *numIterPerAlfa = new int[tam];
+    *averages = new float[tam];
+    for (int i = 0; i < tam; i++)
     {
         (*iterEachAlfa)[i] = 0;
-        (*probabilities)[i] = 1 / (float)m;
+        (*probabilities)[i] = 1 / (float)tam;
         (*numIterPerAlfa)[i] = 0;
         (*averages)[i] = FLT_MAX;
     }
 }
 
-void Graph::updateProbabilities(float probabilities[], float averages[], float bestCost, int m)
+void Graph::updateProbabilities(float probabilities[], float averages[], float bestCost, int tam)
 {
     // Precisa ordenar as probabilidades em ordem decrescente e ordenar o vetor dos alfas
-    float *q = new float[m];
+    float *q = new float[tam];
 
-    for (int i = 0; i < m; i++)
+    for (int i = 0; i < tam; i++)
     {
         q[i] = bestCost / averages[i];
     }
 
     float qSum = 0;
-    for (int j = 0; j < m; j++)
+    for (int j = 0; j < tam; j++)
         qSum += q[j];
 
-    for (int i = 0; i < m; i++)
+    for (int i = 0; i < tam; i++)
         probabilities[i] = q[i] / qSum;
 
     delete[] q;
 }
 
-void Graph::updateAverages(float vetAlfas[], float averages[], int iterEachAlfa[], int m, float currentCost, int auxChooseAlfa)
+void Graph::updateAverages(float vetAlfas[], float averages[], int iterEachAlfa[], int tam, float currentCost, int auxChooseAlfa)
 {
     averages[auxChooseAlfa] = (averages[auxChooseAlfa] * (iterEachAlfa[auxChooseAlfa] - 1) + currentCost) / iterEachAlfa[auxChooseAlfa];
 }

@@ -6,3 +6,4 @@ launch.json
 /img
 /src
 /results
+!auxiliar.txt
