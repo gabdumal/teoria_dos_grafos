@@ -760,7 +760,7 @@ int main(int argc, char const *argv[])
                     {
                         // program input output 2 numIterations alfa
                         double intialTime = cpuTime();
-                        list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomized(&totalCost, atoi(argv[4]), atoi(argv[5]));
+                        list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomized(&totalCost, atoi(argv[4]), atof(argv[5]));
                         double finalTime = cpuTime();
                         double timeElapsed = finalTime - intialTime;
                         printResultSet(&returnText, resultSet, totalCost, timeElapsed);
