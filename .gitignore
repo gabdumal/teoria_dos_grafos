@@ -5,5 +5,4 @@ launch.json
 *.png
 /img
 /src
-/results
 !auxiliar.txt
