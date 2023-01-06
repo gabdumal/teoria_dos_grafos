@@ -2,6 +2,8 @@ execGrupo11
 launch.json
 *.dot
 *.png
+*.txt
 /img
 /src
 !auxiliar.txt
+!/results

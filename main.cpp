@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include <string>
+#include <string.h>
 #include <math.h>
 #include <utility>
 #include <sstream>
@@ -18,10 +19,11 @@ using namespace std;
 static const int OPTION_INVALID = -1;
 static const int OPTION_EXIT = 0;
 static const int OPTION_EXPORT = 1;
-static double globalTime;
 
 // Variáveis globais
 bool directed = false, weightedEdge = false, weightedNode = false;
+static double globalTime;
+string input_file_name;
 
 string formatFloat(float value, int precision, int totalLength)
 {
@@ -56,7 +58,7 @@ string formatInt(int value, int totalLength)
 /*  Names a graph according it's kind, either directed or not
  *   writes .dot file after the .txt input
  */
-string exportGraphToDotFormat(Graph *graph)
+string exportGraphToDotFormat(Graph *graph, bool isPERT)
 { // dot -Tpng output.dot -o graph1.png
     if (graph == nullptr)
         return "";
@@ -66,7 +68,10 @@ string exportGraphToDotFormat(Graph *graph)
     bool weightedNode = graph->getWeightedNode();
     bool weightedEdge = graph->getWeightedEdge();
 
-    dot += "strict ";
+    if (!isPERT)
+    {
+        dot += "strict ";
+    }
     if (graph->getDirected())
     {
         connector = " -> ";
@@ -107,6 +112,11 @@ string exportGraphToDotFormat(Graph *graph)
     return dot;
 }
 
+string exportGraphToDotFormat(Graph *graph)
+{
+    return exportGraphToDotFormat(graph, false);
+}
+
 Graph *readFileSecondPart(ifstream &input_file)
 {
     // Preenchimento das variáveis globais
@@ -136,7 +146,7 @@ Graph *readFileSecondPart(ifstream &input_file)
         {
             Node *sourceNode = nullptr;
             Node *targetNode = nullptr;
-            graph->insertEdge(abs(labelNodeSource), abs(labelNodeTarget), 1, &sourceNode, &targetNode);
+            graph->insertEdge(abs(labelNodeSource), abs(labelNodeTarget), 1, &sourceNode, &targetNode, false);
         }
     }
     // Posições
@@ -166,7 +176,7 @@ Graph *readFileSecondPart(ifstream &input_file)
 /*  Reads from .txt file
     it also evaluetas three possible natures of the graph, if it is: directed, weighted on edges, weighted on nodes
 */
-Graph *readFileFirstPart(ifstream &input_file, int directed, int weightedEdge, int weightedNode)
+Graph *readFileFirstPart(ifstream &input_file, int directed, int weightedEdge, int weightedNode, bool isPERT)
 {
     // Preenchimento das variáveis globais
     ::directed = directed;
@@ -193,7 +203,7 @@ Graph *readFileFirstPart(ifstream &input_file, int directed, int weightedEdge, i
         {
             Node *sourceNode = nullptr;
             Node *targetNode = nullptr;
-            graph->insertEdge(abs(labelNodeSource), abs(labelNodeTarget), 1, &sourceNode, &targetNode);
+            graph->insertEdge(abs(labelNodeSource), abs(labelNodeTarget), 1, &sourceNode, &targetNode, isPERT);
         }
     }
     // Grafo SEM peso nos nós, mas COM peso nas arestas
@@ -205,7 +215,7 @@ Graph *readFileFirstPart(ifstream &input_file, int directed, int weightedEdge, i
         {
             Node *sourceNode = nullptr;
             Node *targetNode = nullptr;
-            graph->insertEdge(abs(labelNodeSource), abs(labelNodeTarget), edgeWeight, &sourceNode, &targetNode);
+            graph->insertEdge(abs(labelNodeSource), abs(labelNodeTarget), edgeWeight, &sourceNode, &targetNode, isPERT);
         }
     }
     // Grafo COM peso nos nós, mas SEM peso nas arestas
@@ -217,7 +227,7 @@ Graph *readFileFirstPart(ifstream &input_file, int directed, int weightedEdge, i
         {
             Node *sourceNode = nullptr;
             Node *targetNode = nullptr;
-            graph->insertEdge(abs(labelNodeSource), abs(labelNodeTarget), 1, &sourceNode, &targetNode);
+            graph->insertEdge(abs(labelNodeSource), abs(labelNodeTarget), 1, &sourceNode, &targetNode, isPERT);
             if (sourceNode != nullptr)
                 sourceNode->setWeight(nodeSourceWeight);
             if (targetNode != nullptr)
@@ -233,7 +243,7 @@ Graph *readFileFirstPart(ifstream &input_file, int directed, int weightedEdge, i
         {
             Node *sourceNode = nullptr;
             Node *targetNode = nullptr;
-            graph->insertEdge(abs(labelNodeSource), abs(labelNodeTarget), edgeWeight, &sourceNode, &targetNode);
+            graph->insertEdge(abs(labelNodeSource), abs(labelNodeTarget), edgeWeight, &sourceNode, &targetNode, isPERT);
             if (sourceNode != nullptr)
                 sourceNode->setWeight(nodeSourceWeight);
             if (targetNode != nullptr)
@@ -254,7 +264,7 @@ Graph *readFileFirstPart(ifstream &input_file, int directed, int weightedEdge, i
 Graph *createAuxiliaryGraphFromFile(ifstream &input_file, string input_file_name, int *selectedOption, string *errors)
 {
     if (input_file.is_open())
-        return readFileFirstPart(input_file, ::directed, ::weightedEdge, ::weightedNode);
+        return readFileFirstPart(input_file, ::directed, ::weightedEdge, ::weightedNode, false);
     else
     {
         *errors += "ERRO: Não foi possível abrir o arquivo de entrada " + input_file_name + "!\n";
@@ -297,7 +307,7 @@ Graph *createUnionGraph(Graph *firstGraph, Graph *secondGraph)
         {
             Node *sourceNode = nullptr;
             Node *targetNode = nullptr;
-            thirdGraph->insertEdge(finalNode->getLabel(), nextEdge->getTargetLabel(), 0, &sourceNode, &targetNode);
+            thirdGraph->insertEdge(finalNode->getLabel(), nextEdge->getTargetLabel(), 1, &sourceNode, &targetNode, false);
             nextEdge = nextEdge->getNextEdge();
         }
         finalNode = finalNode->getNextNode();
@@ -314,7 +324,7 @@ Graph *createUnionGraph(Graph *firstGraph, Graph *secondGraph)
             {
                 Node *sourceNode = nullptr;
                 Node *targetNode = nullptr;
-                thirdGraph->insertEdge(finalNode->getLabel(), nextEdge->getTargetLabel(), 0, &sourceNode, &targetNode);
+                thirdGraph->insertEdge(finalNode->getLabel(), nextEdge->getTargetLabel(), 1, &sourceNode, &targetNode, false);
             }
             nextEdge = nextEdge->getNextEdge();
         }
@@ -348,7 +358,7 @@ Graph *createIntersectionGraph(Graph *firstGraph, Graph *secondGraph)
             targetLabel = auxEdgeFirstGraph->getTargetLabel();
 
             if (secondGraph->thereIsEdgeBetweenLabel(sourceLabel, targetLabel))
-                thirdGraph->insertEdge(sourceLabel, targetLabel, 0);
+                thirdGraph->insertEdge(sourceLabel, targetLabel, 1);
             auxEdgeFirstGraph = auxEdgeFirstGraph->getNextEdge();
         }
         auxNodeFirstGraph = auxNodeFirstGraph->getNextNode();
@@ -383,7 +393,7 @@ Graph *graphDifference(Graph *originalGraph, Graph *toSubtractGraph)
             targetLabel = auxEdgeOriginalGraph->getTargetLabel();
             // Se há aresta no grafo original, e não há no secundário, adiciona ao resultado
             if (!toSubtractGraph->thereIsEdgeBetweenLabel(sourceLabel, targetLabel))
-                resultedGraph->insertEdge(sourceLabel, targetLabel, 0);
+                resultedGraph->insertEdge(sourceLabel, targetLabel, 1);
             auxEdgeOriginalGraph = auxEdgeOriginalGraph->getNextEdge();
         }
         // Avança para o próximo nó
@@ -391,6 +401,34 @@ Graph *graphDifference(Graph *originalGraph, Graph *toSubtractGraph)
     }
     resultedGraph->fixOrder();
     return resultedGraph;
+}
+
+Graph *criticalPath(Graph *firstGraph)
+{
+    Graph *criticalPathGraph;
+    criticalPathGraph = new Graph(INT_MAX, firstGraph->getDirected(), false, false);
+
+    // Variáveis auxiliares
+    Node *auxNode = firstGraph->getFirstNode();
+    Edge *auxEdge = auxNode->getFirstEdge();
+    int sourceLabel = auxNode->getLabel();
+    int targetLabel = auxEdge->getTargetLabel();
+
+    list<SimpleNode> S;
+    // Para o primeiro nó
+    SimpleNode auxSimpleNode;
+    auxSimpleNode.label = auxNode->getLabel();
+    auxSimpleNode.alpha = 0;
+    S.emplace_back(auxSimpleNode);
+
+    list<float> edgesWeight;
+    while (firstGraph->thereIsEdgeBetweenLabel(sourceLabel, targetLabel))
+    {
+        edgesWeight.emplace_back(auxEdge->getWeight());
+        auxEdge = auxEdge->getNextEdge();
+        targetLabel = auxEdge->getTargetLabel();
+    }
+    return criticalPathGraph;
 }
 
 void printResultSet(string *returnText, list<SimpleNode> resultSet, float totalCost, double timeElapsed)
@@ -543,17 +581,21 @@ string selectOptionFirstPart(int *selectedOption, string *errors, Graph *firstGr
     // Rede Pert
     case 5:
     {
-
-        break;
-    }
-    // Teste
-    case 6:
-    {
-        Graph *secondGraph = firstGraph->kruskal();
-        dot = exportGraphToDotFormat(secondGraph);
-        delete secondGraph;
-        secondGraph = nullptr;
-        break;
+        if (::directed && ::weightedEdge)
+        {
+            ifstream input_file;
+            input_file.open(::input_file_name, ios::in);
+            Graph *secondGraph = readFileFirstPart(input_file, ::directed, ::weightedEdge, ::weightedNode, true);
+            input_file.close();
+            dot = exportGraphToDotFormat(secondGraph, true);
+            delete secondGraph;
+            secondGraph = nullptr;
+            break;
+        }
+        else
+        {
+            *errors += "ERRO: PERT precisa de um grafo direcionado e ponderado";
+        }
     }
     // Impressão qualquer
     case 9:
@@ -718,7 +760,7 @@ int main(int argc, char const *argv[])
 
         // Captura argumentos
         string program_name(argv[0]);
-        string input_file_name(argv[1]);
+        ::input_file_name = argv[1];
         string output_file_name(argv[2]);
 
         // Abre arquivos de entrada e saída
@@ -733,7 +775,7 @@ int main(int argc, char const *argv[])
             // Executa versão adequada do programa
             if (argc == 6 && atoi(argv[3]) != 2)
             {
-                graph = readFileFirstPart(input_file, atoi(argv[3]), atoi(argv[4]), atoi(argv[5]));
+                graph = readFileFirstPart(input_file, atoi(argv[3]), atoi(argv[4]), atoi(argv[5]), false);
                 endingCode = mainMenu(output_file_name, graph, false);
             }
             else
