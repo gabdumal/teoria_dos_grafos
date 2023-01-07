@@ -82,11 +82,24 @@ Node *Graph::getLastNode()
 
 // Métodos de manipulação
 //
+
+/****************
+ * Funcao    : void fixOrder()                                  *
+ * Descricao : Atualiza o número de vértices (ordem) do grafo   *
+ * Parametros: Sem parâmetros.                                  *
+ * Retorno   : Sem retorno.                                     *
+ ***************/
 void Graph::fixOrder()
 {
     this->order = nodeIdCounter;
 }
 
+/****************
+ * Funcao    : Node insertNode(int label)                                  *
+ * Descricao : Insere um novo nó no grafo                                  *
+ * Parametros: label - label do nó a ser inserido.                         *
+ * Retorno   : Retorna nó inserido.                                        *
+ ***************/
 Node *Graph::insertNode(int label)
 {
     Node *newNode = new Node(nodeIdCounter++, label);
@@ -102,6 +115,14 @@ Node *Graph::insertNode(int label)
     }
     return newNode;
 }
+
+/****************
+ * Funcao    : Node insertNode(int label, float weight)                    *
+ * Descricao : Insere um novo nó com peso no grafo                         *
+ * Parametros: label - label do nó a ser inserido                          *
+               weight - peso do nó a ser inserido                          *
+ * Retorno   : Retorna nó inserido.                                        *
+ ***************/
 Node *Graph::insertNode(int label, float weight)
 {
     Node *newNode = this->insertNode(label);
@@ -109,6 +130,17 @@ Node *Graph::insertNode(int label, float weight)
     return newNode;
 }
 
+/****************
+ * Funcao    : void insertEdge(int sourceLabel, int targetLabel, float weight, Node **sourceNode, Node **targetNode)*                                  *
+ * Descricao : Insere uma nova aresta no grafo                         *
+ * Parametros: sourceLabel - etiqueta do nó origem                     *
+               targetLabel - etiqueta do nó destino                    *
+               weight - peso da areasta a ser inserida                 *
+               sourceNode - nó de origem                               *
+               targetNode - nó de destino                              *
+               isPERT - se será usado para rede PERT                   *
+ * Retorno   : Sem retorno.                                            *
+ ***************/
 void Graph::insertEdge(int sourceLabel, int targetLabel, float weight, Node **sourceNode, Node **targetNode, bool isPERT)
 {
     if (sourceLabel == targetLabel)
@@ -152,12 +184,30 @@ void Graph::insertEdge(int sourceLabel, int targetLabel, float weight, Node **so
     (*targetNode)->incrementInDegree();
     numberEdges++;
 }
+
+/****************
+ * Funcao    : void insertEdge(int sourceLabel, int targetLabel, float weight)  *
+ * Descricao : Insere uma nova aresta no grafo                                  *
+ * Parametros: sourceLabel - etiqueta do nó origem                              *
+               targetLabel - etiqueta do nó destino                             *
+               weight - peso da areasta a ser inserida                          *
+ * Retorno   : Sem retorno.                                                     *
+ ***************/
 void Graph::insertEdge(int sourceLabel, int targetLabel, float weight)
 {
     Node *sourceNode = nullptr;
     Node *targetNode = nullptr;
     this->insertEdge(sourceLabel, targetLabel, weight, &sourceNode, &targetNode, false);
 }
+
+/****************
+ * Funcao    : void insertEdge(Node *sourceNode, Node *targetNode, float weight)    *
+ * Descricao : Insere uma nova aresta no grafo                                      *
+ * Parametros: sourceNode - nó de origem                                 *
+               targetNode - nó de destino                                 *
+               weight - peso da areasta a ser inserida                              *
+ * Retorno   : Sem retorno.                                                         *
+ ***************/
 void Graph::insertEdge(Node *sourceNode, Node *targetNode, float weight)
 {
     if (sourceNode != nullptr && targetNode != nullptr)
@@ -186,11 +236,24 @@ void Graph::removeNode(int id)
 
 // Métodos auxiliares
 //
+
+/****************
+ * Funcao    : bool searchNode(int id)                                  *
+ * Descricao : Verifica se um nó existe através do um identificador     *
+ * Parametros: id - identificador do nó a ser verificado                *
+ * Retorno   : Retorna true se o nó existe.                             *
+ ***************/
 bool Graph::searchNode(int id)
 {
     return this->getNodeById(id) != nullptr;
 }
 
+/****************
+ * Funcao    : Node getNodeById(int id)                     *
+ * Descricao : Consulta um nó pelo seu identificador.       *
+ * Parametros: id - identificador do nó a ser consultado    *
+ * Retorno   : Retorna o nó.                                *
+ ***************/
 Node *Graph::getNodeById(int id)
 {
     Node *nextNode = this->firstNode;
@@ -203,6 +266,13 @@ Node *Graph::getNodeById(int id)
     }
     return nullptr;
 }
+
+/****************
+ * Funcao    : Node getNodeByLabel(int label)           *
+ * Descricao : Consulta um nó pelo seu label.           *
+ * Parametros: label - rótulo do nó a ser consultado    *
+ * Retorno   : Retorna o nó.                            *
+ ***************/
 Node *Graph::getNodeByLabel(int label)
 {
     Node *nextNode = this->firstNode;
@@ -216,6 +286,12 @@ Node *Graph::getNodeByLabel(int label)
     return nullptr;
 }
 
+/****************
+ * Funcao    : int getLabelById(int id)                                     *
+ * Descricao : Consulta o label de um nó através de seu identificador.      *
+ * Parametros: id - identificador do nó                                     *
+ * Retorno   : Retorna o label do nó.                                       *
+ ***************/
 int Graph::getLabelById(int id)
 {
     Node *node = this->getNodeById(id);
@@ -225,14 +301,26 @@ int Graph::getLabelById(int id)
         return INT_MAX;
 }
 
-// Verifica se existe aresta entre dois nós
+/****************
+ * Funcao    : bool thereIsEdgeBetweenLabel(int sourceLabel, int targetLabel)   *
+ * Descricao : Verifica se há uma aresta entre dois nós.                        *
+ * Parametros: sourceLabel - label do nó origem                                 *
+               targetLabel - label do nó destino                                *
+ * Retorno   : Retorna true se a aresta é existente.                            *
+ ***************/
 bool Graph::thereIsEdgeBetweenLabel(int sourceLabel, int targetLabel)
 {
     Node *sourceNode = this->getNodeByLabel(sourceLabel);
     return sourceNode->hasEdgeBetweenLabel(targetLabel);
 }
 
-// Verifica se há um caminho entre dois nós
+/****************
+ * Funcao    : bool depthFirstSearch(int initialId, int targetId)       *
+ * Descricao : Verifica se há um caminho entre dois nós.                *
+ * Parametros: initialId - identificador do nó inicial                  *
+               targetId - identificador do nó final                     *
+ * Retorno   : Retorna true se há um caminho existente.                 *
+ ***************/
 bool Graph::depthFirstSearch(int initialId, int targetId)
 {
     bool *visitedList = new bool[this->nodeIdCounter];
@@ -240,6 +328,15 @@ bool Graph::depthFirstSearch(int initialId, int targetId)
         visitedList[i] = false;
     return depthFirstSearchAux(this->getNodeById(initialId), targetId, visitedList);
 }
+
+/****************
+ * Funcao    : bool depthFirstSearchAux(Node *currentNode, int targetId, bool visitedList[])    *
+ * Descricao :                                                                                  *
+ * Parametros: currentNode - nó atual                                                           *
+               targetId - identificador do nó destino                                           *
+               visitedList -                                                                    *
+ * Retorno   :                                                                                  *
+ ***************/
 bool Graph::depthFirstSearchAux(Node *currentNode, int targetId, bool visitedList[])
 {
     int currentNodeId = currentNode->getId();
@@ -265,6 +362,13 @@ bool Graph::isConnected()
     return true;
 }
 
+/****************
+ * Funcao    : float getWeightBetweenNodes(int sourceId, int targetId)  *
+ * Descricao : Consulta o peso da aresta entre dois nós.                *
+ * Parametros: sourceId - identificador do nó origem                    *
+               targetId - identificador do nó destino                   *
+ * Retorno   : Retorna o peso da aresta.                                *
+ ***************/
 float Graph::getWeightBetweenNodes(int sourceId, int targetId)
 {
     return this->getNodeById(sourceId)->distanceToOtherNode(targetId);
@@ -272,6 +376,13 @@ float Graph::getWeightBetweenNodes(int sourceId, int targetId)
 
 // Algoritmos predefinidos
 //
+
+/****************
+ * Funcao    : float floydMarshall()                  *
+ * Descricao :                                        *
+ * Parametros: Sem parametros                         *
+ * Retorno   :                                        *
+ ***************/
 float **Graph::floydMarshall()
 {
     float **minPathCurrent = new float *[this->order];
@@ -332,6 +443,12 @@ float **Graph::floydMarshall()
     return minPathCurrent;
 }
 
+/****************
+ * Funcao    : float dijkstra(int startId)                                                                          *
+ * Descricao : Calcula o custo do caminho mínimo a partir de um nó selecionado utilizando o algoritmo de Dijkstra.  *
+ * Parametros: startId - identificador do nó inicial.                                                               *
+ * Retorno   : Retorna o custo da solução.                                                                          *
+ ***************/
 float *Graph::dijkstra(int startId)
 {
     bool *solution = new bool[this->order];
@@ -458,6 +575,12 @@ float *Graph::dijkstra(int startId)
     return minPath;
 }
 
+/****************
+ * Funcao    : Graph kruskal()                                                          *
+ * Descricao : Encontra uma Arvore Geradora Mínima utilizando o algoritmo de Kruskal.   *
+ * Parametros: Sem parâmetros.                                                          *
+ * Retorno   : Retorna a AGM solução.                                                   *
+ ***************/
 Graph *Graph::kruskal()
 {
     if (this->directed)
@@ -532,6 +655,12 @@ Graph *Graph::kruskal()
     return solutionGraph;
 }
 
+/****************
+ * Funcao    : Graph prim()                                                         *
+ * Descricao : Encontra uma Arvore Geradora Mínima utilizando o algoritmo de Prim.  *
+ * Parametros: Sem parâmetros.                                                      *
+ * Retorno   : Retorna a AGM solução.                                               *
+ ***************/
 Graph *Graph::prim()
 {
     if (this->directed)
@@ -681,6 +810,13 @@ Graph *Graph::prim()
 // Conjunto dominante
 //
 
+/****************
+ * Funcao    : void printList(Node **nodeList, int size)                    *
+ * Descricao : Imprime uma lista de nós (seu label, peso e grau)            *
+ * Parametros: nodeList -  lista de nós a ser ordenada                      *
+               size - tamanho da lista de nós a ser impressa                *
+ * Retorno   : Sem retorno.                                                 *
+ ***************/
 void Graph::printList(Node **nodeList, int size)
 {
     for (int i = 0; i < size; i++)
@@ -688,6 +824,14 @@ void Graph::printList(Node **nodeList, int size)
     cout << endl;
 }
 
+/****************
+ * Funcao    : void isSolved(Node **nodeList, bool *nodeCovered, int size)      *
+ * Descricao : Verifica se um conjunto de nós já foi completamente visitado     *
+ * Parametros: nodeList -  lista de nós a ser verificada                        *
+               nodeCovered - estado booleano de cobertura do nó                 *
+               size - tamanho da lista de nós a ser verificada                  *
+ * Retorno   : Retorna true se o conjunto de nós já foi completamente coberto.  *
+ ***************/
 bool Graph::isSolved(Node **nodeList, bool *nodeCovered, int size)
 {
     for (int i = 0; i < size; i++)
@@ -713,6 +857,13 @@ Node **Graph::copyNodePointersToArray(int *size, bool **coveredList)
     return nodeList;
 }
 
+/****************
+ * Funcao    : void sortNodesByDegreeAndWeight(Node **nodeList, int size)   *
+ * Descricao : Ordena uma lista de nós pela heurística: GRAU/PESO           *
+ * Parametros: nodeList -  lista de nós a ser ordenada                      *
+               size - tamanho da lista                                      *
+ * Retorno   : Sem retorno.                                                 *
+ ***************/
 void Graph::sortNodesByDegreeAndWeight(Node **nodeList, int size)
 {
     float currentHeuristic = 0;
@@ -733,6 +884,12 @@ void Graph::sortNodesByDegreeAndWeight(Node **nodeList, int size)
     }
 }
 
+/****************
+ * Funcao    : void dominatingSetWeighted(float *totalCost)                                 *
+ * Descricao : Encontra um subconjunto dominante ponderado com um algoritmo guloso          *
+ * Parametros: totalCost - custo total da solução                                           *
+ * Retorno   : Retorna uma lista de nós solução.                                            *
+ ***************/
 list<SimpleNode> Graph::dominatingSetWeighted(float *totalCost)
 {
     list<SimpleNode> solutionSet;
@@ -799,6 +956,14 @@ list<SimpleNode> Graph::dominatingSetWeighted(float *totalCost)
     return solutionSet;
 }
 
+/****************
+ * Funcao    : void dominatingSetWeightedRandomized(float *totalCost, int numIterations, float alfa)    *
+ * Descricao : Encontra um subconjunto dominante ponderado com um algoritmo guloso randomizado           *
+ * Parametros: totalCost -  custo total da solução                                                      *
+               numIterations - número máximo de iterações do algoritmo                                  *
+               alfa - valor de alfa                                                                     *
+ * Retorno   : Retorna uma lista de nós solução.                                                        *
+ ***************/
 list<SimpleNode> Graph::dominatingSetWeightedRandomized(float *totalCost, int numIterations, float alfa)
 {
     list<SimpleNode> bestSolutionSet;
@@ -884,6 +1049,16 @@ list<SimpleNode> Graph::dominatingSetWeightedRandomized(float *totalCost, int nu
     return bestSolutionSet;
 }
 
+/****************
+ * Funcao    : void dominatingSetWeightedRandomizedReactive(float *totalCost, int numIterations, float *vetAlfas, int m, int block)*
+ * Descricao : Encontra um subconjunto dominante ponderado com um algoritmo guloso randomizado reativo   *
+ * Parametros: totalCost -  custo total da solução                                                      *
+               numIterations - número máximo de iterações do algoritmo                                  *
+               vetAlfas - vetor de valores que alfa pode assumir                                        *
+               tam - quantidade de alfas                                                                *
+               block - tamanho do bloco de iterações                                                    *
+ * Retorno   : Retorna uma lista de nós solução.                                                        *
+ ***************/
 list<SimpleNode> Graph ::dominatingSetWeightedRandomizedReactive(float *totalCost, int numIterations, float *vetAlfas, int tam, int block)
 {
     list<SimpleNode> bestSolutionSet;
@@ -1017,6 +1192,16 @@ list<SimpleNode> Graph ::dominatingSetWeightedRandomizedReactive(float *totalCos
     return bestSolutionSet;
 }
 
+/****************
+ * Funcao    : void initializeProbabilities(int **iterEachAlfa, float **probabilities, int **numIterPerAlfa, float **averages, int m)*
+ * Descricao : Inicializa os vetores auxiliares                                                     *
+ * Parametros: iterEachAlfa - quntidade de iterações realizadas para cada alfa                      *
+               probabilities - vetor que armazena a probabilidade de cada alfa ser escolhido        *
+               numIterPerAlfa - quantidade máxima de iterações a serem realizaadas com cada alfa    *
+               averages - tamanho dos vetores                                                       *
+               m - tamanho dos vetores (quantidade de alfas)                                        *
+ * Retorno   : Sem retorno.                                                                         *
+ ***************/
 void Graph ::initializeProbabilities(int **iterEachAlfa, float **probabilities, int **numIterPerAlfa, float **averages, int tam)
 {
     *iterEachAlfa = new int[tam];
@@ -1032,9 +1217,17 @@ void Graph ::initializeProbabilities(int **iterEachAlfa, float **probabilities, 
     }
 }
 
+/****************
+ * Funcao    : void updateProbabilities(float probabilities[], float averages[], float bestCost, int m)*                                *
+ * Descricao : Atualiza a probabilidade de cada alfa ser selecionado                            *
+ * Parametros: probabilities - vetor que armazena a probabilidade de cada alfa ser escolhido    *
+               averages - vetor de médias das soluções obtidas por cada alfa                    *
+               bestCost - custo da melhor solução obtida                                        *
+               tam - tamanho dos vetores (quantidade de alfas)                                  *
+ * Retorno   : Sem retorno.                                                                     *
+ ***************/
 void Graph::updateProbabilities(float probabilities[], float averages[], float bestCost, int tam)
 {
-    // Precisa ordenar as probabilidades em ordem decrescente e ordenar o vetor dos alfas
     float *q = new float[tam];
 
     for (int i = 0; i < tam; i++)
@@ -1052,6 +1245,17 @@ void Graph::updateProbabilities(float probabilities[], float averages[], float b
     delete[] q;
 }
 
+/****************
+ * Funcao    : void updateAverages(float vetAlfas[], float averages[], int iterEachAlfa[], int m, float currentCost, int auxChooseAlfa)*
+ * Descricao : Atualiza a média da qualidade de cada alfa                            *
+ * Parametros: velAlfas - vetor de valores que alfa pode assumir                     *
+               averages - vetor de médias das soluções obtidas por cada alfa         *
+               iterEachAlfa - quntidade de iterações realizadas para cada alfa       *
+               tam - tamanho dos vetores (quantidade de alfas)                       *
+               currentCost - custo atual da solução                                  *
+               auxChooseAlfa - iterador relativa à posição do alfa atual no vetor    *
+ * Retorno   : Sem retorno.                                                          *
+ ***************/
 void Graph::updateAverages(float vetAlfas[], float averages[], int iterEachAlfa[], int tam, float currentCost, int auxChooseAlfa)
 {
     averages[auxChooseAlfa] = (averages[auxChooseAlfa] * (iterEachAlfa[auxChooseAlfa] - 1) + currentCost) / iterEachAlfa[auxChooseAlfa];
