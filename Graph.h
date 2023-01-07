@@ -44,7 +44,7 @@ public:
     Node *insertNode(int label, float weight);
     void fixOrder();
     void insertEdge(int sourceLabel, int targetLabel, float weight);
-    void insertEdge(int sourceLabel, int targetLabel, float weight, Node **sourceNode, Node **targetNode);
+    void insertEdge(int sourceLabel, int targetLabel, float weight, Node **sourceNode, Node **targetNode, bool isPERT);
     void insertEdge(Node *sourceNode, Node *targetNode, float weight);
     void removeNode(int id);
 

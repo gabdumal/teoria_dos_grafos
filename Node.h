@@ -71,6 +71,8 @@ typedef struct
     int label;
     int degree;
     float weight;
+    float alpha;
+    float beta;
 } SimpleNode;
 
 #endif // NODE_H_INCLUDED

@@ -138,9 +138,10 @@ Node *Graph::insertNode(int label, float weight)
                weight - peso da areasta a ser inserida                 *
                sourceNode - nó de origem                               *
                targetNode - nó de destino                              *
+               isPERT - se será usado para rede PERT                   *
  * Retorno   : Sem retorno.                                            *
  ***************/
-void Graph::insertEdge(int sourceLabel, int targetLabel, float weight, Node **sourceNode, Node **targetNode)
+void Graph::insertEdge(int sourceLabel, int targetLabel, float weight, Node **sourceNode, Node **targetNode, bool isPERT)
 {
     if (sourceLabel == targetLabel)
         return;
@@ -162,13 +163,13 @@ void Graph::insertEdge(int sourceLabel, int targetLabel, float weight, Node **so
 
     Edge *nextEdge = (*sourceNode)->getFirstEdge();
     bool alreadyExists = false;
-    while (nextEdge != nullptr)
+    while (!isPERT && (nextEdge != nullptr))
     {
         if (nextEdge->getTargetId() == targetNodeId)
             alreadyExists = true;
         nextEdge = nextEdge->getNextEdge();
     }
-    if (!alreadyExists)
+    if (isPERT || !alreadyExists)
     {
         (*sourceNode)->insertEdge((*sourceNode)->getId(), sourceLabel, targetNodeId, targetLabel, weight);
         if (!directed)
@@ -196,7 +197,7 @@ void Graph::insertEdge(int sourceLabel, int targetLabel, float weight)
 {
     Node *sourceNode = nullptr;
     Node *targetNode = nullptr;
-    this->insertEdge(sourceLabel, targetLabel, weight, &sourceNode, &targetNode);
+    this->insertEdge(sourceLabel, targetLabel, weight, &sourceNode, &targetNode, false);
 }
 
 /****************
