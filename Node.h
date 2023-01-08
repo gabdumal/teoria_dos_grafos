@@ -40,6 +40,8 @@ public:
     float getWeight();
     Node *getNextNode();
 
+    // SimpleNode getSimpleNode();
+
     // Setters
     void setNextNode(Node *node);
     void setWeight(float weight);

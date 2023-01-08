@@ -19,6 +19,13 @@ static const int OPTION_INVALID = -1;
 static const int OPTION_EXIT = 0;
 static const int OPTION_EXPORT = 1;
 
+typedef struct
+{
+    SimpleNode node;
+    int early;
+    int late;
+} pertItem;
+
 // Variáveis globais
 bool directed = false, weightedEdge = false, weightedNode = false;
 string input_file_name;
@@ -439,6 +446,131 @@ void printResultSet(string *returnText, list<SimpleNode> resultSet, float totalC
     *returnText += "Label\t|\tCusto\n";
     for (auto &&node : resultSet)
         *returnText += formatInt(node.label, 4) + "\t|\t" + formatFloat(node.weight, 3, 6) + "\n";
+
+}
+
+bool verifyIfNodeCanBeUsed(list<Edge*> predecessorEdges, bool *isInSolution, int nodeId){
+
+    if(isInSolution[nodeId]) return false;
+
+    for (auto &&e : predecessorEdges)
+    {
+        if(!isInSolution[e->getSourceId()]) return false;
+    }
+    return true;
+
+}
+
+list<Edge*> getPredecessorEdges(Graph *g, int nodeId){
+    Node *firstNode = g->getFirstNode();
+    Edge *auxEdge;
+
+    list<Edge*> predecessorEdges;
+
+    while (firstNode != nullptr){
+
+        auxEdge = firstNode->getFirstEdge(); // Aresta auxiliar recebe primeira aresta do primeiro nó do grafo original
+        // Enquanto há arestas em um nó...
+        while (auxEdge != nullptr)
+        {
+            if(auxEdge->getTargetId() == nodeId) predecessorEdges.push_back(auxEdge);
+            
+            auxEdge = auxEdge->getNextEdge();
+
+        }
+        // Avança para o próximo nó
+        firstNode = firstNode->getNextNode();
+    }
+    return predecessorEdges;
+}
+string pert(Graph *originalGraph){
+
+    if(!originalGraph->isConnected()){
+        cout << "Warning: Cannot get pert because the original graph is not connected." << endl;
+        return "";
+    }
+    if(!originalGraph->getDirected()){
+        cout << "Warning: Cannot get pert because the original graph is not directed." << endl;
+        return "";
+    }
+
+    list<pertItem> criticalPath;
+
+    // Variáveis auxiliares
+    Node *auxNode = originalGraph->getFirstNode();     // Nó auxiliar recebe o primeiro nó do grafo original
+    
+    // pertItem item;
+    // item.node = auxNode->getSimpleNode();
+    // item.early = 0;
+    // item.late = 0;
+
+    // criticalPath.push_back(item);
+
+    Edge *auxEdgeOriginalGraph;
+
+    int numberOfNodes = 0;
+
+    float *alfa = new float[originalGraph->getOrder()];
+    float *beta = new float[originalGraph->getOrder()];
+
+    bool *isInSolution = new bool[originalGraph->getOrder()];
+
+    for(int i = 0; i < originalGraph->getOrder(); i++){
+        isInSolution[i] = false;
+        alfa[i] = 0;
+        beta[i] = 0;
+    }
+    isInSolution[0] = true;
+
+    int sourceLabel;
+    int targetLabel;
+
+    auxNode = auxNode->getNextNode();
+
+    while (numberOfNodes < originalGraph->getOrder()-1){
+        int i;
+
+        list<Edge*> predecessorEdges;
+
+        for(i = 0; i < originalGraph->getOrder(); i++){
+            predecessorEdges = getPredecessorEdges(originalGraph, i);
+            if(verifyIfNodeCanBeUsed(predecessorEdges, isInSolution, i)) break;
+        }
+        
+        float maximum = 0;
+
+        for (auto &&e : predecessorEdges)
+        {
+            float localMaximum = alfa[e->getSourceId()]+e->getWeight();
+            if (localMaximum > maximum) maximum = localMaximum;
+        }
+
+        alfa[i] = maximum;
+        isInSolution[i] = true;
+
+        numberOfNodes++;
+    }
+    
+    for(int i = 0; i < originalGraph->getOrder(); i++){
+        cout << originalGraph->getLabelById(i) << " - " << alfa[i] << endl;
+    }
+
+
+
+
+    string returnText = "";
+
+    // returnText += "Custo: " + to_string(totalCost) + "\n";
+    // returnText += "Vertices: " + to_string(resultSet.size()) + "\n";
+    // if (seed != 0)
+    //     returnText += "Semente: " + to_string(seed) + "\n";
+    // returnText += "Tempo: " + to_string(timeElapsed) + "\n";
+    // returnText += "Label\t|\tCusto\n";
+    // for (auto &&node : resultSet)
+    //     returnText += formatInt(node.label, 4) + "\t|\t" + formatFloat(node.weight, 3, 6) + "\n";
+
+
+    return returnText;
 }
 
 /*  Prints the graph on terminal window
@@ -587,7 +719,10 @@ string selectOptionFirstPart(int *selectedOption, string *errors, Graph *firstGr
             input_file.open(::input_file_name, ios::in);
             Graph *secondGraph = readFileFirstPart(input_file, ::directed, ::weightedEdge, ::weightedNode, true);
             input_file.close();
+
+            string result = pert(secondGraph);
             dot = exportGraphToDotFormat(secondGraph, true);
+
             delete secondGraph;
             secondGraph = nullptr;
             break;
