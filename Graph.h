@@ -5,6 +5,7 @@
 #ifndef GRAPH_H_INCLUDED
 #define GRAPH_H_INCLUDED
 #include "Node.h"
+#include "random/random.h"
 #include <iostream>
 
 using namespace std;
@@ -64,8 +65,8 @@ public:
     Node **copyNodePointersToArray(int *size, bool **coveredList);
     void sortNodesByDegreeAndWeight(Node **nodeList, int size);
     list<SimpleNode> dominatingSetWeighted(float *totalCost);
-    list<SimpleNode> dominatingSetWeightedRandomized(float *totalCost, int numIterations, float alfa);
-    list<SimpleNode> dominatingSetWeightedRandomizedReactive(float *totalCost, int numIterations, float *vetAlfas, int tam, int block);
+    list<SimpleNode> dominatingSetWeightedRandomized(float *totalCost, CARDINAL *seed, int numIterations, float alfa);
+    list<SimpleNode> dominatingSetWeightedRandomizedReactive(float *totalCost, CARDINAL *seed, int numIterations, float *vetAlfas, int tam, int block);
 
     void initializeProbabilities(int **iterEachAlfa, float **probabilities, int **numIterPerAlfa, float **averages, int tam);
     void updateProbabilities(float probabilities[], float averages[], float bestCost, int tam);

@@ -8,6 +8,8 @@
                 "-fdiagnostics-color=always",
                 "-g",
                 "${workspaceFolder}/*.cpp",
+                "${workspaceFolder}/random/*.cpp",
+                "${workspaceFolder}/time/*.cpp",
                 "-o",
                 "${fileDirname}/execGrupo11"
             ],

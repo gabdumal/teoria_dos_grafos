@@ -1,6 +1,5 @@
+#include "time/util.h"
 #include "Graph.h"
-#include "Node.h"
-#include "time/util.cpp"
 #include <iostream>
 #include <iomanip>
 #include <stdlib.h>
@@ -22,7 +21,6 @@ static const int OPTION_EXPORT = 1;
 
 // Variáveis globais
 bool directed = false, weightedEdge = false, weightedNode = false;
-static double globalTime;
 string input_file_name;
 
 string formatFloat(float value, int precision, int totalLength)
@@ -431,10 +429,12 @@ Graph *criticalPath(Graph *firstGraph)
     return criticalPathGraph;
 }
 
-void printResultSet(string *returnText, list<SimpleNode> resultSet, float totalCost, double timeElapsed)
+void printResultSet(string *returnText, list<SimpleNode> resultSet, float totalCost, CARDINAL seed, double timeElapsed)
 {
     *returnText += "Custo: " + to_string(totalCost) + "\n";
     *returnText += "Vertices: " + to_string(resultSet.size()) + "\n";
+    if (seed != 0)
+        *returnText += "Semente: " + to_string(seed) + "\n";
     *returnText += "Tempo: " + to_string(timeElapsed) + "\n";
     *returnText += "Label\t|\tCusto\n";
     for (auto &&node : resultSet)
@@ -632,7 +632,7 @@ string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)
         list<SimpleNode> resultSet = graph->dominatingSetWeighted(&totalCost);
         double finalTime = cpuTime();
         double timeElapsed = finalTime - intialTime;
-        printResultSet(&returnText, resultSet, totalCost, timeElapsed);
+        printResultSet(&returnText, resultSet, totalCost, 0, timeElapsed);
         break;
     }
     // Guloso randomizado
@@ -647,11 +647,12 @@ string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)
         cout << endl;
 
         float totalCost = 0;
+        CARDINAL seed = 0;
         double intialTime = cpuTime();
-        list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomized(&totalCost, numInter, alfa);
+        list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomized(&totalCost, &seed, numInter, alfa);
         double finalTime = cpuTime();
         double timeElapsed = finalTime - intialTime;
-        printResultSet(&returnText, resultSet, totalCost, timeElapsed);
+        printResultSet(&returnText, resultSet, totalCost, seed, timeElapsed);
         break;
     }
     // Guloso randomizado reativo
@@ -682,11 +683,12 @@ string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)
         cout << endl;
 
         float totalCost = 0;
+        CARDINAL seed = 0;
         double intialTime = cpuTime();
-        list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomizedReactive(&totalCost, numInter, alfa, tam, bloco);
+        list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomizedReactive(&totalCost, &seed, numInter, alfa, tam, bloco);
         double finalTime = cpuTime();
         double timeElapsed = finalTime - intialTime;
-        printResultSet(&returnText, resultSet, totalCost, timeElapsed);
+        printResultSet(&returnText, resultSet, totalCost, seed, timeElapsed);
         delete[] alfa;
         break;
     }
@@ -752,7 +754,6 @@ int mainMenu(string outputFileName, Graph *graph, bool isSecondPart)
  */
 int main(int argc, char const *argv[])
 {
-    ::globalTime = cpuTime();
     // Verifica se todos os argumentos foram fornecidos
     if (argc == 3 || argc == 4 || argc == 6 || argc >= 8)
     {
@@ -788,6 +789,7 @@ int main(int argc, char const *argv[])
                 {
                     string returnText = "";
                     float totalCost = 0;
+                    CARDINAL seed = 0;
                     // Guloso
                     if (argc == 4)
                     {
@@ -796,16 +798,16 @@ int main(int argc, char const *argv[])
                         list<SimpleNode> resultSet = graph->dominatingSetWeighted(&totalCost);
                         double finalTime = cpuTime();
                         double timeElapsed = finalTime - intialTime;
-                        printResultSet(&returnText, resultSet, totalCost, timeElapsed);
+                        printResultSet(&returnText, resultSet, totalCost, seed, timeElapsed);
                     }
                     else if (argc == 6)
                     {
                         // program input output 2 numIterations alfa
                         double intialTime = cpuTime();
-                        list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomized(&totalCost, atoi(argv[4]), atof(argv[5]));
+                        list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomized(&totalCost, &seed, atoi(argv[4]), atof(argv[5]));
                         double finalTime = cpuTime();
                         double timeElapsed = finalTime - intialTime;
-                        printResultSet(&returnText, resultSet, totalCost, timeElapsed);
+                        printResultSet(&returnText, resultSet, totalCost, seed, timeElapsed);
                     }
                     else if (argc >= 8)
                     {
@@ -816,10 +818,10 @@ int main(int argc, char const *argv[])
                             vetAlfas[i - 7] = atof(argv[i]);
 
                         double intialTime = cpuTime();
-                        list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomizedReactive(&totalCost, atoi(argv[4]), vetAlfas, atoi(argv[6]), atoi(argv[5]));
+                        list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomizedReactive(&totalCost, &seed, atoi(argv[4]), vetAlfas, atoi(argv[6]), atoi(argv[5]));
                         double finalTime = cpuTime();
                         double timeElapsed = finalTime - intialTime;
-                        printResultSet(&returnText, resultSet, totalCost, timeElapsed);
+                        printResultSet(&returnText, resultSet, totalCost, seed, timeElapsed);
                     }
                     ofstream output_file;
                     output_file.open(output_file_name, ios::out | ios::trunc);

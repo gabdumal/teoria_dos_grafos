@@ -1,7 +1,5 @@
 #include "Graph.h"
-#include "Node.h"
 #include "Edge.h"
-#include "random/random.cpp"
 #include <math.h>
 #include <cstdlib>
 #include <algorithm>
@@ -9,6 +7,7 @@
 #include <cfloat>
 #include <fstream>
 #include <list>
+#include <unistd.h>
 using namespace std;
 
 /**************************************************************************************************
@@ -958,16 +957,19 @@ list<SimpleNode> Graph::dominatingSetWeighted(float *totalCost)
 
 /****************
  * Funcao    : void dominatingSetWeightedRandomized(float *totalCost, int numIterations, float alfa)    *
- * Descricao : Encontra um subconjunto dominante ponderado com um algoritmo guloso randomizado           *
+ * Descricao : Encontra um subconjunto dominante ponderado com um algoritmo guloso randomizado          *
  * Parametros: totalCost -  custo total da solução                                                      *
+               seed - semente de randomização                                                           *
                numIterations - número máximo de iterações do algoritmo                                  *
                alfa - valor de alfa                                                                     *
  * Retorno   : Retorna uma lista de nós solução.                                                        *
  ***************/
-list<SimpleNode> Graph::dominatingSetWeightedRandomized(float *totalCost, int numIterations, float alfa)
+list<SimpleNode> Graph::dominatingSetWeightedRandomized(float *totalCost, CARDINAL *seed, int numIterations, float alfa)
 {
     list<SimpleNode> bestSolutionSet;
     *totalCost = FLT_MAX;
+    *seed = (unsigned)(time(NULL) & 0xFFFF) | (getpid() << 16);
+    xrandomize(*seed);
 
     for (int z = 0; z < numIterations; z++)
     {
@@ -982,7 +984,6 @@ list<SimpleNode> Graph::dominatingSetWeightedRandomized(float *totalCost, int nu
         {
             // Seleciona um dentre os melhores nós
             this->sortNodesByDegreeAndWeight(nodeList, candidates);
-            xrandomize();
             int randomPosition = xrandom(ceil(candidates * alfa)); // 0 a teto da seleção (excluído)
             int randomIndex = candidates - 1 - randomPosition;
             int bestId = nodeList[randomIndex]->getId();
@@ -1053,16 +1054,19 @@ list<SimpleNode> Graph::dominatingSetWeightedRandomized(float *totalCost, int nu
  * Funcao    : void dominatingSetWeightedRandomizedReactive(float *totalCost, int numIterations, float *vetAlfas, int m, int block)*
  * Descricao : Encontra um subconjunto dominante ponderado com um algoritmo guloso randomizado reativo   *
  * Parametros: totalCost -  custo total da solução                                                      *
+               seed - semente de randomização                                                           *
                numIterations - número máximo de iterações do algoritmo                                  *
                vetAlfas - vetor de valores que alfa pode assumir                                        *
                tam - quantidade de alfas                                                                *
                block - tamanho do bloco de iterações                                                    *
  * Retorno   : Retorna uma lista de nós solução.                                                        *
  ***************/
-list<SimpleNode> Graph ::dominatingSetWeightedRandomizedReactive(float *totalCost, int numIterations, float *vetAlfas, int tam, int block)
+list<SimpleNode> Graph ::dominatingSetWeightedRandomizedReactive(float *totalCost, CARDINAL *seed, int numIterations, float *vetAlfas, int tam, int block)
 {
     list<SimpleNode> bestSolutionSet;
     *totalCost = FLT_MAX;
+    *seed = (unsigned)(time(NULL) & 0xFFFF) | (getpid() << 16);
+    xrandomize(*seed);
 
     // Número de iterações para cada alfa
     int *iterEachAlfa;
@@ -1116,7 +1120,6 @@ list<SimpleNode> Graph ::dominatingSetWeightedRandomizedReactive(float *totalCos
         {
             // Seleciona um dentre os melhores nós
             this->sortNodesByDegreeAndWeight(nodeList, candidates);
-            xrandomize();
             int randomPosition = xrandom(ceil(candidates * alfa)); // 0 a teto da seleção (excluído)
             int randomIndex = candidates - 1 - randomPosition;
             int bestId = nodeList[randomIndex]->getId();
