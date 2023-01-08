@@ -130,7 +130,7 @@ Node *Graph::insertNode(int label, float weight)
 }
 
 /****************
- * Funcao    : void insertEdge(int sourceLabel, int targetLabel, float weight, Node **sourceNode, Node **targetNode)*                                  *
+ * Funcao    : void insertEdge(int sourceLabel, int targetLabel, float weight, Node **sourceNode, Node **targetNode, bool isPERT)*                                  *
  * Descricao : Insere uma nova aresta no grafo                         *
  * Parametros: sourceLabel - etiqueta do nó origem                     *
                targetLabel - etiqueta do nó destino                    *
@@ -329,12 +329,12 @@ bool Graph::depthFirstSearch(int initialId, int targetId)
 }
 
 /****************
- * Funcao    : bool depthFirstSearchAux(Node *currentNode, int targetId, bool visitedList[])    *
- * Descricao :                                                                                  *
- * Parametros: currentNode - nó atual                                                           *
-               targetId - identificador do nó destino                                           *
-               visitedList -                                                                    *
- * Retorno   :                                                                                  *
+ * Funcao    : bool depthFirstSearchAux(Node *currentNode, int targetId, bool visitedList[])                *
+ * Descricao : Realizar a busca em profundidade para tentar localizar o nó ferente ao targetId no grafo     *
+ * Parametros: currentNode - nó atual                                                                       *
+               targetId - identificador do nó destino                                                       *
+               visitedList - Lista que informa quais nós foram visitados ou não                             *
+ * Retorno   : Retorna true se o nó foi localizado dentro do grafo                                          *
  ***************/
 bool Graph::depthFirstSearchAux(Node *currentNode, int targetId, bool visitedList[])
 {
@@ -377,10 +377,10 @@ float Graph::getWeightBetweenNodes(int sourceId, int targetId)
 //
 
 /****************
- * Funcao    : float floydMarshall()                  *
- * Descricao :                                        *
- * Parametros: Sem parametros                         *
- * Retorno   :                                        *
+ * Funcao    : float floydMarshall()                                             *
+ * Descricao : Encontrar o caminho minimo entre todos  os pares de nós do grafo  *
+ * Parametros: Sem parametros                                                    *
+ * Retorno   : Uma matriz com os valores do caminho minimo entre cada par de nós *
  ***************/
 float **Graph::floydMarshall()
 {
@@ -839,6 +839,13 @@ bool Graph::isSolved(Node **nodeList, bool *nodeCovered, int size)
     return true;
 }
 
+/****************
+ * Funcao    : Node copyNodePointersToArray(int *size, bool **coveredList)                                           *
+ * Descricao : Captar todos os nós do grafo e copiar os seus respectivos ponteiros em um array                       *
+ * Parametros: size - endereço que guardará o tamanho do meu array gerado                                            *
+               coveredList - Ponteiro para uma representação de quais nós estarão cobertos pela solução encontrada   *
+ * Retorno   : Retorna um array com os ponteiros para os nós do grafo                                                *
+ ***************/
 Node **Graph::copyNodePointersToArray(int *size, bool **coveredList)
 {
     Node **nodeList = new Node *[this->order];
