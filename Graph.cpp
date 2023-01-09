@@ -355,10 +355,73 @@ bool Graph::depthFirstSearchAux(Node *currentNode, int targetId, bool visitedLis
     return false;
 }
 
+/****************
+ * Funcao    : bool isConnected()                                           *
+ * Descricao : Verificar se o grafo é conexo                                *
+ * Parametros: Sem parâmetros                                               *
+ * Retorno   : Retorna true se o grafo é conexo                             *
+ ***************/
 bool Graph::isConnected()
 {
-    // TO DO
+    int numberOfNodes;
+    int *nodeComponentList;
+    int component = 0;                                                                                                                      
+    this->createAuxNodeComponentArray(&numberOfNodes, &nodeComponentList);
+
+    for (int i = 0; i < numberOfNodes; i++)
+    {
+        if(nodeComponentList[i] == -1){
+            component += 1;
+            if(component != 1){
+                return false;
+            }
+            marksNodeComponent(i, component, &nodeComponentList);
+        }  
+    }
     return true;
+}
+
+/****************
+ * Funcao    : void marksNodeComponent(int idNode, int component, int **nodeComponentList) *
+ * Descricao : Marcar a componente do nó passado como parâmetro e todos os seus adjacentes *
+ * Parametros: idNode - id do nó a ser marcado                                             *
+               component - número da componente que será marcado o nó                      *
+               nodeComponentList - Array auxiliar que me informa a componente de cada nó   *
+ * Retorno   : Sem retorno                                                                 *
+ ***************/
+void Graph::marksNodeComponent(int idNode, int component, int **nodeComponentList){
+    (*nodeComponentList)[idNode] = component;
+    
+    Edge *initialEdge = this->getNodeById(idNode)->getFirstEdge();
+    while(initialEdge != nullptr){
+        int idAdjacentNode = initialEdge->getTargetId();
+        if((*nodeComponentList)[idAdjacentNode] == -1){
+            marksNodeComponent(idAdjacentNode, component, nodeComponentList);
+        }
+        initialEdge = initialEdge->getNextEdge();
+    }
+}   
+
+/****************
+ * Funcao    : void createAuxNodeComponentArray(int *size, int **componentList)                                                  *
+ * Descricao : Instanciar e criar um array que representa a componente de cada nó                           *
+ * Parametros: size - endereço da variavel que guardará a quantidade de nós no grafo                        *
+               componentList- endereço do ponteiro onde instanciarei o array com os valores das componentes *
+               nodeComponentList - Array auxiliar que me informa a componente de cada nó                    *
+ * Retorno   : Sem retorno                                                                                  *
+ ***************/
+void Graph::createAuxNodeComponentArray(int *size, int **componentList)
+{
+    *componentList = new int[this->order];
+    Node *nextNode = this->firstNode;
+    int i = 0;
+    while (nextNode != nullptr)
+    {
+        (*componentList)[i] = -1;
+        nextNode = nextNode->getNextNode();
+        i++;
+    }
+    *size = i;
 }
 
 /****************

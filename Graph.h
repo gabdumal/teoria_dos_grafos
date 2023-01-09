@@ -55,14 +55,17 @@ public:
     Node *getNodeByLabel(int label);
     int getLabelById(int id);
     bool depthFirstSearch(int initialId, int targetId);
-    bool isConnected();
     bool thereIsEdgeBetweenLabel(int sourceLabel, int targetLabel);
     float getWeightBetweenNodes(int sourceId, int targetId);
+    bool isConnected();
+    void marksNodeComponent(int idNode, int component, int **NodeComponentList);
+    void createAuxNodeComponentArray(int *size, int **componentList);
 
     // Conjunto dominante
     void printList(Node **nodeList, int size);
     bool isSolved(Node **nodeList, bool *nodeCovered, int size);
     Node **copyNodePointersToArray(int *size, bool **coveredList);
+
     void sortNodesByDegreeAndWeight(Node **nodeList, int size);
     list<SimpleNode> dominatingSetWeighted(float *totalCost);
     list<SimpleNode> dominatingSetWeightedRandomized(float *totalCost, CARDINAL *seed, int numIterations, float alfa);
