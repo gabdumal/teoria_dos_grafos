@@ -365,19 +365,23 @@ bool Graph::isConnected()
 {
     int numberOfNodes;
     int *nodeComponentList;
-    int component = 0;                                                                                                                      
+    int component = 0;
     this->createAuxNodeComponentArray(&numberOfNodes, &nodeComponentList);
 
     for (int i = 0; i < numberOfNodes; i++)
     {
-        if(nodeComponentList[i] == -1){
+        if (nodeComponentList[i] == -1)
+        {
             component += 1;
-            if(component != 1){
+            if (component != 1)
+            {
                 return false;
             }
             marksNodeComponent(i, component, &nodeComponentList);
-        }  
+        }
     }
+
+    delete[] nodeComponentList;
     return true;
 }
 
@@ -389,18 +393,21 @@ bool Graph::isConnected()
                nodeComponentList - Array auxiliar que me informa a componente de cada nó   *
  * Retorno   : Sem retorno                                                                 *
  ***************/
-void Graph::marksNodeComponent(int idNode, int component, int **nodeComponentList){
+void Graph::marksNodeComponent(int idNode, int component, int **nodeComponentList)
+{
     (*nodeComponentList)[idNode] = component;
-    
+
     Edge *initialEdge = this->getNodeById(idNode)->getFirstEdge();
-    while(initialEdge != nullptr){
+    while (initialEdge != nullptr)
+    {
         int idAdjacentNode = initialEdge->getTargetId();
-        if((*nodeComponentList)[idAdjacentNode] == -1){
+        if ((*nodeComponentList)[idAdjacentNode] == -1)
+        {
             marksNodeComponent(idAdjacentNode, component, nodeComponentList);
         }
         initialEdge = initialEdge->getNextEdge();
     }
-}   
+}
 
 /****************
  * Funcao    : void createAuxNodeComponentArray(int *size, int **componentList)                                                  *
