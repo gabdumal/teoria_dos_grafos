@@ -77,7 +77,13 @@ Node *Node::getNextNode()
 {
     return this->nextNode;
 }
-
+// SimpleNode Node::getSimpleNode(){
+//     SimpleNode s;
+//     s.id = this->id;
+//     s.label = this->label;
+//     s.degree = this->getInDegree();
+//     s.weight = this->weight;
+// }
 // Setters
 void Node::setNextNode(Node *nextNode)
 {
