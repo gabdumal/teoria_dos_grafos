@@ -19,13 +19,6 @@ static const int OPTION_INVALID = -1;
 static const int OPTION_EXIT = 0;
 static const int OPTION_EXPORT = 1;
 
-typedef struct
-{
-    SimpleNode node;
-    int early;
-    int late;
-} pertItem;
-
 // Variáveis globais
 bool directed = false, weightedEdge = false, weightedNode = false;
 string input_file_name;
@@ -472,7 +465,7 @@ bool verifyIfNodeCanBeUsedSucessors(list<Edge *> sucessorEdges, bool *isInSoluti
     return true;
 }
 
-list<Edge *> getPredecessorEdges(Graph *graph, int nodeId, int *numberAllEdges)
+list<Edge *> getPredecessorEdges(Graph *graph, int nodeId)
 {
     Node *auxNode = graph->getFirstNode();
     Edge *auxEdge;
@@ -485,7 +478,6 @@ list<Edge *> getPredecessorEdges(Graph *graph, int nodeId, int *numberAllEdges)
         {
             if (auxEdge->getTargetId() == nodeId)
                 predecessorEdges.emplace_back(auxEdge);
-            (*numberAllEdges)++;
             auxEdge = auxEdge->getNextEdge();
         }
         // Avança para o próximo nó
@@ -519,26 +511,8 @@ list<Edge *> getSucessorEdges(Graph *graph, int nodeId)
 
 string pert(Graph *originalGraph)
 {
-    if (!originalGraph->isConnected())
-    {
-        cout << "Warning: Cannot get pert because the original graph is not connected." << endl;
-        return "";
-    }
-    if (!originalGraph->getDirected())
-    {
-        cout << "Warning: Cannot get pert because the original graph is not directed." << endl;
-        return "";
-    }
-
-    list<pertItem> criticalPath;
-    // pertItem item;
-    // item.node = auxNode->getSimpleNode();
-    // item.early = 0;
-    // item.late = 0;
-
     // Variáveis auxiliares
     int numberOfNodes = 0;
-    int numberAllEdges;
     Node *auxNode = originalGraph->getFirstNode(); // Nó auxiliar, recebe o primeiro nó do grafo original
     bool *isInSolution = new bool[originalGraph->getOrder()];
     float *alfa = new float[originalGraph->getOrder()];
@@ -560,7 +534,7 @@ string pert(Graph *originalGraph)
         list<Edge *> predecessorEdges;
         for (i = 0; i < originalGraph->getOrder(); i++)
         {
-            predecessorEdges = getPredecessorEdges(originalGraph, i, &numberAllEdges);
+            predecessorEdges = getPredecessorEdges(originalGraph, i);
             if (verifyIfNodeCanBeUsedPredecessors(predecessorEdges, isInSolution, i))
                 break;
         }
@@ -609,30 +583,77 @@ string pert(Graph *originalGraph)
         numberOfNodes++;
     }
 
-    float *delta = new float[numberAllEdges];
+    // Encontra caminho crítico
+    SimpleEdge *criticalTasks = new SimpleEdge[originalGraph->getOrder() - 1];
+    int i = 0;
     for (Node *n = originalGraph->getFirstNode(); n != nullptr; n = n->getNextNode())
     {
         for (Edge *e = n->getFirstEdge(); e != nullptr; e = e->getNextEdge())
         {
-            /* code */
+            float delta = beta[e->getTargetId()] - alfa[e->getSourceId()] - e->getWeight();
+            if (delta == 0)
+            {
+                SimpleEdge simpleEdge;
+                simpleEdge.sourceNodeId = e->getSourceId();
+                simpleEdge.targetNodeId = e->getTargetId();
+                simpleEdge.sourceNodeLabel = e->getSourceLabel();
+                simpleEdge.targetNodeLabel = e->getTargetLabel();
+                simpleEdge.weight = e->getWeight();
+                criticalTasks[i] = simpleEdge;
+                i++;
+            }
         }
     }
 
-    for (int i = 0; i < originalGraph->getOrder(); i++)
-        cout << originalGraph->getLabelById(i) << " - " << alfa[i] << endl;
-    for (int i = 0; i < originalGraph->getOrder(); i++)
-        cout << originalGraph->getLabelById(i) << " - " << beta[i] << endl;
+    // Ordena tarefas do caminho crítico
+    list<SimpleEdge> orderedTasks;
+    float totalCost = 0;
+    numberOfNodes = 0;
+    for (int i = 0; i < originalGraph->getOrder() - 1; i++)
+        isInSolution[i] = false;
+    while (numberOfNodes < originalGraph->getOrder())
+    {
+        int i;
+        list<Edge *> predecessorEdges;
+        for (i = 0; i < originalGraph->getOrder(); i++)
+        {
+            predecessorEdges = getPredecessorEdges(originalGraph, i);
+            if (verifyIfNodeCanBeUsedPredecessors(predecessorEdges, isInSolution, i))
+                break;
+        }
 
+        bool stop = false;
+        for (auto &&e : predecessorEdges)
+        {
+            for (int k = 0; k < originalGraph->getOrder() - 1; k++)
+            {
+                if (criticalTasks[k].sourceNodeId == e->getSourceId() && criticalTasks[k].targetNodeId == e->getTargetId())
+                {
+                    orderedTasks.emplace_back(criticalTasks[k]);
+                    totalCost += criticalTasks[k].weight;
+                    stop = true;
+                    break;
+                }
+            }
+            if (stop)
+                break;
+        }
+        isInSolution[i] = true;
+        numberOfNodes++;
+    }
+
+    // Retorno
     string returnText = "";
+    returnText += "Duracao: " + to_string(totalCost) + "\n";
+    for (auto &&edge : orderedTasks)
+        returnText += "(" + formatInt(edge.sourceNodeLabel, 4) + "," +
+                      formatInt(edge.targetNodeLabel, 4) + ")\t|\t" + formatFloat(edge.weight, 3, 6) + "\n";
 
-    // returnText += "Custo: " + to_string(totalCost) + "\n";
-    // returnText += "Vertices: " + to_string(resultSet.size()) + "\n";
-    // if (seed != 0)
-    //     returnText += "Semente: " + to_string(seed) + "\n";
-    // returnText += "Tempo: " + to_string(timeElapsed) + "\n";
-    // returnText += "Label\t|\tCusto\n";
-    // for (auto &&node : resultSet)
-    //     returnText += formatInt(node.label, 4) + "\t|\t" + formatFloat(node.weight, 3, 6) + "\n";
+    // Limpa memória
+    delete[] isInSolution;
+    delete[] alfa;
+    delete[] beta;
+    delete[] criticalTasks;
 
     return returnText;
 }
@@ -689,11 +710,12 @@ int menu(string *errors, bool isSecondPart)
     else
     {
         cout << "[1] Imprimir Grafo de Entrada" << endl;
-        cout << "[2] Gerar Grafo Interseção" << endl;
-        cout << "[3] Gerar Grafo União" << endl;
+        cout << "[2] Gerar Grafo Interseçao" << endl;
+        cout << "[3] Gerar Grafo Uniao" << endl;
         cout << "[4] Gerar Grafo Diferença" << endl;
         cout << "[5] Gerar Rede PERT" << endl;
-        cout << "[9] Imprimir Grafo Qualquer" << endl;
+        cout << "[8] Imprimir Grafo Multi-aresta" << endl;
+        cout << "[9] Imprimir Grafo Simples" << endl;
     }
     cout << "[0] Sair" << endl;
 
@@ -720,7 +742,7 @@ int menu(string *errors, bool isSecondPart)
  */
 string selectOptionFirstPart(int *selectedOption, string *errors, Graph *firstGraph)
 {
-    string dot = "";
+    string returnText = "";
     int option = *selectedOption;
     switch (option)
     {
@@ -732,7 +754,7 @@ string selectOptionFirstPart(int *selectedOption, string *errors, Graph *firstGr
     // Imprimir grafo de entrada
     case 1:
     {
-        dot = exportGraphToDotFormat(firstGraph);
+        returnText = exportGraphToDotFormat(firstGraph);
         break;
     }
     // Grafo interseção
@@ -741,7 +763,7 @@ string selectOptionFirstPart(int *selectedOption, string *errors, Graph *firstGr
         Graph *secondGraph = readAuxiliaryGraph(selectedOption, errors);
         Graph *thirdGraph = createIntersectionGraph(firstGraph, secondGraph);
 
-        dot = exportGraphToDotFormat(thirdGraph);
+        returnText = exportGraphToDotFormat(thirdGraph);
         delete secondGraph;
         secondGraph = nullptr;
         delete thirdGraph;
@@ -754,7 +776,7 @@ string selectOptionFirstPart(int *selectedOption, string *errors, Graph *firstGr
         Graph *secondGraph = readAuxiliaryGraph(selectedOption, errors);
         Graph *thirdGraph = createUnionGraph(firstGraph, secondGraph);
 
-        dot = exportGraphToDotFormat(thirdGraph);
+        returnText = exportGraphToDotFormat(thirdGraph);
         delete secondGraph;
         secondGraph = nullptr;
         delete thirdGraph;
@@ -767,7 +789,7 @@ string selectOptionFirstPart(int *selectedOption, string *errors, Graph *firstGr
         Graph *secondGraph = readAuxiliaryGraph(selectedOption, errors);
         Graph *thirdGraph = graphDifference(firstGraph, secondGraph);
 
-        dot = exportGraphToDotFormat(thirdGraph);
+        returnText = exportGraphToDotFormat(thirdGraph);
         delete secondGraph;
         secondGraph = nullptr;
         delete thirdGraph;
@@ -783,24 +805,31 @@ string selectOptionFirstPart(int *selectedOption, string *errors, Graph *firstGr
             input_file.open(::input_file_name, ios::in);
             Graph *secondGraph = readFileFirstPart(input_file, ::directed, ::weightedEdge, ::weightedNode, true);
             input_file.close();
-
-            // dot = exportGraphToDotFormat(secondGraph, true);
-            string result = pert(secondGraph);
-
+            returnText = pert(secondGraph);
             delete secondGraph;
             secondGraph = nullptr;
-            break;
         }
         else
-        {
-            *errors += "ERRO: PERT precisa de um grafo direcionado e ponderado";
-        }
+            *errors += "ERRO: Rede PERT precisa ser criada a partir de um grafo direcionado e ponderado nas arestas!\n";
+        break;
+    }
+    // Impressão de grafo multi-aresta
+    case 8:
+    {
+        ifstream input_file;
+        input_file.open(::input_file_name, ios::in);
+        Graph *secondGraph = readFileFirstPart(input_file, ::directed, ::weightedEdge, ::weightedNode, true);
+        input_file.close();
+        returnText = exportGraphToDotFormat(secondGraph, true);
+        delete secondGraph;
+        secondGraph = nullptr;
+        break;
     }
     // Impressão qualquer
     case 9:
     {
         Graph *secondGraph = readAuxiliaryGraph(selectedOption, errors);
-        dot = exportGraphToDotFormat(secondGraph);
+        returnText = exportGraphToDotFormat(secondGraph);
         delete secondGraph;
         secondGraph = nullptr;
         break;
@@ -810,7 +839,7 @@ string selectOptionFirstPart(int *selectedOption, string *errors, Graph *firstGr
         *selectedOption = OPTION_INVALID;
     }
     }
-    return dot;
+    return returnText;
 }
 string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)
 {
