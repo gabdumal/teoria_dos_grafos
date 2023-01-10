@@ -1041,12 +1041,11 @@ list<SimpleNode> Graph::dominatingSetWeighted(float *totalCost)
                alfa - valor de alfa                                                                     *
  * Retorno   : Retorna uma lista de nós solução.                                                        *
  ***************/
-list<SimpleNode> Graph::dominatingSetWeightedRandomized(float *totalCost, CARDINAL *seed, int numIterations, float alfa)
+list<SimpleNode> Graph::dominatingSetWeightedRandomized(float *totalCost, CARDINAL seed, int numIterations, float alfa)
 {
     list<SimpleNode> bestSolutionSet;
     *totalCost = FLT_MAX;
-    *seed = (unsigned)(time(NULL) & 0xFFFF) | (getpid() << 16);
-    xrandomize(*seed);
+    xrandomize(seed);
 
     for (int z = 0; z < numIterations; z++)
     {
@@ -1136,14 +1135,14 @@ list<SimpleNode> Graph::dominatingSetWeightedRandomized(float *totalCost, CARDIN
                vetAlfas - vetor de valores que alfa pode assumir                                        *
                tam - quantidade de alfas                                                                *
                block - tamanho do bloco de iterações                                                    *
+               bestAlfa - melhor alfa encontrado para a resolução do problema                           *
  * Retorno   : Retorna uma lista de nós solução.                                                        *
  ***************/
-list<SimpleNode> Graph ::dominatingSetWeightedRandomizedReactive(float *totalCost, CARDINAL *seed, int numIterations, float *vetAlfas, int tam, int block)
+list<SimpleNode> Graph ::dominatingSetWeightedRandomizedReactive(float *totalCost, CARDINAL seed, int numIterations, float *vetAlfas, int tam, int block, float *bestAlfa)
 {
     list<SimpleNode> bestSolutionSet;
     *totalCost = FLT_MAX;
-    *seed = (unsigned)(time(NULL) & 0xFFFF) | (getpid() << 16);
-    xrandomize(*seed);
+    xrandomize(seed);
 
     // Número de iterações para cada alfa
     int *iterEachAlfa;
@@ -1262,6 +1261,14 @@ list<SimpleNode> Graph ::dominatingSetWeightedRandomizedReactive(float *totalCos
         // cout << "\nCusto: " << *totalCost << "\n==========" << endl
         //      << endl;
     }
+
+    int greatestProbabilityIndex = 0;
+    for (int i = 1; i < tam; i++)
+    {
+        if (probabilities[i] > probabilities[greatestProbabilityIndex])
+            greatestProbabilityIndex = i;
+    }
+    *bestAlfa = vetAlfas[greatestProbabilityIndex];
 
     // Limpa a memória
     delete[] iterEachAlfa;

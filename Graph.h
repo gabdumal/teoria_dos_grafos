@@ -68,8 +68,8 @@ public:
 
     void sortNodesByDegreeAndWeight(Node **nodeList, int size);
     list<SimpleNode> dominatingSetWeighted(float *totalCost);
-    list<SimpleNode> dominatingSetWeightedRandomized(float *totalCost, CARDINAL *seed, int numIterations, float alfa);
-    list<SimpleNode> dominatingSetWeightedRandomizedReactive(float *totalCost, CARDINAL *seed, int numIterations, float *vetAlfas, int tam, int block);
+    list<SimpleNode> dominatingSetWeightedRandomized(float *totalCost, CARDINAL seed, int numIterations, float alfa);
+    list<SimpleNode> dominatingSetWeightedRandomizedReactive(float *totalCost, CARDINAL seed, int numIterations, float *vetAlfas, int tam, int block, float *bestAlfa);
 
     void initializeProbabilities(int **iterEachAlfa, float **probabilities, int **numIterPerAlfa, float **averages, int tam);
     void updateProbabilities(float probabilities[], float averages[], float bestCost, int tam);

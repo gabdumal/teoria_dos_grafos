@@ -22,6 +22,7 @@ static const int OPTION_EXPORT = 1;
 // Variáveis globais
 bool directed = false, weightedEdge = false, weightedNode = false;
 string input_file_name;
+CARDINAL seed;
 
 string formatFloat(float value, int precision, int totalLength)
 {
@@ -429,16 +430,29 @@ Graph *criticalPath(Graph *firstGraph)
     return criticalPathGraph;
 }
 
-void printResultSet(string *returnText, list<SimpleNode> resultSet, float totalCost, CARDINAL seed, double timeElapsed)
+void printResultSet(string *returnText, list<SimpleNode> resultSet, float totalCost, double timeElapsed, CARDINAL seed, bool useSeed, float bestAlfa, bool useBestAlfa)
 {
     *returnText += "Custo: " + to_string(totalCost) + "\n";
     *returnText += "Vertices: " + to_string(resultSet.size()) + "\n";
-    if (seed != 0)
-        *returnText += "Semente: " + to_string(seed) + "\n";
     *returnText += "Tempo: " + to_string(timeElapsed) + "\n";
+    if (useSeed)
+        *returnText += "Semente: " + to_string(seed) + "\n";
+    if (useBestAlfa)
+        *returnText += "Melhor alfa: " + to_string(bestAlfa) + "\n";
     *returnText += "Label\t|\tCusto\n";
     for (auto &&node : resultSet)
         *returnText += formatInt(node.label, 4) + "\t|\t" + formatFloat(node.weight, 3, 6) + "\n";
+}
+
+void printResultVariables(string *returnText, int qtdNodes, float totalCost, double timeElapsed, CARDINAL seed, bool useSeed, float bestAlfa, bool useBestAlfa)
+{
+    *returnText += "Custo: " + to_string(totalCost) + "\n";
+    *returnText += "Vertices: " + to_string(qtdNodes) + "\n";
+    *returnText += "Tempo: " + to_string(timeElapsed) + "\n";
+    if (useSeed)
+        *returnText += "Semente: " + to_string(seed) + "\n";
+    if (useBestAlfa)
+        *returnText += "Melhor alfa: " + to_string(bestAlfa) + "\n";
 }
 
 bool verifyIfNodeCanBeUsedPredecessors(list<Edge *> predecessorEdges, bool *isInSolution, int nodeId)
@@ -860,7 +874,7 @@ string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)
         list<SimpleNode> resultSet = graph->dominatingSetWeighted(&totalCost);
         double finalTime = cpuTime();
         double timeElapsed = finalTime - intialTime;
-        printResultSet(&returnText, resultSet, totalCost, 0, timeElapsed);
+        printResultSet(&returnText, resultSet, totalCost, timeElapsed, 0, false, 0, false);
         break;
     }
     // Guloso randomizado
@@ -875,12 +889,11 @@ string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)
         cout << endl;
 
         float totalCost = 0;
-        CARDINAL seed = 0;
         double intialTime = cpuTime();
-        list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomized(&totalCost, &seed, numInter, alfa);
+        list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomized(&totalCost, ::seed, numInter, alfa);
         double finalTime = cpuTime();
         double timeElapsed = finalTime - intialTime;
-        printResultSet(&returnText, resultSet, totalCost, seed, timeElapsed);
+        printResultSet(&returnText, resultSet, totalCost, timeElapsed, ::seed, true, 0, false);
         break;
     }
     // Guloso randomizado reativo
@@ -911,12 +924,13 @@ string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)
         cout << endl;
 
         float totalCost = 0;
-        CARDINAL seed = 0;
         double intialTime = cpuTime();
-        list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomizedReactive(&totalCost, &seed, numInter, alfa, tam, bloco);
+        float bestAlfa = 0;
+        list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomizedReactive(&totalCost, ::seed, numInter, alfa, tam, bloco, &bestAlfa);
         double finalTime = cpuTime();
         double timeElapsed = finalTime - intialTime;
-        printResultSet(&returnText, resultSet, totalCost, seed, timeElapsed);
+        printResultSet(&returnText, resultSet, totalCost, timeElapsed, ::seed, true, bestAlfa, true);
+
         delete[] alfa;
         break;
     }
@@ -986,6 +1000,7 @@ int main(int argc, char const *argv[])
     if (argc == 3 || argc == 4 || argc == 6 || argc >= 8)
     {
         int endingCode = 0;
+        ::seed = (unsigned)(time(NULL) & 0xFFFF) | (getpid() << 16);
 
         // Captura argumentos
         string program_name(argv[0]);
@@ -1017,7 +1032,6 @@ int main(int argc, char const *argv[])
                 {
                     string returnText = "";
                     float totalCost = 0;
-                    CARDINAL seed = 0;
                     // Guloso
                     if (argc == 4)
                     {
@@ -1026,16 +1040,16 @@ int main(int argc, char const *argv[])
                         list<SimpleNode> resultSet = graph->dominatingSetWeighted(&totalCost);
                         double finalTime = cpuTime();
                         double timeElapsed = finalTime - intialTime;
-                        printResultSet(&returnText, resultSet, totalCost, seed, timeElapsed);
+                        printResultVariables(&returnText, resultSet.size(), totalCost, timeElapsed, 0, false, 0, false);
                     }
                     else if (argc == 6)
                     {
                         // program input output 2 numIterations alfa
                         double intialTime = cpuTime();
-                        list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomized(&totalCost, &seed, atoi(argv[4]), atof(argv[5]));
+                        list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomized(&totalCost, ::seed, atoi(argv[4]), atof(argv[5]));
                         double finalTime = cpuTime();
                         double timeElapsed = finalTime - intialTime;
-                        printResultSet(&returnText, resultSet, totalCost, seed, timeElapsed);
+                        printResultVariables(&returnText, resultSet.size(), totalCost, timeElapsed, ::seed, true, 0, false);
                     }
                     else if (argc >= 8)
                     {
@@ -1046,10 +1060,11 @@ int main(int argc, char const *argv[])
                             vetAlfas[i - 7] = atof(argv[i]);
 
                         double intialTime = cpuTime();
-                        list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomizedReactive(&totalCost, &seed, atoi(argv[4]), vetAlfas, atoi(argv[6]), atoi(argv[5]));
+                        float bestAlfa = 0;
+                        list<SimpleNode> resultSet = graph->dominatingSetWeightedRandomizedReactive(&totalCost, ::seed, atoi(argv[4]), vetAlfas, atoi(argv[6]), atoi(argv[5]), &bestAlfa);
                         double finalTime = cpuTime();
                         double timeElapsed = finalTime - intialTime;
-                        printResultSet(&returnText, resultSet, totalCost, seed, timeElapsed);
+                        printResultVariables(&returnText, resultSet.size(), totalCost, timeElapsed, ::seed, true, bestAlfa, true);
                     }
                     ofstream output_file;
                     output_file.open(output_file_name, ios::out | ios::trunc);
