@@ -24,6 +24,14 @@ bool directed = false, weightedEdge = false, weightedNode = false;
 string input_file_name;
 CARDINAL seed;
 
+/****************
+ * Funcao    : string formatFloat(float value, int precision, int totalLength)  	                *
+ * Descricao : Converte float para string com parâmteros especificados                              *
+ * Parametros: value - valor em float a ser formatado                                               *
+ *             precision - precisão das casas decimais                                              *
+ *             totalLength - comprimento total da string retornada                                  *
+ * Retorno   : string formatada.                                                                    *
+ ***************/
 string formatFloat(float value, int precision, int totalLength)
 {
     string returnString = "";
@@ -41,6 +49,13 @@ string formatFloat(float value, int precision, int totalLength)
     return returnString;
 }
 
+/****************
+ * Funcao    : string formatInt(int value, int totalLength)  	                                    *
+ * Descricao : Converte inteiro para string com parâmteros especificados                            *
+ * Parametros: value - valor em inteiro a ser formatado                                             *
+ *             totalLength - comprimento total da string retornada                                  *
+ * Retorno   : string formatada.                                                                    *
+ ***************/
 string formatInt(int value, int totalLength)
 {
     string returnString = "";
@@ -54,9 +69,13 @@ string formatInt(int value, int totalLength)
     return returnString;
 }
 
-/*  Names a graph according it's kind, either directed or not
- *   writes .dot file after the .txt input
- */
+/****************
+ * Funcao    : string exportGraphToDotFormat(Graph *graph, bool isPERT) 	                        *
+ * Descricao : Cria string com a descrição de um grafo no formato .DOT                              *
+ * Parametros: graph - objeto do tipo Graph, de que as informações serão extraídas                  *
+ *             isPERT - define se o grafo pode ser utilizado para Rede PERT, ou seja, é multiaresta *
+ * Retorno   : descrição no formato .DOT.                                                           *
+ ***************/
 string exportGraphToDotFormat(Graph *graph, bool isPERT)
 { // dot -Tpng output.dot -o graph1.png
     if (graph == nullptr)
@@ -111,11 +130,23 @@ string exportGraphToDotFormat(Graph *graph, bool isPERT)
     return dot;
 }
 
+/****************
+ * Funcao    : string exportGraphToDotFormat(Graph *graph) 	                                        *
+ * Descricao : Chama função de exportar grafo para .DOT com o valor de isPERT falso                 *
+ * Parametros: graph - objeto do tipo Graph, de que as informações serão extraídas                  *
+ * Retorno   : descrição no formato .DOT.                                                           *
+ ***************/
 string exportGraphToDotFormat(Graph *graph)
 {
     return exportGraphToDotFormat(graph, false);
 }
 
+/****************
+ * Funcao    : Graph *readFileSecondPart(ifstream &input_file)                                                                                          *
+ * Descricao : Constrói grafo a partir de um arquivo de definição da instância, no formato especificado para o problema do conjunto dominante ponderado *
+ * Parametros: input_file - arquivo de entrada de dados, com definição do grafo                                                                         *
+ * Retorno   : objeto do tipo Graph, construído conforme a entrada                                                                                      *
+ ***************/
 Graph *readFileSecondPart(ifstream &input_file)
 {
     // Preenchimento das variáveis globais
@@ -172,9 +203,16 @@ Graph *readFileSecondPart(ifstream &input_file)
     return graph;
 }
 
-/*  Reads from .txt file
-    it also evaluetas three possible natures of the graph, if it is: directed, weighted on edges, weighted on nodes
-*/
+/****************
+ * Funcao    : Graph *readFileFirstPart(ifstream &input_file, int directed, int weightedEdge, int weightedNode, bool isPERT)              *
+ * Descricao : Constrói grafo a partir de um arquivo de definição da instância, no formato especificado para a primeira etapa do trabalho *
+ * Parametros: input_file - arquivo de entrada de dados, com definição do grafo                                                           *
+ *             directed - define se o grafo é direcionado                                                                                 *
+ *             weightedEdge - define se as arestas do grafo têm peso                                                                      *
+ *             weightedNode- define se os vértices do grafo têm peso                                                                      *
+ *             isPERT - define se o grafo está no formata para resolver rede PERT, ou seja, permite multiaresta                           *
+ * Retorno   : objeto do tipo Graph, construído conforme a entrada                                                                        *
+ ***************/
 Graph *readFileFirstPart(ifstream &input_file, int directed, int weightedEdge, int weightedNode, bool isPERT)
 {
     // Preenchimento das variáveis globais
@@ -260,6 +298,15 @@ Graph *readFileFirstPart(ifstream &input_file, int directed, int weightedEdge, i
     return graph;
 }
 
+/****************
+ * Funcao    : Graph *createAuxiliaryGraphFromFile(ifstream &input_file, string input_file_name, int *selectedOption, string *errors)                                                                     *
+ * Descricao : Abre um arquivo de entrada de definição da instância auxiliar para construir um grafo, com os mesmos atributos do grafo inicial, no formato especificado para a primeira etapa do trabalho *
+ * Parametros: input_file - arquivo de entrada de dados, com definição do grafo                                                                                                                           *
+ *             input_file_name - nome do arquivo de entrada de dados                                                                                                                                      *
+ *             selectedOption - retorna a opção de menu selecionada como inválido, caso não seja possível abrir o arquivo                                                                                 *
+ *             errors - retorna um erro na string definida para tal caso existam                                                                                                                          *
+ * Retorno   : objeto do tipo Graph, construído conforme a entrada                                                                                                                                        *
+ ***************/
 Graph *createAuxiliaryGraphFromFile(ifstream &input_file, string input_file_name, int *selectedOption, string *errors)
 {
     if (input_file.is_open())
@@ -272,6 +319,13 @@ Graph *createAuxiliaryGraphFromFile(ifstream &input_file, string input_file_name
     }
 }
 
+/****************
+ * Funcao    : Graph *readAuxiliaryGraph(int *selectedOption, string *errors)                                                                     *
+ * Descricao : Solicita ao usuário o nome de um arquivo de entrada de definição da instância auxiliar, o abre, e chama função de instanciar o grafo definido
+ * Parametros: selectedOption - retorna a opção de menu selecionada como inválido, caso não seja possível abrir o arquivo                                                                                 *
+ *             errors - retorna um erro na string definida para tal caso existam                                                                                                                          *
+ * Retorno   : objeto do tipo Graph, construído conforme a entrada                                                                                                                                        *
+ ***************/
 Graph *readAuxiliaryGraph(int *selectedOption, string *errors)
 {
     cout << "Digite o caminho do arquivo de entrada do grafo auxiliar:" << endl;
@@ -287,6 +341,13 @@ Graph *readAuxiliaryGraph(int *selectedOption, string *errors)
     return auxiliaryGraph;
 }
 
+/****************
+ * Funcao    : Graph *createUnionGraph(Graph *firstGraph, Graph *secondGraph)    *
+ * Descricao : Cria um novo grafo a partir da união de dois outros               *
+ * Parametros: firstGraph - primeiro grafo para realizar a união                 *
+ *             secondGraph - segundo grafo para realizar a união                 *
+ * Retorno   : objeto do tipo Graph, construído pela união de dois outros grafos *
+ ***************/
 Graph *createUnionGraph(Graph *firstGraph, Graph *secondGraph)
 {
     Graph *thirdGraph;
@@ -335,6 +396,13 @@ Graph *createUnionGraph(Graph *firstGraph, Graph *secondGraph)
     return thirdGraph;
 }
 
+/****************
+ * Funcao    : Graph *createIntersectionGraph(Graph *firstGraph, Graph *secondGraph)  *
+ * Descricao : Cria um novo grafo a partir da interseção de dois outros               *
+ * Parametros: firstGraph - primeiro grafo para realizar a interseção                 *
+ *             secondGraph - segundo grafo para realizar a interseção                 *
+ * Retorno   : objeto do tipo Graph, construído pela interseção de dois outros grafos *
+ ***************/
 Graph *createIntersectionGraph(Graph *firstGraph, Graph *secondGraph)
 {
     Graph *thirdGraph;
@@ -367,6 +435,13 @@ Graph *createIntersectionGraph(Graph *firstGraph, Graph *secondGraph)
     return thirdGraph;
 }
 
+/****************
+ * Funcao    : Graph *graphDifference(Graph *originalGraph, Graph *toSubtractGraph)          *
+ * Descricao : Cria um novo grafo a partir da diferença entre o primeiro grafo e o segundo   *
+ * Parametros: originalGraph - grafo base para realizar a diferença                          *
+ *             toSubtractGraph - grafo que indica as relações a serem eliminadas do primeiro *
+ * Retorno   : objeto do tipo Graph, construído pela diferença de dois outros grafos         *
+ ***************/
 Graph *graphDifference(Graph *originalGraph, Graph *toSubtractGraph)
 {
     // Instancia grafo resultado com características do grafo original
@@ -402,34 +477,19 @@ Graph *graphDifference(Graph *originalGraph, Graph *toSubtractGraph)
     return resultedGraph;
 }
 
-Graph *criticalPath(Graph *firstGraph)
-{
-    Graph *criticalPathGraph;
-    criticalPathGraph = new Graph(INT_MAX, firstGraph->getDirected(), false, false);
-
-    // Variáveis auxiliares
-    Node *auxNode = firstGraph->getFirstNode();
-    Edge *auxEdge = auxNode->getFirstEdge();
-    int sourceLabel = auxNode->getLabel();
-    int targetLabel = auxEdge->getTargetLabel();
-
-    list<SimpleNode> S;
-    // Para o primeiro nó
-    SimpleNode auxSimpleNode;
-    auxSimpleNode.label = auxNode->getLabel();
-    auxSimpleNode.alpha = 0;
-    S.emplace_back(auxSimpleNode);
-
-    list<float> edgesWeight;
-    while (firstGraph->thereIsEdgeBetweenLabel(sourceLabel, targetLabel))
-    {
-        edgesWeight.emplace_back(auxEdge->getWeight());
-        auxEdge = auxEdge->getNextEdge();
-        targetLabel = auxEdge->getTargetLabel();
-    }
-    return criticalPathGraph;
-}
-
+/****************
+ * Funcao    : void printResultSet(string *returnText, list<SimpleNode> resultSet, float totalCost, double timeElapsed, CARDINAL seed, bool useSeed, float bestAlfa, bool useBestAlfa) *
+ * Descricao : Cria um texto com a descrição da execução de uma operação de algoritmos gulosos, inclusos os vértices elencados no conjunto solução                                     *
+ * Parametros: returnText - texto construído a ser retornado                                                                                                                           *
+ *             resultSet - conjunto solução do algoritmo                                                                                                                               *
+ *             totalCost - custo total da solução                                                                                                                                      *
+ *             timeElapsed - tempo de CPU decorrido no experimento                                                                                                                     *
+ *             seed - semente de randomização utilizada                                                                                                                                *
+ *             useSeed - define se imprimirá a semente de randomização                                                                                                                 *
+ *             bestAlfa - melhor valor de alfa encontrado pelo algoritmo                                                                                                               *
+ *             useAlfa - define se imprimirá o melhor valor de alfa                                                                                                                    *
+ * Retorno   : sem retorno.                                                                                                                                                            *
+ ***************/
 void printResultSet(string *returnText, list<SimpleNode> resultSet, float totalCost, double timeElapsed, CARDINAL seed, bool useSeed, float bestAlfa, bool useBestAlfa)
 {
     *returnText += "Custo: " + to_string(totalCost) + "\n";
@@ -444,6 +504,19 @@ void printResultSet(string *returnText, list<SimpleNode> resultSet, float totalC
         *returnText += formatInt(node.label, 4) + "\t|\t" + formatFloat(node.weight, 3, 6) + "\n";
 }
 
+/****************
+ * Funcao    : void printResultVariables(string *returnText, int qtdNodes, float totalCost, double timeElapsed, CARDINAL seed, bool useSeed, float bestAlfa, bool useBestAlfa) *
+ * Descricao : Cria um texto com a descrição da execução de uma operação de algoritmos gulosos, sem incluir os vértices elencados no conjunto solução                          *
+ * Parametros: returnText - texto construído a ser retornado                                                                                                                   *
+ *             qtdNodes - quantidade de vértices no conjunto solução do algoritmo                                                                                              *
+ *             totalCost - custo total da solução                                                                                                                              *
+ *             timeElapsed - tempo de CPU decorrido no experimento                                                                                                             *
+ *             seed - semente de randomização utilizada                                                                                                                        *
+ *             useSeed - define se imprimirá a semente de randomização                                                                                                         *
+ *             bestAlfa - melhor valor de alfa encontrado pelo algoritmo                                                                                                       *
+ *             useAlfa - define se imprimirá o melhor valor de alfa                                                                                                            *
+ * Retorno   : sem retorno.                                                                                                                                                    *
+ ***************/
 void printResultVariables(string *returnText, int qtdNodes, float totalCost, double timeElapsed, CARDINAL seed, bool useSeed, float bestAlfa, bool useBestAlfa)
 {
     *returnText += "Custo: " + to_string(totalCost) + "\n";
@@ -455,6 +528,14 @@ void printResultVariables(string *returnText, int qtdNodes, float totalCost, dou
         *returnText += "Melhor alfa: " + to_string(bestAlfa) + "\n";
 }
 
+/****************
+ * Funcao    : bool verifyIfNodeCanBeUsedPredecessors(list<Edge *> predecessorEdges, bool *isInSolution, int nodeId) *
+ * Descricao : Verifica se todos os predecessores de um nó estão na solução da PERT, e se o próprio já não está      *
+ * Parametros: predecessorEdges - lista de arestas que têm dado vértice como destino                                 *
+ *             isInSolution - vetor que indica se um vértice em determinada posição está ou não na solução           *
+ *             nodeId - ID de um vértice                                                                             *
+ * Retorno   : booleano que indica se um vértice pode ser testado para entrar na solução da PERT.                    *
+ ***************/
 bool verifyIfNodeCanBeUsedPredecessors(list<Edge *> predecessorEdges, bool *isInSolution, int nodeId)
 {
     if (isInSolution[nodeId])
@@ -467,6 +548,14 @@ bool verifyIfNodeCanBeUsedPredecessors(list<Edge *> predecessorEdges, bool *isIn
     return true;
 }
 
+/****************
+ * Funcao    : bool verifyIfNodeCanBeUsedSucessors(list<Edge *> sucessorEdges, bool *isInSolution, int nodeId) *
+ * Descricao : Verifica se todos os sucessores de um nó estão na solução da PERT, e se o próprio já não está   *
+ * Parametros: sucessorEdges - lista de arestas que têm dado vértice como origem                               *
+ *             isInSolution - vetor que indica se um vértice em determinada posição está ou não na solução     *
+ *             nodeId - ID de um vértice                                                                       *
+ * Retorno   : booleano que indica se um vértice pode ser testado para entrar na solução da PERT.              *
+ ***************/
 bool verifyIfNodeCanBeUsedSucessors(list<Edge *> sucessorEdges, bool *isInSolution, int nodeId)
 {
     if (isInSolution[nodeId])
@@ -479,6 +568,13 @@ bool verifyIfNodeCanBeUsedSucessors(list<Edge *> sucessorEdges, bool *isInSoluti
     return true;
 }
 
+/****************
+ * Funcao    : list<Edge *> getPredecessorEdges(Graph *graph, int nodeId)                           *
+ * Descricao : Busca todas as arestas que têm dado vértice como destino                             *
+ * Parametros: graph - grafo onde a busca é feita                                                   *
+ *             nodeId - ID de um vértice                                                            *
+ * Retorno   : Lista de ponteiros para as arestas predecessoras do vértice definido nos parâmetros. *
+ ***************/
 list<Edge *> getPredecessorEdges(Graph *graph, int nodeId)
 {
     Node *auxNode = graph->getFirstNode();
@@ -500,6 +596,13 @@ list<Edge *> getPredecessorEdges(Graph *graph, int nodeId)
     return predecessorEdges;
 }
 
+/****************
+ * Funcao    : list<Edge *> getSucessorEdges(Graph *graph, int nodeId)                           *
+ * Descricao : Busca todas as arestas que têm dado vértice como origem                           *
+ * Parametros: graph - grafo onde a busca é feita                                                *
+ *             nodeId - ID de um vértice                                                         *
+ * Retorno   : Lista de ponteiros para as arestas sucessoras do vértice definido nos parâmetros. *
+ ***************/
 list<Edge *> getSucessorEdges(Graph *graph, int nodeId)
 {
     Node *auxNode = graph->getFirstNode();
@@ -523,6 +626,12 @@ list<Edge *> getSucessorEdges(Graph *graph, int nodeId)
     return sucessorEdges;
 }
 
+/****************
+ * Funcao    : string pert(Graph *originalGraph)                                                           *
+ * Descricao : Constói a ordenação de tarefas do caminho crítico de um grafo pela rede PERT                *
+ * Parametros: originalGraph - grafo onde a rede PERT é verificada                                         *
+ * Retorno   : string com os resultados da duração total de um projeto e sua ordenação de caminho crítico. *
+ ***************/
 string pert(Graph *originalGraph)
 {
     // Variáveis auxiliares
@@ -672,9 +781,13 @@ string pert(Graph *originalGraph)
     return returnText;
 }
 
-/*  Prints the graph on terminal window
- *   at the end returns a boolean which is used either to export the graph or not
- */
+/****************
+ * Funcao    : bool showResponse(string dot, bool isResultSet)                                                                 *
+ * Descricao : Imprime no terminal a solução encontrada por algum algoritmo e solicita a permissão de exportar para um arquivo *
+ * Parametros: dot - string com o texto que descreve a solução encontrada                                                      *
+ *             isResultSet - define se a solução é um grafo ou um conjunto de vértices                                         *
+ * Retorno   : booleano com a permissão, ou não, para exportar a solução.                                                      *
+ ***************/
 bool showResponse(string dot, bool isResultSet)
 {
     string response = "";
@@ -702,11 +815,13 @@ bool showResponse(string dot, bool isResultSet)
     return (response == "S" || response == "s");
 }
 
-/*  Shows a menu on terminal windows with 10 options
- *   only two of them works: number one wich prints the graph -on terminal- and number zero wich ends the program
- *   note that the other ones are not suitable for this project
- *   it also shows an error message in case of an incorrect input such letters or numbers others than 0-10
- */
+/****************
+ * Funcao    : int menu(string *errors, bool isSecondPart)                                                             *
+ * Descricao : Imprime no terminal o menu de seleção de operações a serem executadas, e captura seleção do usuário     *
+ * Parametros: errors - string que armazena os eventuais erros encontrados                                             *
+ *             isSecondPart - define se o programa está sendo executado para a primeira ou a segunda parte do trabalho *
+ * Retorno   : inteiro que representa a operação selecionada pelo usuário.                                             *
+ ***************/
 int menu(string *errors, bool isSecondPart)
 {
     string selectedOption;
@@ -751,9 +866,14 @@ int menu(string *errors, bool isSecondPart)
     }
 }
 
-/*  Calls a function according with the entrance option given by user
- *   like the menu, only one and zero matters
- */
+/****************
+ * Funcao    : string selectOptionFirstPart(int *selectedOption, string *errors, Graph *firstGraph)  *
+ * Descricao : Interpreta a seleção e executa a operação associada para a primeira parte do trabalho *
+ * Parametros: selectedOption - seleção de operação a ser executada                                  *
+ *             errors - string que armazena os eventuais erros encontrados                           *
+ *             firstGraph - grafo base sobre o qual as operações serão executadas                    *
+ * Retorno   : texto de descrição da solução encontrada pelas operações.                             *
+ ***************/
 string selectOptionFirstPart(int *selectedOption, string *errors, Graph *firstGraph)
 {
     string returnText = "";
@@ -855,6 +975,15 @@ string selectOptionFirstPart(int *selectedOption, string *errors, Graph *firstGr
     }
     return returnText;
 }
+
+/****************
+ * Funcao    : string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)     *
+ * Descricao : Interpreta a seleção e executa a operação associada para a segunda parte do trabalho *
+ * Parametros: selectedOption - seleção de operação a ser executada                                 *
+ *             errors - string que armazena os eventuais erros encontrados                          *
+ *             graph - grafo base sobre o qual as operações serão executadas                        *
+ * Retorno   : texto de descrição da solução encontrada pelas operações.                            *
+ ***************/
 string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)
 {
     string returnText = "";
@@ -948,10 +1077,14 @@ string selectOptionSecondPart(int *selectedOption, string *errors, Graph *graph)
     return returnText;
 }
 
-/*  cleans terminal windows
- *   evaluates if the graph will be exported or not based on value of "shouldExport"
- *   also prints on terminal an error message in case of failure opening output file
- */
+/****************
+ * Funcao    : int mainMenu(string outputFileName, Graph *graph, bool isSecondPart)                *
+ * Descricao : Implementa interface de execução do programa, e exporta resultados para arquivo     *
+ * Parametros: outputFileName - nome do arquivo de saída de dados                                  *
+ *             graph - grafo base sobre o qual serão executadas as operações                       *
+ *             isSecondPart - define se serão executadas as operações da segunda parte do trabalho *
+ * Retorno   : inteiro que define se houve erro, ou não, na execução do programa.                  *
+ ***************/
 int mainMenu(string outputFileName, Graph *graph, bool isSecondPart)
 {
     string returnText = "", errors = "";
@@ -994,6 +1127,13 @@ int mainMenu(string outputFileName, Graph *graph, bool isSecondPart)
  *   if it is set properly calls menu function
  *   else it shows the expected model just beforing ending the program
  */
+/****************
+ * Funcao    : int main(int argc, char const *argv[])                                                                                                       *
+ * Descricao : Função principal, interpreta o tipo de execução pelos argumentos passados, abre arquivo de entrada de dados e define semente de randomização *
+ * Parametros: argc - quantidade de argumentos passados na linha de comando                                                                                 *
+ *             argv - vetor dos argumentos passados pela linha de comando                                                                                   *
+ * Retorno   : inteiro que define se houve erro, ou não, na execução do programa.                                                                           *
+ ***************/
 int main(int argc, char const *argv[])
 {
     // Verifica se todos os argumentos foram fornecidos
