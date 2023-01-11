@@ -96,6 +96,17 @@ void Node::setWeight(float weight)
 
 // Métodos de manipulação
 //
+
+/****************
+* Funcao    : void insertEdge(int sourceId, int sourceLabel, int targetId, int targetLabel, float weight)       *
+* Descricao : Inserir uma nova aresta entre dois vértices.                                                           *
+* Parametros: sourceId - id do vértice de que está chamando a função                                            *
+               sourceLabel - label do vértice que está chamando a função                                        *
+               targetId - id do vértice alvo                                                                    *
+               targetLabel - label do vértice alvo                                                              *
+               weight - peso da aresta                                                                          *   
+* Retorno   : Sem retorno.                                                                                      *
+ ***************/
 void Node::insertEdge(int sourceId, int sourceLabel, int targetId, int targetLabel, float weight)
 {
     // Verifies whether there are at least one edge in the node
@@ -116,6 +127,12 @@ void Node::insertEdge(int sourceId, int sourceLabel, int targetId, int targetLab
     }
 }
 
+/****************
+ * Funcao    : void removeAllEdges()                                        *
+ * Descricao : Remover todas as arestas referentes a um vertice.            *
+ * Parametros: Sem parâmetros.                                              *
+ * Retorno   : Sem retorno.                                                 *
+ ***************/
 void Node::removeAllEdges()
 {
     // Verifies whether there are at least one edge in the node
@@ -133,6 +150,14 @@ void Node::removeAllEdges()
     this->firstEdge = this->lastEdge = nullptr;
 }
 
+/****************
+ * Funcao    : int removeEdge(int id, bool directed, Node *targetNode)                              *
+ * Descricao : A partir de um vertice, tenta remover a aresta dele com um vertice alvo              *
+ * Parametros: id - id do vértice alvo que a aresta deve ser removida                                    *
+               directed - booleano que informa se a aresta em questão é direcionada ou não          * 
+               targetNode - ponteiro para o vértice alvo                                                 *
+ * Retorno   : Retorna 1 se a aresta existe e foi removida, e 0 se ela não existir.                 *
+ ***************/
 int Node::removeEdge(int id, bool directed, Node *targetNode)
 {
     // Verifies whether the edge to remove is in the node
@@ -178,18 +203,46 @@ int Node::removeEdge(int id, bool directed, Node *targetNode)
 
 // Outros métodos
 //
+
+/****************
+ * Funcao    : void incrementInDegree()                     *
+ * Descricao : Incrementar o grau de entrada do vértice.    *
+ * Parametros: Sem parâmetros.                              *
+ * Retorno   : Sem retorno.                                 *
+ ***************/
 void Node::incrementInDegree()
 {
     this->inDegree++;
 }
+
+/****************
+ * Funcao    : void incrementInDegree()                     *
+ * Descricao : Incrementar o grau de saida do vértice.      *
+ * Parametros: Sem parâmetros.                              *
+ * Retorno   : Sem retorno.                                 *
+ ***************/
 void Node::incrementOutDegree()
 {
     this->outDegree++;
 }
+
+/****************
+ * Funcao    : void incrementInDegree()                     *
+ * Descricao : Decrementar o grau de entrada do vértice.    *
+ * Parametros: Sem parâmetros.                              *
+ * Retorno   : Sem retorno.                                 *
+ ***************/
 void Node::decrementInDegree()
 {
     this->inDegree--;
 }
+
+/****************
+ * Funcao    : void incrementInDegree()                     *
+ * Descricao : Decrementar o grau de saida do vértice.      *
+ * Parametros: Sem parâmetros.                              *
+ * Retorno   : Sem retorno.                                 *
+ ***************/
 void Node::decrementOutDegree()
 {
     this->outDegree--;
@@ -197,10 +250,13 @@ void Node::decrementOutDegree()
 
 // Métodos auxiliares
 //
-/*a partir de um vértice, avalia se existe aresta ligando a outro vértice alvo
- *em caso verdadeiro retorna a aresta
- *em caso falso retorna ponteiro nulo
- */
+
+/****************
+ * Funcao    : Edge getEdgeBetween(int targetId)                                                             *
+ * Descricao : A partir de um vértice, avalia se existe aresta ligando a outro vértice alvo por meio do id   *
+ * Parametros: targeId - id do vértice alvo.                                                                 *
+ * Retorno   : Retorna a aresta existente entre os vértices, caso exista                                     *
+ ***************/
 Edge *Node::getEdgeBetween(int targetId)
 {
     if (this == nullptr)
@@ -213,6 +269,13 @@ Edge *Node::getEdgeBetween(int targetId)
         }
     return nullptr;
 }
+
+/****************
+ * Funcao    : Edge getEdgeBetween(int targetLabel)                                                              *
+ * Descricao : A partir de um vértice, avalia se existe aresta ligando a outro vértice alvo por meio do label    *
+ * Parametros: targeLabel - label do vértice alvo.                                                               *
+ * Retorno   : Retorna a aresta existente entre os vértices, caso exista                                         *
+ ***************/
 Edge *Node::getEdgeBetweenLabel(int targetLabel)
 {
     if (this == nullptr)
@@ -226,6 +289,12 @@ Edge *Node::getEdgeBetweenLabel(int targetLabel)
     return nullptr;
 }
 
+/****************
+ * Funcao    : bool hasEdgeBetween(int targetId)                                                               *
+ * Descricao : A partir de um vértice, avalia se existe aresta ligando a outro vértice alvo por meio do id     *
+ * Parametros: targeId - id do vértice alvo.                                                                   *
+ * Retorno   : Retorna true caso a aresta exista                                                               *
+ ***************/
 bool Node::hasEdgeBetween(int targetId)
 {
     if (this == nullptr)
@@ -233,6 +302,13 @@ bool Node::hasEdgeBetween(int targetId)
     else
         return this->getEdgeBetween(targetId) != nullptr;
 }
+
+/****************
+ * Funcao    : bool hasEdgeBetween(int targetLabel)                                                              *
+ * Descricao : A partir de um vértice, avalia se existe aresta ligando a outro vértice alvo por meio do label    *
+ * Parametros: targetLabel - label do vértice alvo.                                                              *
+ * Retorno   : Retorna true caso a aresta exista                                                                 *
+ ***************/
 bool Node::hasEdgeBetweenLabel(int targetLabel)
 {
     if (this == nullptr)
@@ -241,6 +317,12 @@ bool Node::hasEdgeBetweenLabel(int targetLabel)
         return this->getEdgeBetweenLabel(targetLabel) != nullptr;
 }
 
+/****************
+ * Funcao    : float distanceToOtherNode(int targetId)                                                *
+ * Descricao : A partir de um vértice, captura o valor da distancia(aresta) até um vértice alvo       *
+ * Parametros: targeId - id do vértice alvo.                                                          *
+ * Retorno   : Retorna um float da distância (aresta) entre os dois vértic                            *
+ ***************/
 float Node::distanceToOtherNode(int targetId)
 {
     if (this->id == targetId)
@@ -252,6 +334,12 @@ float Node::distanceToOtherNode(int targetId)
         return FLT_MAX;
 }
 
+/****************
+ * Funcao    : list<SimpleEdge> distanceToConnectedNodes()                                                  *
+ * Descricao : A partir de um vértice, captura todas as informações das arestas conectadas a esse vértice   *
+ * Parametros: Sem parâmetros.                                                                              *
+ * Retorno   : Retorna uma lista de SimpleEdge                                                              *
+ ***************/
 list<SimpleEdge> Node::distanceToConnectedNodes()
 {
     list<SimpleEdge> connectedEdges;
