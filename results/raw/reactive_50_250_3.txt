@@ -1,0 +1,74 @@
+INSTANCIA 50_250_3
+
+EXECUCAO 1
+Custo: 212.000000
+Vertices: 7
+Tempo: 0.043714
+Semente: 670254546
+Melhor alfa: 0.050000
+
+EXECUCAO 2
+Custo: 207.000000
+Vertices: 7
+Tempo: 0.043560
+Semente: 670451155
+Melhor alfa: 0.050000
+
+EXECUCAO 3
+Custo: 212.000000
+Vertices: 7
+Tempo: 0.044916
+Semente: 670582227
+Melhor alfa: 0.050000
+
+EXECUCAO 4
+Custo: 208.000000
+Vertices: 7
+Tempo: 0.044400
+Semente: 670713299
+Melhor alfa: 0.050000
+
+EXECUCAO 5
+Custo: 208.000000
+Vertices: 7
+Tempo: 0.042746
+Semente: 670844371
+Melhor alfa: 0.050000
+
+EXECUCAO 6
+Custo: 212.000000
+Vertices: 7
+Tempo: 0.042609
+Semente: 670975443
+Melhor alfa: 0.050000
+
+EXECUCAO 7
+Custo: 212.000000
+Vertices: 7
+Tempo: 0.042627
+Semente: 671106515
+Melhor alfa: 0.050000
+
+EXECUCAO 8
+Custo: 212.000000
+Vertices: 7
+Tempo: 0.042843
+Semente: 671237587
+Melhor alfa: 0.050000
+
+EXECUCAO 9
+Custo: 212.000000
+Vertices: 7
+Tempo: 0.045012
+Semente: 671368659
+Melhor alfa: 0.050000
+
+EXECUCAO 10
+Custo: 207.000000
+Vertices: 7
+Tempo: 0.044681
+Semente: 671499731
+Melhor alfa: 0.050000
+
+=====
+

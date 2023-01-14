@@ -1,0 +1,194 @@
+INSTANCIA 100_250_3
+
+ALFA 0.15 =============
+
+EXECUCAO 1
+Custo: 763.000000
+Vertices: 25
+Tempo: 0.096116
+Semente: 600063775
+
+EXECUCAO 2
+Custo: 773.000000
+Vertices: 27
+Tempo: 0.088589
+Semente: 600194847
+
+EXECUCAO 3
+Custo: 780.000000
+Vertices: 27
+Tempo: 0.095118
+Semente: 600325919
+
+EXECUCAO 4
+Custo: 747.000000
+Vertices: 26
+Tempo: 0.093725
+Semente: 600456991
+
+EXECUCAO 5
+Custo: 753.000000
+Vertices: 26
+Tempo: 0.091704
+Semente: 600588063
+
+EXECUCAO 6
+Custo: 768.000000
+Vertices: 27
+Tempo: 0.093875
+Semente: 600719136
+
+EXECUCAO 7
+Custo: 747.000000
+Vertices: 26
+Tempo: 0.089684
+Semente: 600850208
+
+EXECUCAO 8
+Custo: 747.000000
+Vertices: 26
+Tempo: 0.093910
+Semente: 600981280
+
+EXECUCAO 9
+Custo: 751.000000
+Vertices: 26
+Tempo: 0.088662
+Semente: 601112352
+
+EXECUCAO 10
+Custo: 750.000000
+Vertices: 26
+Tempo: 0.092028
+Semente: 601243424
+
+=====
+
+ALFA 0.30 =============
+
+EXECUCAO 1
+Custo: 723.000000
+Vertices: 23
+Tempo: 0.095407
+Semente: 601374496
+
+EXECUCAO 2
+Custo: 786.000000
+Vertices: 27
+Tempo: 0.094193
+Semente: 601505568
+
+EXECUCAO 3
+Custo: 801.000000
+Vertices: 26
+Tempo: 0.094450
+Semente: 601636640
+
+EXECUCAO 4
+Custo: 778.000000
+Vertices: 26
+Tempo: 0.093748
+Semente: 601767712
+
+EXECUCAO 5
+Custo: 763.000000
+Vertices: 27
+Tempo: 0.096167
+Semente: 601898784
+
+EXECUCAO 6
+Custo: 804.000000
+Vertices: 27
+Tempo: 0.095165
+Semente: 602029857
+
+EXECUCAO 7
+Custo: 729.000000
+Vertices: 24
+Tempo: 0.090567
+Semente: 602160929
+
+EXECUCAO 8
+Custo: 803.000000
+Vertices: 26
+Tempo: 0.097882
+Semente: 602292001
+
+EXECUCAO 9
+Custo: 774.000000
+Vertices: 25
+Tempo: 0.096172
+Semente: 602423073
+
+EXECUCAO 10
+Custo: 785.000000
+Vertices: 27
+Tempo: 0.092992
+Semente: 602554145
+
+=====
+
+ALFA 0.50 =============
+
+EXECUCAO 1
+Custo: 827.000000
+Vertices: 26
+Tempo: 0.101662
+Semente: 602685217
+
+EXECUCAO 2
+Custo: 813.000000
+Vertices: 26
+Tempo: 0.101771
+Semente: 602816289
+
+EXECUCAO 3
+Custo: 810.000000
+Vertices: 26
+Tempo: 0.101719
+Semente: 602947361
+
+EXECUCAO 4
+Custo: 806.000000
+Vertices: 27
+Tempo: 0.106362
+Semente: 603078433
+
+EXECUCAO 5
+Custo: 848.000000
+Vertices: 27
+Tempo: 0.106019
+Semente: 603209505
+
+EXECUCAO 6
+Custo: 773.000000
+Vertices: 24
+Tempo: 0.108352
+Semente: 603340578
+
+EXECUCAO 7
+Custo: 833.000000
+Vertices: 28
+Tempo: 0.106357
+Semente: 603471650
+
+EXECUCAO 8
+Custo: 786.000000
+Vertices: 24
+Tempo: 0.107921
+Semente: 603602722
+
+EXECUCAO 9
+Custo: 830.000000
+Vertices: 27
+Tempo: 0.108634
+Semente: 603733794
+
+EXECUCAO 10
+Custo: 822.000000
+Vertices: 28
+Tempo: 0.106751
+Semente: 603864866
+
+=====
+

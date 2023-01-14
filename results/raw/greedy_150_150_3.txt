@@ -1,0 +1,7 @@
+INSTANCIA 150_150_3
+
+Custo: 1963.000000
+Vertices: 64
+Tempo: 0.001070
+=====
+

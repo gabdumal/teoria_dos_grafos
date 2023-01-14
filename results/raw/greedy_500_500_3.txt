@@ -1,0 +1,7 @@
+INSTANCIA 500_500_3
+
+Custo: 6437.000000
+Vertices: 216
+Tempo: 0.041983
+=====
+

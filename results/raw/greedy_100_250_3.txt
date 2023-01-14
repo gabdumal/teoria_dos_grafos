@@ -1,0 +1,7 @@
+INSTANCIA 100_250_3
+
+Custo: 879.000000
+Vertices: 30
+Tempo: 0.000196
+=====
+

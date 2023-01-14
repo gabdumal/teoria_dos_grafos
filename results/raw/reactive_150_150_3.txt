@@ -1,0 +1,74 @@
+INSTANCIA 150_150_3
+
+EXECUCAO 1
+Custo: 1815.000000
+Vertices: 60
+Tempo: 2.965517
+Semente: 674252251
+Melhor alfa: 0.050000
+
+EXECUCAO 2
+Custo: 1834.000000
+Vertices: 61
+Tempo: 2.964366
+Semente: 674383326
+Melhor alfa: 0.050000
+
+EXECUCAO 3
+Custo: 1831.000000
+Vertices: 61
+Tempo: 2.952092
+Semente: 674514401
+Melhor alfa: 0.050000
+
+EXECUCAO 4
+Custo: 1785.000000
+Vertices: 59
+Tempo: 2.992981
+Semente: 674645476
+Melhor alfa: 0.050000
+
+EXECUCAO 5
+Custo: 1812.000000
+Vertices: 61
+Tempo: 3.011394
+Semente: 674776550
+Melhor alfa: 0.050000
+
+EXECUCAO 6
+Custo: 1801.000000
+Vertices: 60
+Tempo: 3.038914
+Semente: 674907626
+Melhor alfa: 0.050000
+
+EXECUCAO 7
+Custo: 1836.000000
+Vertices: 61
+Tempo: 2.847485
+Semente: 675038701
+Melhor alfa: 0.050000
+
+EXECUCAO 8
+Custo: 1835.000000
+Vertices: 61
+Tempo: 3.032597
+Semente: 675169775
+Melhor alfa: 0.050000
+
+EXECUCAO 9
+Custo: 1836.000000
+Vertices: 61
+Tempo: 3.032643
+Semente: 675300850
+Melhor alfa: 0.050000
+
+EXECUCAO 10
+Custo: 1820.000000
+Vertices: 61
+Tempo: 3.057387
+Semente: 675431925
+Melhor alfa: 0.050000
+
+=====
+
